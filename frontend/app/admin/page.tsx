@@ -454,13 +454,7 @@ export default function AdminPage() {
       }
 
       // Check if there is any overlap
-      let hasOverlap = false;
-      for (const key of currentChampKeys) {
-        if (key && targetChampKeys.has(key)) {
-          hasOverlap = true;
-          break;
-        }
-      }
+      const hasOverlap = Array.from(currentChampKeys).some(key => key && targetChampKeys.has(key));
 
       if (!hasOverlap) {
         nonOverlappingKeys.push(targetComp.comp_key);
