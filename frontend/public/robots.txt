@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://49.212.178.111/sitemap.xml
+Sitemap: https://doubleup-gg.com/sitemap.xml
