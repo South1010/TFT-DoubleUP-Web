@@ -9,8 +9,6 @@ services:
     restart: always
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend/tft_doubleup.db:/app/tft_doubleup.db
     environment:
       - PYTHONUNBUFFERED=1
 
