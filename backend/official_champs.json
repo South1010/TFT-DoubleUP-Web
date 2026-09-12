@@ -1,0 +1,670 @@
+[
+  {
+    "id": "TFT_Voidspawn",
+    "name": "ヴォイドスポーン",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_Murkwolf",
+    "name": "マークウルフ",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_MurkwolfMini",
+    "name": "マークウルフ",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_Razorbeak",
+    "name": "レイザービーク",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_RazorbeakMini",
+    "name": "レイザービーク",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Singed",
+    "name": "シンジド",
+    "cost": 1,
+    "traits": [
+      "ケミ長者",
+      "センチネル"
+    ]
+  },
+  {
+    "id": "TFT13_RenataGlasc",
+    "name": "レナータ・グラスク",
+    "cost": 2,
+    "traits": [
+      "ケミ長者",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_Silco",
+    "name": "シルコ",
+    "cost": 4,
+    "traits": [
+      "ケミ長者",
+      "ドミネーター"
+    ]
+  },
+  {
+    "id": "TFT13_Camille",
+    "name": "カミール",
+    "cost": 2,
+    "traits": [
+      "執行官",
+      "伏兵"
+    ]
+  },
+  {
+    "id": "TFT13_Blitzcrank",
+    "name": "ブリッツクランク",
+    "cost": 3,
+    "traits": [
+      "オートマタ",
+      "ドミネーター"
+    ]
+  },
+  {
+    "id": "TFT13_Vi",
+    "name": "ヴァイ",
+    "cost": 4,
+    "traits": [
+      "執行官",
+      "ピットファイター"
+    ]
+  },
+  {
+    "id": "TFT13_Caitlyn",
+    "name": "ケイトリン",
+    "cost": 5,
+    "traits": [
+      "執行官",
+      "スナイパー"
+    ]
+  },
+  {
+    "id": "TFT13_Ekko",
+    "name": "エコー",
+    "cost": 4,
+    "traits": [
+      "ファイヤーライト",
+      "スクラップ",
+      "伏兵"
+    ]
+  },
+  {
+    "id": "TFT13_Amumu",
+    "name": "アムム",
+    "cost": 1,
+    "traits": [
+      "オートマタ",
+      "ウォッチャー"
+    ]
+  },
+  {
+    "id": "TFT13_Malzahar",
+    "name": "マルザハール",
+    "cost": 5,
+    "traits": [
+      "オートマタ",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_DrMundo",
+    "name": "ドクター・ムンド",
+    "cost": 4,
+    "traits": [
+      "エクスペリメント",
+      "ドミネーター"
+    ]
+  },
+  {
+    "id": "TFT13_Twitch",
+    "name": "トゥイッチ",
+    "cost": 4,
+    "traits": [
+      "エクスペリメント",
+      "スナイパー"
+    ]
+  },
+  {
+    "id": "TFT13_Akali",
+    "name": "アカリ",
+    "cost": 2,
+    "traits": [
+      "反逆者",
+      "韋駄天"
+    ]
+  },
+  {
+    "id": "TFT13_Sett",
+    "name": "セト",
+    "cost": 2,
+    "traits": [
+      "反逆者",
+      "ブルーザー",
+      "ピットファイター"
+    ]
+  },
+  {
+    "id": "TFT13_Ezreal",
+    "name": "エズリアル",
+    "cost": 3,
+    "traits": [
+      "アカデミー",
+      "反逆者",
+      "砲兵"
+    ]
+  },
+  {
+    "id": "TFT13_Illaoi",
+    "name": "イラオイ",
+    "cost": 4,
+    "traits": [
+      "反逆者",
+      "センチネル"
+    ]
+  },
+  {
+    "id": "TFT13_Draven",
+    "name": "ドレイヴン",
+    "cost": 1,
+    "traits": [
+      "征服者",
+      "ピットファイター"
+    ]
+  },
+  {
+    "id": "TFT13_Rell",
+    "name": "レル",
+    "cost": 2,
+    "traits": [
+      "征服者",
+      "センチネル",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_Cassiopeia",
+    "name": "カシオペア",
+    "cost": 3,
+    "traits": [
+      "黒薔薇団",
+      "ドミネーター"
+    ]
+  },
+  {
+    "id": "TFT13_Vladimir",
+    "name": "ブラッドミア",
+    "cost": 2,
+    "traits": [
+      "黒薔薇団",
+      "ウォッチャー",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_Elise",
+    "name": "エリス",
+    "cost": 4,
+    "traits": [
+      "黒薔薇団",
+      "フォームスワッパー",
+      "ブルーザー"
+    ]
+  },
+  {
+    "id": "TFT13_LeBlanc",
+    "name": "ルブラン",
+    "cost": 5,
+    "traits": [
+      "黒薔薇団",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_Heimerdinger",
+    "name": "ハイマーディンガー",
+    "cost": 4,
+    "traits": [
+      "アカデミー",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_Jayce",
+    "name": "ジェイス",
+    "cost": 5,
+    "traits": [
+      "アカデミー",
+      "フォームスワッパー"
+    ]
+  },
+  {
+    "id": "TFT13_Trundle",
+    "name": "トランドル",
+    "cost": 1,
+    "traits": [
+      "スクラップ",
+      "ブルーザー"
+    ]
+  },
+  {
+    "id": "TFT13_Ziggs",
+    "name": "ジグス",
+    "cost": 2,
+    "traits": [
+      "スクラップ",
+      "ドミネーター"
+    ]
+  },
+  {
+    "id": "TFT13_Rumble",
+    "name": "ランブル",
+    "cost": 5,
+    "traits": [
+      "ジャンク王",
+      "スクラップ",
+      "センチネル"
+    ]
+  },
+  {
+    "id": "TFT13_Gremlin",
+    "name": "スミーチ",
+    "cost": 3,
+    "traits": [
+      "ケミ長者",
+      "伏兵"
+    ]
+  },
+  {
+    "id": "TFT13_Lieutenant",
+    "name": "セヴィカ",
+    "cost": 5,
+    "traits": [
+      "ギャンブラー",
+      "ケミ長者",
+      "ピットファイター"
+    ]
+  },
+  {
+    "id": "TFT13_Chainsaw",
+    "name": "レニー",
+    "cost": 3,
+    "traits": [
+      "ケミ長者",
+      "ブルーザー"
+    ]
+  },
+  {
+    "id": "TFT13_Beardy",
+    "name": "ロリス",
+    "cost": 3,
+    "traits": [
+      "執行官",
+      "センチネル"
+    ]
+  },
+  {
+    "id": "TFT13_Fish",
+    "name": "ステブ",
+    "cost": 1,
+    "traits": [
+      "執行官",
+      "ブルーザー"
+    ]
+  },
+  {
+    "id": "TFT13_Shooter",
+    "name": "マディー",
+    "cost": 1,
+    "traits": [
+      "執行官",
+      "スナイパー"
+    ]
+  },
+  {
+    "id": "TFT13_Blue",
+    "name": "パウダー",
+    "cost": 1,
+    "traits": [
+      "ファミリー",
+      "スクラップ",
+      "伏兵"
+    ]
+  },
+  {
+    "id": "TFT13_Prime",
+    "name": "ヴァンダー",
+    "cost": 2,
+    "traits": [
+      "ファミリー",
+      "ウォッチャー"
+    ]
+  },
+  {
+    "id": "TFT13_FlyGuy",
+    "name": "スカー",
+    "cost": 3,
+    "traits": [
+      "ファイヤーライト",
+      "ウォッチャー"
+    ]
+  },
+  {
+    "id": "TFT13_NunuWillump",
+    "name": "ヌヌ＆ウィルンプ",
+    "cost": 3,
+    "traits": [
+      "エクスペリメント",
+      "ブルーザー",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_Jinx",
+    "name": "ジンクス",
+    "cost": 5,
+    "traits": [
+      "反逆者",
+      "伏兵"
+    ]
+  },
+  {
+    "id": "TFT13_Zeri",
+    "name": "ゼリ",
+    "cost": 2,
+    "traits": [
+      "ファイヤーライト",
+      "スナイパー"
+    ]
+  },
+  {
+    "id": "TFT13_Red",
+    "name": "ヴァイオレット",
+    "cost": 1,
+    "traits": [
+      "ファミリー",
+      "ピットファイター"
+    ]
+  },
+  {
+    "id": "TFT13_Nami",
+    "name": "ナミ",
+    "cost": 3,
+    "traits": [
+      "使者",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_Corki",
+    "name": "コーキ",
+    "cost": 4,
+    "traits": [
+      "スクラップ",
+      "砲兵"
+    ]
+  },
+  {
+    "id": "TFT13_HoverboardProp",
+    "name": "アフェリオス タワー",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_EliseSpider",
+    "name": "エリス(蜘蛛形態)",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Garen",
+    "name": "ガレン",
+    "cost": 4,
+    "traits": [
+      "使者",
+      "ウォッチャー"
+    ]
+  },
+  {
+    "id": "TFT13_Vex",
+    "name": "ヴェックス",
+    "cost": 1,
+    "traits": [
+      "反逆者",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_Nocturne",
+    "name": "ノクターン",
+    "cost": 2,
+    "traits": [
+      "オートマタ",
+      "韋駄天"
+    ]
+  },
+  {
+    "id": "TFT13_Darius",
+    "name": "ダリウス",
+    "cost": 1,
+    "traits": [
+      "征服者",
+      "ウォッチャー"
+    ]
+  },
+  {
+    "id": "TFT13_Irelia",
+    "name": "イレリア",
+    "cost": 1,
+    "traits": [
+      "反逆者",
+      "センチネル"
+    ]
+  },
+  {
+    "id": "TFT13_Sion",
+    "name": "サイオン",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Ambessa",
+    "name": "アンベッサ",
+    "cost": 4,
+    "traits": [
+      "使者",
+      "征服者",
+      "韋駄天"
+    ]
+  },
+  {
+    "id": "TFT13_Silco_Monstrosity",
+    "name": "SRU_Horde_Mini",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Zyra",
+    "name": "ザイラ",
+    "cost": 1,
+    "traits": [
+      "エクスペリメント",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_EliseSpiderling",
+    "name": "EliseSpiderling",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Blue_Monkey",
+    "name": "Blue_Monkey",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Gangplank",
+    "name": "ガングプランク",
+    "cost": 3,
+    "traits": [
+      "スクラップ",
+      "フォームスワッパー",
+      "ピットファイター"
+    ]
+  },
+  {
+    "id": "TFT13_Leona",
+    "name": "レオナ",
+    "cost": 2,
+    "traits": [
+      "アカデミー",
+      "センチネル"
+    ]
+  },
+  {
+    "id": "TFT13_KogMaw",
+    "name": "コグ＝マウ",
+    "cost": 3,
+    "traits": [
+      "オートマタ",
+      "スナイパー"
+    ]
+  },
+  {
+    "id": "TFT13_TwistedFate",
+    "name": "ツイステッド・フェイト",
+    "cost": 3,
+    "traits": [
+      "執行官",
+      "韋駄天"
+    ]
+  },
+  {
+    "id": "TFT13_Lux",
+    "name": "ラックス",
+    "cost": 1,
+    "traits": [
+      "アカデミー",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_Mordekaiser",
+    "name": "モルデカイザー",
+    "cost": 5,
+    "traits": [
+      "征服者",
+      "ドミネーター"
+    ]
+  },
+  {
+    "id": "TFT13_Morgana",
+    "name": "モルガナ",
+    "cost": 1,
+    "traits": [
+      "黒薔薇団",
+      "ビジョナリー"
+    ]
+  },
+  {
+    "id": "TFT13_Tristana",
+    "name": "トリスターナ",
+    "cost": 2,
+    "traits": [
+      "使者",
+      "砲兵"
+    ]
+  },
+  {
+    "id": "TFT13_Swain",
+    "name": "スウェイン",
+    "cost": 3,
+    "traits": [
+      "征服者",
+      "フォームスワッパー",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_SwainDemonForm",
+    "name": "SwainDemonForm",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT13_Urgot",
+    "name": "アーゴット",
+    "cost": 2,
+    "traits": [
+      "エクスペリメント",
+      "ピットファイター",
+      "砲兵"
+    ]
+  },
+  {
+    "id": "TFT13_Zoe",
+    "name": "ゾーイ",
+    "cost": 4,
+    "traits": [
+      "反逆者",
+      "ソーサラー"
+    ]
+  },
+  {
+    "id": "TFT13_JayceSummon",
+    "name": "ヘクステックフォージ",
+    "cost": 11,
+    "traits": []
+  },
+  {
+    "id": "TFT5_EmblemArmoryKey",
+    "name": "特性の書",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeyCompleted",
+    "name": "完成アイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeyComponent",
+    "name": "素材アイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeyOrnn",
+    "name": "アーティファクトアイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeySupport",
+    "name": "サポートアイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT6_MercenaryChest",
+    "name": "マーセナリーの宝箱",
+    "cost": 11,
+    "traits": []
+  }
+]

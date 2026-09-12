@@ -1,0 +1,707 @@
+[
+  {
+    "id": "TFT_Voidspawn",
+    "name": "ヴォイドスポーン",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_Murkwolf",
+    "name": "マークウルフ",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_MurkwolfMini",
+    "name": "マークウルフ",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_Razorbeak",
+    "name": "レイザービーク",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "TFT_RazorbeakMini",
+    "name": "レイザービーク",
+    "cost": 1,
+    "traits": []
+  },
+  {
+    "id": "DA_Gromp18_AP",
+    "name": "グロンプ",
+    "cost": 2,
+    "traits": [
+      "リフトビースト",
+      "アダプター"
+    ]
+  },
+  {
+    "id": "DA_Murkwolf18",
+    "name": "マークウルフ",
+    "cost": 2,
+    "traits": [
+      "リフトビースト",
+      "ラヴィジャー"
+    ]
+  },
+  {
+    "id": "DA_Cinderling18",
+    "name": "シンダーリング",
+    "cost": 1,
+    "traits": [
+      "リフトビースト",
+      "ハンター"
+    ]
+  },
+  {
+    "id": "DA_Scuttlecrab18",
+    "name": "スカトルクラブ",
+    "cost": 2,
+    "traits": [
+      "リフトビースト",
+      "ジャガーノート"
+    ]
+  },
+  {
+    "id": "DA_Sentinel18",
+    "name": "センチネル",
+    "cost": 4,
+    "traits": [
+      "リフトビースト",
+      "ヴァンガード",
+      "インヴォーカー"
+    ]
+  },
+  {
+    "id": "DA_Brambleback18",
+    "name": "ブランブルバック",
+    "cost": 4,
+    "traits": [
+      "リフトビースト",
+      "ラヴィジャー"
+    ]
+  },
+  {
+    "id": "DA_18_Xayah",
+    "name": "ザヤ",
+    "cost": 1,
+    "traits": [
+      "エルダーウッド",
+      "フェイ",
+      "ラピッドファイア"
+    ]
+  },
+  {
+    "id": "DA_18_Ornn",
+    "name": "オーン",
+    "cost": 1,
+    "traits": [
+      "エルダーウッド",
+      "ディフェンダー"
+    ]
+  },
+  {
+    "id": "DA_Nidalee18_AP",
+    "name": "ニダリー",
+    "cost": 4,
+    "traits": [
+      "プライマル",
+      "アダプター"
+    ]
+  },
+  {
+    "id": "DA_18_Hecarim",
+    "name": "ヘカリム",
+    "cost": 3,
+    "traits": [
+      "エルダーウッド",
+      "ヴァンガード"
+    ]
+  },
+  {
+    "id": "DA_18_Ezreal",
+    "name": "エズリアル",
+    "cost": 4,
+    "traits": [
+      "エルダーウッド",
+      "エクセキューショナー"
+    ]
+  },
+  {
+    "id": "DA_18_Azir",
+    "name": "アジール",
+    "cost": 3,
+    "traits": [
+      "ブラックソーン",
+      "エクセキューショナー",
+      "サモナー"
+    ]
+  },
+  {
+    "id": "DA_18_RekSai",
+    "name": "レク＝サイ",
+    "cost": 1,
+    "traits": [
+      "ブラックソーン",
+      "ブローラー"
+    ]
+  },
+  {
+    "id": "DA_18_Veigar",
+    "name": "ベイガー",
+    "cost": 1,
+    "traits": [
+      "ブラックソーン",
+      "スプライキン",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_Maokai",
+    "name": "マオカイ",
+    "cost": 5,
+    "traits": [
+      "原生林",
+      "ジャガーノート"
+    ]
+  },
+  {
+    "id": "DA_18_Malphite",
+    "name": "マルファイト",
+    "cost": 4,
+    "traits": [
+      "ブラックソーン",
+      "モノリス"
+    ]
+  },
+  {
+    "id": "DA_18_Yorick",
+    "name": "ヨリック",
+    "cost": 1,
+    "traits": [
+      "ブロッサム",
+      "ジャガーノート",
+      "サモナー"
+    ]
+  },
+  {
+    "id": "DA_18_Yunara",
+    "name": "ユナラ",
+    "cost": 2,
+    "traits": [
+      "ブロッサム",
+      "エクセキューショナー"
+    ]
+  },
+  {
+    "id": "DA_18_Sett",
+    "name": "セト",
+    "cost": 4,
+    "traits": [
+      "ブロッサム",
+      "ブローラー"
+    ]
+  },
+  {
+    "id": "DA_18_Ahri",
+    "name": "アーリ",
+    "cost": 4,
+    "traits": [
+      "ブロッサム",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_Ashe",
+    "name": "アッシュ",
+    "cost": 5,
+    "traits": [
+      "ブロッサム",
+      "ハンター"
+    ]
+  },
+  {
+    "id": "DA_18_Elise",
+    "name": "エリス",
+    "cost": 2,
+    "traits": [
+      "魔女",
+      "ヴァンガード"
+    ]
+  },
+  {
+    "id": "DA_18_Caitlyn",
+    "name": "ケイトリン",
+    "cost": 2,
+    "traits": [
+      "魔女",
+      "ハンター"
+    ]
+  },
+  {
+    "id": "DA_18_Cassiopeia",
+    "name": "カシオペア",
+    "cost": 3,
+    "traits": [
+      "魔女",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_Morgana",
+    "name": "モルガナ",
+    "cost": 4,
+    "traits": [
+      "魔女",
+      "インヴォーカー"
+    ]
+  },
+  {
+    "id": "DA_18_Rakan",
+    "name": "ラカン",
+    "cost": 1,
+    "traits": [
+      "フェイ",
+      "ジャガーノート",
+      "ヴァンガード"
+    ]
+  },
+  {
+    "id": "DA_18_Lillia",
+    "name": "リリア",
+    "cost": 4,
+    "traits": [
+      "フェイ",
+      "ディフェンダー"
+    ]
+  },
+  {
+    "id": "DA_18_Kobuko",
+    "name": "コブコ",
+    "cost": 1,
+    "traits": [
+      "スプライキン",
+      "ブローラー"
+    ]
+  },
+  {
+    "id": "DA_18_Teemo",
+    "name": "ティーモ",
+    "cost": 2,
+    "traits": [
+      "スプライキン",
+      "インヴォーカー"
+    ]
+  },
+  {
+    "id": "DA_18_Rammus",
+    "name": "ラムス",
+    "cost": 3,
+    "traits": [
+      "スプライキン",
+      "ディフェンダー"
+    ]
+  },
+  {
+    "id": "DA_18_GnarSmall",
+    "name": "ナー",
+    "cost": 5,
+    "traits": [
+      "エルダーウッド",
+      "スプライキン",
+      "ブローラー"
+    ]
+  },
+  {
+    "id": "DA_18_Tristana",
+    "name": "トリスターナ",
+    "cost": 3,
+    "traits": [
+      "フェイ",
+      "スプライキン",
+      "ハンター"
+    ]
+  },
+  {
+    "id": "DA_18_Sivir",
+    "name": "シヴィア",
+    "cost": 4,
+    "traits": [
+      "プライマル",
+      "ハンター"
+    ]
+  },
+  {
+    "id": "DA_Vi18",
+    "name": "ヴァイ",
+    "cost": 3,
+    "traits": [
+      "プライマル",
+      "ジャガーノート"
+    ]
+  },
+  {
+    "id": "DA_18_Akali_AD",
+    "name": "アカリ",
+    "cost": 1,
+    "traits": [
+      "インフェルノ",
+      "アダプター",
+      "ラヴィジャー"
+    ]
+  },
+  {
+    "id": "DA_18_Varus",
+    "name": "ヴァルス",
+    "cost": 1,
+    "traits": [
+      "インフェルノ",
+      "ラピッドファイア"
+    ]
+  },
+  {
+    "id": "DA_Amumu18",
+    "name": "アムム",
+    "cost": 4,
+    "traits": [
+      "インフェルノ",
+      "ジャガーノート"
+    ]
+  },
+  {
+    "id": "DA_18_Kennen",
+    "name": "ケネン",
+    "cost": 5,
+    "traits": [
+      "インフェルノ",
+      "エクセキューショナー"
+    ]
+  },
+  {
+    "id": "DA_18_Aphelios",
+    "name": "アフェリオス",
+    "cost": 4,
+    "traits": [
+      "ルナー",
+      "ラピッドファイア"
+    ]
+  },
+  {
+    "id": "DA_18_Diana",
+    "name": "ダイアナ",
+    "cost": 3,
+    "traits": [
+      "ルナー",
+      "ラヴィジャー",
+      "ヴァンガード"
+    ]
+  },
+  {
+    "id": "DA_18_Alune",
+    "name": "アルーン",
+    "cost": 5,
+    "traits": [
+      "同調",
+      "ルナー",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_Leona",
+    "name": "レオナ",
+    "cost": 1,
+    "traits": [
+      "ソーラー",
+      "ディフェンダー"
+    ]
+  },
+  {
+    "id": "DA_18_Kayle",
+    "name": "ケイル",
+    "cost": 2,
+    "traits": [
+      "ソーラー",
+      "ラピッドファイア"
+    ]
+  },
+  {
+    "id": "DA_18_Sejuani",
+    "name": "セジュアニ",
+    "cost": 2,
+    "traits": [
+      "ソーラー",
+      "ジャガーノート"
+    ]
+  },
+  {
+    "id": "DA_18_KhaZix",
+    "name": "カ＝ジックス",
+    "cost": 3,
+    "traits": [
+      "ライバル"
+    ]
+  },
+  {
+    "id": "DA_18_Rengar",
+    "name": "レンガー",
+    "cost": 3,
+    "traits": [
+      "ライバル"
+    ]
+  },
+  {
+    "id": "DA_KogMaw18_AD",
+    "name": "コグ＝マウ",
+    "cost": 3,
+    "traits": [
+      "腐敗",
+      "アダプター",
+      "インヴォーカー"
+    ]
+  },
+  {
+    "id": "DA_18_Zyra",
+    "name": "ザイラ",
+    "cost": 4,
+    "traits": [
+      "ソーンメイデン",
+      "サモナー"
+    ]
+  },
+  {
+    "id": "DA_Fiddlesticks18",
+    "name": "フィドルスティックス",
+    "cost": 3,
+    "traits": [
+      "フローラ・ファターリス",
+      "ディフェンダー",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_Soraka",
+    "name": "ソラカ",
+    "cost": 4,
+    "traits": [
+      "フローラ・ファターリス",
+      "エクセキューショナー"
+    ]
+  },
+  {
+    "id": "DA_Taric18",
+    "name": "タリック",
+    "cost": 5,
+    "traits": [
+      "エメラルドの神髄",
+      "ヴァンガード"
+    ]
+  },
+  {
+    "id": "DA_18_Ivern",
+    "name": "アイバーン",
+    "cost": 5,
+    "traits": [
+      "翠の父"
+    ]
+  },
+  {
+    "id": "DA_Lux18_Base",
+    "name": "ラックス",
+    "cost": 5,
+    "traits": [
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Alistar",
+    "name": "アリスター",
+    "cost": 2,
+    "traits": [
+      "エルダーウッド",
+      "ブローラー"
+    ]
+  },
+  {
+    "id": "DA_Draven18",
+    "name": "ドレイヴン",
+    "cost": 5,
+    "traits": [
+      "バウンティーシーカー"
+    ]
+  },
+  {
+    "id": "DA_Karma18",
+    "name": "カルマ",
+    "cost": 1,
+    "traits": [
+      "ブロッサム",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_LeBlanc",
+    "name": "ルブラン",
+    "cost": 2,
+    "traits": [
+      "エルダーウッド",
+      "スペルウィーバー"
+    ]
+  },
+  {
+    "id": "DA_18_MasterYi_AD",
+    "name": "マスター・イー",
+    "cost": 3,
+    "traits": [
+      "ブロッサム",
+      "アダプター"
+    ]
+  },
+  {
+    "id": "DA_18_Shen",
+    "name": "シェン",
+    "cost": 2,
+    "traits": [
+      "インフェルノ",
+      "ディフェンダー"
+    ]
+  },
+  {
+    "id": "DA_18_Warwick",
+    "name": "ワーウィック",
+    "cost": 2,
+    "traits": [
+      "ブラックソーン",
+      "ラヴィジャー"
+    ]
+  },
+  {
+    "id": "DA_18_Camille",
+    "name": "カミール",
+    "cost": 1,
+    "traits": [
+      "魔女",
+      "ラヴィジャー"
+    ]
+  },
+  {
+    "id": "DA_Lux18_Blackthorn",
+    "name": "ラックス (ブラックソーン)",
+    "cost": 5,
+    "traits": [
+      "ブラックソーン",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_Lux18_Blossom",
+    "name": "ラックス (ブロッサム)",
+    "cost": 5,
+    "traits": [
+      "ブロッサム",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Lux_Coven",
+    "name": "ラックス (魔女)",
+    "cost": 5,
+    "traits": [
+      "魔女",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Lux_Fae",
+    "name": "ラックス (フェイ)",
+    "cost": 5,
+    "traits": [
+      "フェイ",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Lux_Inferno",
+    "name": "ラックス (インフェルノ)",
+    "cost": 5,
+    "traits": [
+      "インフェルノ",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Lux_Moonbeam",
+    "name": "ラックス (ルナー)",
+    "cost": 5,
+    "traits": [
+      "ルナー",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Lux_Primal",
+    "name": "ラックス (プライマル)",
+    "cost": 5,
+    "traits": [
+      "プライマル",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_18_Lux_Sunbeam",
+    "name": "ラックス (ソーラー)",
+    "cost": 5,
+    "traits": [
+      "ソーラー",
+      "アバター"
+    ]
+  },
+  {
+    "id": "DA_CrimsonRaptor18",
+    "name": "ママ鳥",
+    "cost": 3,
+    "traits": [
+      "リフトビースト",
+      "サモナー",
+      "ラピッドファイア"
+    ]
+  },
+  {
+    "id": "TFT5_EmblemArmoryKey",
+    "name": "特性の書",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeyCompleted",
+    "name": "完成アイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeyComponent",
+    "name": "素材アイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeyOrnn",
+    "name": "アーティファクトアイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT_ArmoryKeySupport",
+    "name": "サポートアイテムの金床",
+    "cost": 8,
+    "traits": []
+  },
+  {
+    "id": "TFT6_MercenaryChest",
+    "name": "マーセナリーの宝箱",
+    "cost": 11,
+    "traits": []
+  }
+]
