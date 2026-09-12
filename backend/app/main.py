@@ -67,8 +67,13 @@ def on_startup():
     init_db()
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM aggregated_comps WHERE is_custom != 1 OR is_custom IS NULL")
+    cursor.execute("UPDATE aggregated_comps SET is_custom = 1 WHERE is_custom IS NULL OR is_custom = 0")
+    cursor.execute("SELECT COUNT(*) as cnt FROM aggregated_comps WHERE is_custom = 1")
+    row = cursor.fetchone()
+    if not row or row["cnt"] == 0:
+        seed_sample_data()
     _sync_all_bidirectional_partners(cursor)
+    _normalize_display_orders(cursor)
     conn.commit()
     conn.close()
 
