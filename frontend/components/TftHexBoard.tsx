@@ -3,7 +3,7 @@
 import React from 'react';
 import ItemIcon from './ItemIcon';
 import { UnitDetail } from '../utils/compTypes';
-import { getChampion, getChampionIcon, getChampionName, getItemIcon } from '../utils/setMaster';
+import { getChampion, getChampionIcon, getChampionName, getItemIcon, CHAMP_COST_MAP } from '../utils/setMaster';
 
 interface TftHexBoardProps {
   units: UnitDetail[];
@@ -47,9 +47,51 @@ export default function TftHexBoard({
       );
     });
 
+  // Robustly resolve champion unit cost (1-5) even if cost is string, missing, or unparsed
+  const resolveUnitCost = (unit?: UnitDetail | null): number => {
+    if (!unit) return 1;
+
+    // 1. Direct unit.cost if valid number
+    const parsedUnitCost = Number(unit.cost);
+    if (!isNaN(parsedUnitCost) && parsedUnitCost >= 1 && parsedUnitCost <= 5) {
+      return parsedUnitCost;
+    }
+
+    // 2. Lookup champ from master data
+    const idOrName = unit.id || unit.name;
+    const champMaster = getChampion(idOrName);
+    const parsedMasterCost = Number(champMaster?.cost);
+    if (!isNaN(parsedMasterCost) && parsedMasterCost >= 1 && parsedMasterCost <= 5) {
+      return parsedMasterCost;
+    }
+
+    // 3. Fallback direct map lookup in CHAMP_COST_MAP
+    const cleanIdOrName = (idOrName || '')
+      .replace(/^(TFT18_|DA_18_|DA_|TFT_)/i, '')
+      .replace(/(_AD|_AP|Small|Base)$/i, '')
+      .trim();
+
+    const displayName = getChampionName(idOrName);
+
+    const mapCost =
+      CHAMP_COST_MAP[unit.name] ||
+      CHAMP_COST_MAP[unit.id] ||
+      CHAMP_COST_MAP[cleanIdOrName] ||
+      CHAMP_COST_MAP[cleanIdOrName.toLowerCase()] ||
+      CHAMP_COST_MAP[displayName] ||
+      CHAMP_COST_MAP[displayName.toLowerCase()];
+
+    if (mapCost) {
+      return Number(mapCost);
+    }
+
+    return 1;
+  };
+
   // Helper for Cost Border Colors (OP.GG Style)
-  const getCostBorderGradient = (cost: number) => {
-    switch (cost) {
+  const getCostBorderGradient = (cost: number | string) => {
+    const c = Number(cost);
+    switch (c) {
       case 5:
         return 'from-amber-300 via-amber-400 to-amber-500 shadow-amber-500/30';
       case 4:
@@ -58,14 +100,16 @@ export default function TftHexBoard({
         return 'from-cyan-300 via-sky-400 to-blue-500 shadow-cyan-500/30';
       case 2:
         return 'from-emerald-300 via-emerald-400 to-green-500 shadow-emerald-500/30';
+      case 1:
       default:
         return 'from-slate-400 via-slate-500 to-slate-600 shadow-slate-500/20';
     }
   };
 
   // Helper for Star Color matching Champion Cost
-  const getStarColorStyle = (cost: number) => {
-    switch (cost) {
+  const getStarColorStyle = (cost: number | string) => {
+    const c = Number(cost);
+    switch (c) {
       case 5:
         return 'text-amber-400';
       case 4:
@@ -74,8 +118,9 @@ export default function TftHexBoard({
         return 'text-cyan-400';
       case 2:
         return 'text-emerald-400';
+      case 1:
       default:
-        return 'text-slate-200';
+        return 'text-slate-300';
     }
   };
 
@@ -140,7 +185,7 @@ export default function TftHexBoard({
               {cols.map((colIdx) => {
                 const unit = unitsMap[`${rowIdx}_${colIdx}`];
                 const champMaster = unit ? getChampion(unit.id || unit.name) : null;
-                const displayCost = unit?.cost || champMaster?.cost || 1;
+                const displayCost = resolveUnitCost(unit);
                 const unitIcon = unit
                   ? unit.icon || champMaster?.icon || getChampionIcon(unit.id || unit.name)
                   : null;
