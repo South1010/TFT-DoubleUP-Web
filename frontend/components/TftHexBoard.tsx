@@ -88,21 +88,21 @@ export default function TftHexBoard({
     return 1;
   };
 
-  // Helper for Cost Border Colors (OP.GG Style)
+  // Helper for Cost Border Colors (OP.GG Style with High-Visibility Glow)
   const getCostBorderGradient = (cost: number | string) => {
     const c = Number(cost);
     switch (c) {
       case 5:
-        return 'from-amber-300 via-amber-400 to-amber-500 shadow-amber-500/30';
+        return 'bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.85)] ring-1 ring-amber-300/80';
       case 4:
-        return 'from-purple-400 via-purple-500 to-indigo-600 shadow-purple-500/30';
+        return 'bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-600 shadow-[0_0_12px_rgba(168,85,247,0.85)] ring-1 ring-purple-300/80';
       case 3:
-        return 'from-cyan-300 via-sky-400 to-blue-500 shadow-cyan-500/30';
+        return 'bg-gradient-to-br from-cyan-300 via-sky-400 to-blue-500 shadow-[0_0_12px_rgba(6,182,212,0.85)] ring-1 ring-cyan-300/80';
       case 2:
-        return 'from-emerald-300 via-emerald-400 to-green-500 shadow-emerald-500/30';
+        return 'bg-gradient-to-br from-emerald-300 via-emerald-400 to-green-500 shadow-[0_0_12px_rgba(16,185,129,0.85)] ring-1 ring-emerald-300/80';
       case 1:
       default:
-        return 'from-slate-400 via-slate-500 to-slate-600 shadow-slate-500/20';
+        return 'bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500 shadow-[0_0_8px_rgba(148,163,184,0.5)] ring-1 ring-slate-300/60';
     }
   };
 
@@ -111,16 +111,16 @@ export default function TftHexBoard({
     const c = Number(cost);
     switch (c) {
       case 5:
-        return 'text-amber-400';
+        return 'text-amber-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
       case 4:
-        return 'text-purple-400';
+        return 'text-purple-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
       case 3:
-        return 'text-cyan-400';
+        return 'text-cyan-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
       case 2:
-        return 'text-emerald-400';
+        return 'text-emerald-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
       case 1:
       default:
-        return 'text-slate-300';
+        return 'text-slate-200 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
     }
   };
 
@@ -130,20 +130,14 @@ export default function TftHexBoard({
 
     const starColorClass = getStarColorStyle(cost);
     const outlineStyle =
-      '[-webkit-text-stroke:1.5px_#000] [paint-order:stroke_fill] drop-shadow-[0_2px_4px_rgba(0,0,0,1)]';
+      '[-webkit-text-stroke:0.8px_#000] [-webkit-text-fill-color:currentColor] font-black leading-none';
 
     if (starCount === 3) {
       return (
         <div className="absolute top-1.5 inset-x-0 z-20 flex items-center justify-center gap-0.5 pointer-events-none">
-          <span className={`text-[15px] ${starColorClass} ${outlineStyle} font-black leading-none`}>
-            ★
-          </span>
-          <span className={`text-[15px] ${starColorClass} ${outlineStyle} font-black leading-none`}>
-            ★
-          </span>
-          <span className={`text-[15px] ${starColorClass} ${outlineStyle} font-black leading-none`}>
-            ★
-          </span>
+          <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
+          <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
+          <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
         </div>
       );
     }
@@ -151,12 +145,8 @@ export default function TftHexBoard({
     // 2-Star
     return (
       <div className="absolute top-1.5 inset-x-0 z-20 flex items-center justify-center gap-0.5 pointer-events-none">
-        <span className={`text-[15px] ${starColorClass} ${outlineStyle} font-black leading-none`}>
-          ★
-        </span>
-        <span className={`text-[15px] ${starColorClass} ${outlineStyle} font-black leading-none`}>
-          ★
-        </span>
+        <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
+        <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
       </div>
     );
   };
@@ -199,7 +189,7 @@ export default function TftHexBoard({
                     return 'bg-gradient-to-br from-red-600 via-rose-600 to-crimson-600 shadow-[0_0_18px_rgba(225,29,72,0.95)] animate-pulse ring-2 ring-rose-400';
                   }
                   if (unit) {
-                    return `bg-gradient-to-br ${getCostBorderGradient(displayCost)} shadow-md`;
+                    return `${getCostBorderGradient(displayCost)} shadow-md`;
                   }
                   return isDark ? 'bg-slate-700/80' : 'bg-sky-200/90';
                 };
@@ -225,7 +215,7 @@ export default function TftHexBoard({
                   >
                     {/* Outer Pointy-Topped Hexagon (Cost Border Gradient / Bloodthorns Sacrifice Border) */}
                     <div
-                      className={`w-full h-full p-[3px] transition-all duration-200 ${hexClipPath} ${getBorderClass()}`}
+                      className={`w-full h-full p-[3.5px] transition-all duration-200 ${hexClipPath} ${getBorderClass()}`}
                     >
                       {/* Inner Pointy-Topped Hexagon Container */}
                       <div
