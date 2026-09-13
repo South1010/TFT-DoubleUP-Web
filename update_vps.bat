@@ -15,7 +15,7 @@ git push origin main
 
 echo.
 echo [2/3] Connecting to VPS, pulling latest code, and building without cache...
-ssh -t ubuntu@49.212.178.111 "cd ~/app && git pull && sudo docker compose build --no-cache && sudo docker compose up -d"
+ssh -t ubuntu@49.212.178.111 "cd ~/app && git pull && sudo docker compose down && sudo docker compose build --no-cache && sudo docker compose up -d --force-recreate"
 
 echo.
 echo ===================================================
