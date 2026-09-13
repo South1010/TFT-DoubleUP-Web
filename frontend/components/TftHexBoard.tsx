@@ -47,42 +47,43 @@ export default function TftHexBoard({
       );
     });
 
-  // Robustly resolve champion unit cost (1-5) even if cost is string, missing, or unparsed
+  // Robustly resolve champion unit cost (1-5) even if cost is missing, string, or set to 1 in DB
   const resolveUnitCost = (unit?: UnitDetail | null): number => {
     if (!unit) return 1;
 
-    // 1. Direct unit.cost if valid number
-    const parsedUnitCost = Number(unit.cost);
-    if (!isNaN(parsedUnitCost) && parsedUnitCost >= 1 && parsedUnitCost <= 5) {
-      return parsedUnitCost;
+    const idOrName = unit.id || unit.name || '';
+    const cleanIdOrName = idOrName
+      .replace(/^(TFT18_|DA_18_|DA_|TFT_)/i, '')
+      .replace(/(_AD|_AP|Small|Base)$/i, '')
+      .replace(/\d+$/g, '')
+      .trim();
+
+    const displayName = getChampionName(idOrName);
+
+    // 1. Authoritative lookup in Set 18 CHAMP_COST_MAP
+    const mapCost =
+      CHAMP_COST_MAP[unit.name || ''] ||
+      CHAMP_COST_MAP[unit.id || ''] ||
+      CHAMP_COST_MAP[cleanIdOrName] ||
+      CHAMP_COST_MAP[cleanIdOrName.toLowerCase()] ||
+      CHAMP_COST_MAP[displayName] ||
+      CHAMP_COST_MAP[displayName.toLowerCase()];
+
+    if (mapCost && !isNaN(Number(mapCost))) {
+      return Number(mapCost);
     }
 
-    // 2. Lookup champ from master data
-    const idOrName = unit.id || unit.name;
+    // 2. Lookup champ from master data (getChampion)
     const champMaster = getChampion(idOrName);
     const parsedMasterCost = Number(champMaster?.cost);
     if (!isNaN(parsedMasterCost) && parsedMasterCost >= 1 && parsedMasterCost <= 5) {
       return parsedMasterCost;
     }
 
-    // 3. Fallback direct map lookup in CHAMP_COST_MAP
-    const cleanIdOrName = (idOrName || '')
-      .replace(/^(TFT18_|DA_18_|DA_|TFT_)/i, '')
-      .replace(/(_AD|_AP|Small|Base)$/i, '')
-      .trim();
-
-    const displayName = getChampionName(idOrName);
-
-    const mapCost =
-      CHAMP_COST_MAP[unit.name] ||
-      CHAMP_COST_MAP[unit.id] ||
-      CHAMP_COST_MAP[cleanIdOrName] ||
-      CHAMP_COST_MAP[cleanIdOrName.toLowerCase()] ||
-      CHAMP_COST_MAP[displayName] ||
-      CHAMP_COST_MAP[displayName.toLowerCase()];
-
-    if (mapCost) {
-      return Number(mapCost);
+    // 3. Fallback to direct unit.cost if valid
+    const parsedUnitCost = Number(unit.cost);
+    if (!isNaN(parsedUnitCost) && parsedUnitCost >= 1 && parsedUnitCost <= 5) {
+      return parsedUnitCost;
     }
 
     return 1;

@@ -948,7 +948,7 @@ export function getChampion(idOrName?: string): MasterChampion {
   const fallbackIcon = getChampionIcon(idOrName);
   const jpName = CHAMP_JP_NAMES[cleanedKey] || (found ? found.name : cleaned);
 
-  const cost = (found && found.cost) || CHAMP_COST_MAP[cleanedKey] || CHAMP_COST_MAP[key] || CHAMP_COST_MAP[jpName] || 1;
+  const cost = CHAMP_COST_MAP[cleanedKey] || CHAMP_COST_MAP[key] || CHAMP_COST_MAP[jpName] || (found && found.cost) || 1;
 
   if (found) {
     return {
