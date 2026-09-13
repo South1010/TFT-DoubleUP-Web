@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Grid, Users, Zap, Shield, Trophy, Clock, Sparkles, AlertCircle } from 'lucide-react';
 import ItemIcon from './ItemIcon';
+import TftHexBoard from './TftHexBoard';
 import { calculateAllTeamTraits, UnitDetailWithTraits } from '../utils/traitHelpers';
 import { getChampion, getChampionIcon, getChampionName, getItemIcon, getItemName } from '../utils/setMaster';
 
@@ -71,6 +72,13 @@ export default function MatchDetailModal({ match, onClose }: MatchDetailModalPro
     activePlayer.traits_summary
   );
 
+  const isBloodthornsActive = activeTraits.some((t) =>
+    t.name.includes('ブラッドソーン') ||
+    t.name.includes('ブラックソーン') ||
+    t.name.includes('Bloodthorns') ||
+    t.name.includes('Blackthorn')
+  );
+
   const costColor = (cost: number) => {
     switch (cost) {
       case 5: return 'border-amber-400 text-amber-400 bg-amber-500/10';
@@ -79,23 +87,6 @@ export default function MatchDetailModal({ match, onClose }: MatchDetailModalPro
       case 2: return 'border-emerald-400 text-emerald-400 bg-emerald-500/10';
       default: return 'border-slate-400 text-slate-300 bg-slate-500/10';
     }
-  };
-
-  const costGlow = (cost: number) => {
-    switch (cost) {
-      case 5: return 'shadow-glow-gold';
-      case 4: return 'shadow-glow-purple';
-      case 3: return 'shadow-glow-cyan';
-      default: return '';
-    }
-  };
-
-  const formatDate = (timestamp: number) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toLocaleString('ja-JP', {
-      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-    });
   };
 
   const handleUnitMouseEnter = (e: React.MouseEvent, unit: any) => {
@@ -110,16 +101,6 @@ export default function MatchDetailModal({ match, onClose }: MatchDetailModalPro
 
   // 4x7 Hexagonal TFT Board Representation for Selected Player
   const renderBoardGrid = () => {
-    const unitsMap: { [key: string]: any } = {};
-    if (activePlayer.units_detail) {
-      activePlayer.units_detail.forEach((u) => {
-        unitsMap[`${u.row}_${u.col}`] = u;
-      });
-    }
-
-    const rows = [0, 1, 2, 3];
-    const cols = [0, 1, 2, 3, 4, 5, 6];
-
     return (
       <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800/80 overflow-x-auto">
         <div className="flex items-center justify-between mb-3 text-xs text-slate-400">
@@ -162,94 +143,13 @@ export default function MatchDetailModal({ match, onClose }: MatchDetailModalPro
         </div>
 
         {/* 4x7 Grid Container */}
-        <div className="min-w-[640px] space-y-2 py-2">
-          {rows.map((rowIdx) => {
-            const isOffset = rowIdx % 2 === 1;
-            return (
-              <div
-                key={rowIdx}
-                className={`flex items-center justify-center gap-2 ${
-                  isOffset ? 'pl-7' : ''
-                }`}
-              >
-                {cols.map((colIdx) => {
-                  const unit = unitsMap[`${rowIdx}_${colIdx}`];
-                  return (
-                    <div
-                      key={colIdx}
-                      onMouseEnter={(e) => unit && handleUnitMouseEnter(e, unit)}
-                      onMouseLeave={handleUnitMouseLeave}
-                      className={`relative w-[88px] min-h-[96px] rounded-xl border flex flex-col items-center justify-between transition-all p-1.5 ${
-                        unit
-                          ? `${costColor(unit.cost)} ${costGlow(unit.cost)} bg-slate-900/95 hover:scale-105 cursor-pointer z-10 shadow-lg`
-                          : 'border-slate-800/60 bg-slate-900/30'
-                      }`}
-                    >
-                      {unit ? (() => {
-                        const champMaster = getChampion(unit.id || unit.name);
-                        const unitIcon = unit.icon || champMaster.icon || getChampionIcon(unit.id || unit.name);
-                        const displayName = getChampionName(unit.id || unit.name);
-                        return (
-                          <div className="w-full h-full flex flex-col items-center justify-between space-y-1">
-                            {/* Top: Champion Portrait + Star Rating Badge */}
-                            <div className="relative w-full h-11 rounded-lg overflow-hidden shrink-0 border border-slate-700/60">
-                              {unitIcon ? (
-                                <img
-                                  src={unitIcon}
-                                  alt={displayName}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = getChampionIcon(unit.name);
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-slate-800 flex items-center justify-center font-bold text-[10px] text-slate-300">
-                                  {displayName}
-                                </div>
-                              )}
-
-                              <span className="absolute -top-0.5 -left-0.5 px-1.5 py-0.2 text-[9px] font-black rounded-br-lg bg-amber-400 text-slate-950 shadow border-b border-r border-amber-300">
-                                ★{unit.star}
-                              </span>
-                            </div>
-
-                            {/* Middle: Champion Japanese Name */}
-                            <div className="w-full text-[9.5px] font-extrabold text-slate-100 truncate text-center leading-tight py-0.5 px-0.5 bg-slate-950/90 rounded border border-slate-800/80">
-                              {displayName}
-                            </div>
-
-                            {/* Bottom: Equipped Items Bar (Clear, 26px Icons) */}
-                            {unit.items && unit.items.length > 0 ? (
-                              <div className="flex items-center justify-center gap-1 w-full pt-1 border-t border-slate-800/80">
-                                {unit.items.map((item: any, iIdx: number) => (
-                                  <ItemIcon
-                                    key={iIdx}
-                                    id={item.id}
-                                    name={item.name}
-                                    icon={item.icon || getItemIcon(item.id || item.name)}
-                                    size="sm"
-                                  />
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="h-1.5" />
-                            )}
-                          </div>
-                        );
-                      })() : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-[10px] text-slate-700/60 font-mono">
-                            {rowIdx + 1}-{colIdx + 1}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+        <TftHexBoard
+          units={activePlayer.units_detail || []}
+          onUnitMouseEnter={handleUnitMouseEnter}
+          onUnitMouseLeave={handleUnitMouseLeave}
+          theme="dark"
+          isBloodthornsActive={isBloodthornsActive}
+        />
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 mt-3 pt-2 border-t border-slate-900">
           <span>Row 1: 最前衛 タンクライン</span>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, HeartHandshake, Grid, Users, Zap, Sparkles, AlertCircle, BookmarkCheck, ArrowRight, ShieldAlert, Award } from 'lucide-react';
 import ItemIcon from './ItemIcon';
+import TftHexBoard from './TftHexBoard';
 import { calculateAllTeamTraits } from '../utils/traitHelpers';
 import { CompStat, UnitDetail, getTierStyle } from '../utils/compTypes';
 import { getChampion, getChampionIcon, getChampionName, getItemIcon, getAugmentTierStyle } from '../utils/setMaster';
@@ -41,34 +42,15 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
     comp.traits_summary
   );
 
-  const costColor = (cost: number) => {
-    switch (cost) {
-      case 5: return 'border-amber-400 bg-amber-50/90 shadow-sm ring-2 ring-amber-300/60';
-      case 4: return 'border-purple-400 bg-purple-50/90 shadow-sm ring-2 ring-purple-300/60';
-      case 3: return 'border-cyan-400 bg-cyan-50/90 shadow-sm';
-      case 2: return 'border-emerald-400 bg-emerald-50/90 shadow-sm';
-      default: return 'border-slate-300 bg-slate-50 shadow-sm';
-    }
-  };
-
-  const costGlow = (cost: number) => {
-    switch (cost) {
-      case 5: return 'shadow-amber-200/60';
-      case 4: return 'shadow-purple-200/60';
-      case 3: return 'shadow-cyan-200/60';
-      default: return '';
-    }
-  };
+  const isBloodthornsActive = activeTraits.some((t) =>
+    t.name.includes('ブラッドソーン') ||
+    t.name.includes('ブラックソーン') ||
+    t.name.includes('Bloodthorns') ||
+    t.name.includes('Blackthorn')
+  );
 
   // 4x7 Hexagonal Board Representation
   const renderBoardGrid = () => {
-    const unitsMap: { [key: string]: UnitDetail } = {};
-    currentUnits.forEach((u) => {
-      unitsMap[`${u.row}_${u.col}`] = u;
-    });
-
-    const rows = [0, 1, 2, 3];
-    const cols = [0, 1, 2, 3, 4, 5, 6];
     const levelTabs = ['FINAL', '3', '4', '5', '6', '7', '8', '9'];
 
     return (
@@ -124,98 +106,11 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
         </div>
 
         {/* 4x7 Hex Grid Container */}
-        <div className="min-w-[660px] space-y-2.5 py-3">
-          {rows.map((rowIdx) => {
-            const isOffset = rowIdx % 2 === 1;
-            return (
-              <div
-                key={rowIdx}
-                className={`flex items-center justify-center gap-2.5 ${
-                  isOffset ? 'pl-8' : ''
-                }`}
-              >
-                {cols.map((colIdx) => {
-                  const unit = unitsMap[`${rowIdx}_${colIdx}`];
-                  const champMaster = unit ? getChampion(unit.id || unit.name) : null;
-                  const displayCost = champMaster ? champMaster.cost : 1;
-
-                  return (
-                    <div
-                      key={colIdx}
-                      className={`relative w-[90px] min-h-[104px] rounded-xl border flex flex-col items-center justify-between transition-all p-1.5 ${
-                        unit
-                          ? `${costColor(displayCost)} ${costGlow(displayCost)} shadow-md`
-                          : 'border-sky-200/70 bg-sky-50/40'
-                      }`}
-                    >
-                      {unit ? (() => {
-                        const unitIcon = unit.icon || champMaster?.icon || getChampionIcon(unit.id || unit.name);
-                        const displayName = getChampionName(unit.id || unit.name);
-                        return (
-                          <div className="w-full h-full flex flex-col items-center justify-between space-y-1">
-                            {/* Champion Portrait + Badges */}
-                            <div className="relative w-full h-12 rounded-lg overflow-hidden shrink-0 border border-sky-100">
-                              {unitIcon ? (
-                                <img
-                                  src={unitIcon}
-                                  alt={displayName}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = getChampionIcon(unit.name);
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-sky-100 flex items-center justify-center font-bold text-[10px] text-slate-700">
-                                  {displayName}
-                                </div>
-                              )}
-
-                              <span className="absolute top-0.5 left-0.5 px-1 py-0.2 text-[9px] font-black rounded bg-amber-400 text-slate-900 border border-amber-300 shadow-xs">
-                                ★{unit.star}
-                              </span>
-
-                              <span className="absolute top-0.5 right-0.5 px-1 py-0.2 text-[9px] font-black rounded bg-slate-900/80 text-white shadow-xs">
-                                ${displayCost}
-                              </span>
-                            </div>
-
-                            {/* Champion Japanese Name */}
-                            <div className="w-full text-[10px] font-black text-slate-900 truncate text-center leading-tight py-0.5 px-0.5 bg-white rounded border border-sky-200 shadow-2xs">
-                              {displayName}
-                            </div>
-
-                            {/* Items */}
-                            {unit.items && unit.items.length > 0 ? (
-                              <div className="flex items-center justify-center gap-1 w-full pt-1 border-t border-sky-100">
-                                {unit.items.map((item, iIdx) => (
-                                  <ItemIcon
-                                    key={iIdx}
-                                    id={item.id}
-                                    name={item.name}
-                                    icon={item.icon || getItemIcon(item.id || item.name)}
-                                    size="sm"
-                                  />
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="h-1.5" />
-                            )}
-                          </div>
-                        );
-                      })() : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-[10px] text-sky-400/80 font-bold font-mono">
-                            {rowIdx + 1}-{colIdx + 1}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+        <TftHexBoard
+          units={currentUnits}
+          theme="light"
+          isBloodthornsActive={isBloodthornsActive}
+        />
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 font-bold pt-2.5 border-t border-sky-200/80">
           <span>Row 1: 最前衛 タンクライン</span>

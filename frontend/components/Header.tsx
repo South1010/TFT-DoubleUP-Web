@@ -11,6 +11,11 @@ export default function Header() {
     }
   };
 
+  // Hides Admin Portal button in production web site, shows only in development mode (or if NEXT_PUBLIC_SHOW_ADMIN=true)
+  const showAdminButton =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_SHOW_ADMIN === 'true';
+
   return (
     <header className="sticky top-0 z-50 bg-white/85 border-b border-sky-200/80 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,16 +43,18 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Right: Admin Portal Button */}
-          <div className="absolute right-0 flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="px-4 py-2 rounded-xl bg-white hover:bg-sky-50 text-sky-900 border border-sky-300 text-xs font-black flex items-center gap-1.5 shadow-sm transition hover:shadow-md hover:border-sky-400"
-            >
-              <Shield className="w-4 h-4 text-sky-600" />
-              <span>管理者ポータル</span>
-            </Link>
-          </div>
+          {/* Right: Admin Portal Button (Shown in Dev mode, hidden on Production Web deployment) */}
+          {showAdminButton && (
+            <div className="absolute right-0 flex items-center gap-3">
+              <Link
+                href="/admin"
+                className="px-4 py-2 rounded-xl bg-white hover:bg-sky-50 text-sky-900 border border-sky-300 text-xs font-black flex items-center gap-1.5 shadow-sm transition hover:shadow-md hover:border-sky-400"
+              >
+                <Shield className="w-4 h-4 text-sky-600" />
+                <span>管理者ポータル</span>
+              </Link>
+            </div>
+          )}
 
         </div>
       </div>
