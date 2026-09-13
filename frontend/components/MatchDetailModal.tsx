@@ -89,6 +89,14 @@ export default function MatchDetailModal({ match, onClose }: MatchDetailModalPro
     }
   };
 
+  const formatDate = (timestamp: number) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleString('ja-JP', {
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+  };
+
   const handleUnitMouseEnter = (e: React.MouseEvent, unit: any) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 10 });
