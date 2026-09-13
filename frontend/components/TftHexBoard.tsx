@@ -88,56 +88,68 @@ export default function TftHexBoard({
     return 1;
   };
 
-  // Helper for Cost Border Colors (OP.GG Style with High-Visibility Glow)
-  const getCostBorderGradient = (cost: number | string) => {
+  // Helper for Cost Border Colors (OP.GG Style with Guaranteed Inline CSS Styles)
+  const getCostBorderStyle = (cost: number | string): React.CSSProperties => {
     const c = Number(cost);
     switch (c) {
       case 5:
-        return 'bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.85)] ring-1 ring-amber-300/80';
+        return {
+          background: 'linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #d97706 100%)',
+          boxShadow: '0 0 14px rgba(245, 158, 11, 0.95)',
+        };
       case 4:
-        return 'bg-gradient-to-br from-purple-400 via-purple-500 to-indigo-600 shadow-[0_0_12px_rgba(168,85,247,0.85)] ring-1 ring-purple-300/80';
+        return {
+          background: 'linear-gradient(135deg, #e879f9 0%, #a855f7 50%, #6366f1 100%)',
+          boxShadow: '0 0 14px rgba(168, 85, 247, 0.95)',
+        };
       case 3:
-        return 'bg-gradient-to-br from-cyan-300 via-sky-400 to-blue-500 shadow-[0_0_12px_rgba(6,182,212,0.85)] ring-1 ring-cyan-300/80';
+        return {
+          background: 'linear-gradient(135deg, #67e8f9 0%, #0284c7 50%, #2563eb 100%)',
+          boxShadow: '0 0 14px rgba(6, 182, 212, 0.95)',
+        };
       case 2:
-        return 'bg-gradient-to-br from-emerald-300 via-emerald-400 to-green-500 shadow-[0_0_12px_rgba(16,185,129,0.85)] ring-1 ring-emerald-300/80';
+        return {
+          background: 'linear-gradient(135deg, #6ee7b7 0%, #10b981 50%, #15803d 100%)',
+          boxShadow: '0 0 14px rgba(16, 185, 129, 0.95)',
+        };
       case 1:
       default:
-        return 'bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500 shadow-[0_0_8px_rgba(148,163,184,0.5)] ring-1 ring-slate-300/60';
+        return {
+          background: 'linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%)',
+          boxShadow: '0 0 8px rgba(148, 163, 184, 0.6)',
+        };
     }
   };
 
-  // Helper for Star Color matching Champion Cost
-  const getStarColorStyle = (cost: number | string) => {
+  // Helper for Star Color matching Champion Cost (Explicit inline CSS)
+  const getStarStyle = (cost: number | string): React.CSSProperties => {
     const c = Number(cost);
-    switch (c) {
-      case 5:
-        return 'text-amber-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
-      case 4:
-        return 'text-purple-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
-      case 3:
-        return 'text-cyan-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
-      case 2:
-        return 'text-emerald-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
-      case 1:
-      default:
-        return 'text-slate-200 drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)]';
-    }
+    let color = '#e2e8f0';
+    if (c === 5) color = '#fde047'; // Vibrant Gold
+    else if (c === 4) color = '#e879f9'; // Vibrant Purple
+    else if (c === 3) color = '#38bdf8'; // Vibrant Cyan Blue
+    else if (c === 2) color = '#34d399'; // Vibrant Emerald Green
+
+    return {
+      color: color,
+      WebkitTextFillColor: color,
+      WebkitTextStroke: '1px #000000',
+      filter: 'drop-shadow(0px 1.5px 2px rgba(0, 0, 0, 1)) drop-shadow(0px 0px 2px rgba(0,0,0,0.9))',
+    };
   };
 
   // Star Rating Badge Component (INSIDE Hexagon Top Peak)
   const renderStars = (starCount: number, cost: number) => {
     if (!starCount || starCount <= 1) return null;
 
-    const starColorClass = getStarColorStyle(cost);
-    const outlineStyle =
-      '[-webkit-text-stroke:0.8px_#000] [-webkit-text-fill-color:currentColor] font-black leading-none';
+    const style = getStarStyle(cost);
 
     if (starCount === 3) {
       return (
         <div className="absolute top-1.5 inset-x-0 z-20 flex items-center justify-center gap-0.5 pointer-events-none">
-          <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
-          <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
-          <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
+          <span style={style} className="text-[16px] font-black leading-none">★</span>
+          <span style={style} className="text-[16px] font-black leading-none">★</span>
+          <span style={style} className="text-[16px] font-black leading-none">★</span>
         </div>
       );
     }
@@ -145,8 +157,8 @@ export default function TftHexBoard({
     // 2-Star
     return (
       <div className="absolute top-1.5 inset-x-0 z-20 flex items-center justify-center gap-0.5 pointer-events-none">
-        <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
-        <span className={`text-[15px] ${starColorClass} ${outlineStyle}`}>★</span>
+        <span style={style} className="text-[16px] font-black leading-none">★</span>
+        <span style={style} className="text-[16px] font-black leading-none">★</span>
       </div>
     );
   };
@@ -184,16 +196,6 @@ export default function TftHexBoard({
                 // Bloodthorns Sacrifice Hex Check: Position 3-4 (rowIdx 2, colIdx 3)
                 const isSacrificeHex = hasBloodthorns && rowIdx === 2 && colIdx === 3;
 
-                const getBorderClass = () => {
-                  if (isSacrificeHex) {
-                    return 'bg-gradient-to-br from-red-600 via-rose-600 to-crimson-600 shadow-[0_0_18px_rgba(225,29,72,0.95)] animate-pulse ring-2 ring-rose-400';
-                  }
-                  if (unit) {
-                    return `${getCostBorderGradient(displayCost)} shadow-md`;
-                  }
-                  return isDark ? 'bg-slate-700/80' : 'bg-sky-200/90';
-                };
-
                 const getInnerBgClass = () => {
                   if (isSacrificeHex && !unit) {
                     return 'bg-gradient-to-b from-rose-950/95 via-red-950/90 to-slate-950 border border-rose-500/50';
@@ -215,7 +217,26 @@ export default function TftHexBoard({
                   >
                     {/* Outer Pointy-Topped Hexagon (Cost Border Gradient / Bloodthorns Sacrifice Border) */}
                     <div
-                      className={`w-full h-full p-[3.5px] transition-all duration-200 ${hexClipPath} ${getBorderClass()}`}
+                      style={
+                        isSacrificeHex
+                          ? {
+                              background:
+                                'linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #9f1239 100%)',
+                              boxShadow: '0 0 18px rgba(225, 29, 72, 0.95)',
+                            }
+                          : unit
+                          ? getCostBorderStyle(displayCost)
+                          : undefined
+                      }
+                      className={`w-full h-full p-[3.5px] transition-all duration-200 ${hexClipPath} ${
+                        isSacrificeHex
+                          ? 'animate-pulse ring-2 ring-rose-400'
+                          : unit
+                          ? ''
+                          : isDark
+                          ? 'bg-slate-700/80'
+                          : 'bg-sky-200/90'
+                      }`}
                     >
                       {/* Inner Pointy-Topped Hexagon Container */}
                       <div

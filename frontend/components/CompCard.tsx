@@ -31,8 +31,9 @@ export default function CompCard({ comp, isSingleRank = false, onSelect }: CompC
     }
   };
 
-  const getCostBorder = (cost: number) => {
-    switch (cost) {
+  const getCostBorder = (cost: number | string) => {
+    const c = Number(cost);
+    switch (c) {
       case 5: return 'border-amber-400';
       case 4: return 'border-purple-400';
       case 3: return 'border-cyan-400';
