@@ -3,14 +3,14 @@
 title DoubleUp.GG Remote VPS Deployer
 
 echo ===================================================
-echo   DoubleUp.GG VPS Remote Update & Deploy
+echo   DoubleUp.GG VPS Remote Update and Deploy
 echo   Target: ubuntu@49.212.178.111
 echo ===================================================
 echo.
 
 echo [1/3] Committing and pushing local changes to GitHub...
 git add .
-git commit -m "Update TFT Hex Board, Bloodthorns sacrifice hex, and header"
+git commit -m "Fix CompDetailModal costColor type error and update_vps script"
 git push origin main
 
 echo.

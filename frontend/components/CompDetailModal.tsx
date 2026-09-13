@@ -42,6 +42,16 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
     comp.traits_summary
   );
 
+  const costColor = (cost: number) => {
+    switch (cost) {
+      case 5: return 'border-amber-400 text-amber-400 bg-amber-500/10';
+      case 4: return 'border-purple-400 text-purple-400 bg-purple-500/10';
+      case 3: return 'border-cyan-400 text-cyan-400 bg-cyan-500/10';
+      case 2: return 'border-emerald-400 text-emerald-400 bg-emerald-500/10';
+      default: return 'border-slate-400 text-slate-300 bg-slate-500/10';
+    }
+  };
+
   const isBloodthornsActive = activeTraits.some((t) =>
     t.name.includes('ブラッドソーン') ||
     t.name.includes('ブラックソーン') ||
