@@ -21,6 +21,7 @@ export interface PartnerCompSummary {
   comp_key: string;
   display_name: string;
   tier: string;
+  top2_rate?: number;
   traits_summary?: string;
   main_carry: {
     id: string;
