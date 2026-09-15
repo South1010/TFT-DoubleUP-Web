@@ -18,9 +18,9 @@
     "play_conditions": "",
     "progression_guide": "",
     "dedicated_augment": "",
-    "recommended_augments_json": "[]",
-    "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\"]",
+    "recommended_augments_json": "[\"\\u5c0f\\u3055\\u306a\\u798f\\u888b\", \"\\u30d1\\u30f3\\u30c9\\u30e9\\u306e\\u30a2\\u30a4\\u30c6\\u30e0 I\", \"\\u30d1\\u30f3\\u30c9\\u30e9\\u306e\\u30d9\\u30f3\\u30c1\", \"\\u30d6\\u30fc\\u30b9\\u30bf\\u30fc\\u30d1\\u30c3\\u30af\", \"\\u5927\\u304d\\u306a\\u798f\\u888b\", \"\\u30dd\\u30fc\\u30bf\\u30d6\\u30eb \\u30d5\\u30a9\\u30fc\\u30b8\", \"\\u6295\\u8cc7\\u5b8c\\u4e86++\", \"\\u30d0\\u30ed\\u30f3\\u306e\\u5de3\", \"\\u30ec\\u30d9\\u30eb\\u30a2\\u30c3\\u30d7\\uff01\"]",
+    "level_boards_json": "{\"5\": [{\"id\": \"TFT18_\\u30a2\\u30ab\\u30ea\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 1, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30a2\\u30ea\\u30b9\\u30bf\\u30fc\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 2, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30aa\\u30fc\\u30f3\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 3, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30b6\\u30e4\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 0, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30f4\\u30a1\\u30eb\\u30b9\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 1, \"star\": 2, \"items\": []}], \"7\": [{\"id\": \"TFT18_\\u30b9\\u30ab\\u30c8\\u30eb\\u30af\\u30e9\\u30d6\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 3, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30e2\\u30eb\\u30ac\\u30ca\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 1, \"col\": 2, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30e9\\u30ab\\u30f3\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 1, \"col\": 1, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30b7\\u30f3\\u30c0\\u30fc\\u30ea\\u30f3\\u30b0\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 0, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30de\\u30de\\u9ce5\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 1, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30b3\\u30b0\\uff1d\\u30de\\u30a6\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 2, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30c8\\u30ea\\u30b9\\u30bf\\u30fc\\u30ca\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 6, \"star\": 2, \"items\": []}]}",
+    "partner_comp_keys_json": "[\"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
     "display_order": 0
   },
@@ -95,7 +95,7 @@
     "dedicated_augment": "",
     "recommended_augments_json": "[\"\\u6355\\u98df\\u690d\\u7269\"]",
     "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789163360\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
+    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789163360\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789438878087\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
     "display_order": 3
   },
@@ -120,7 +120,7 @@
     "dedicated_augment": "",
     "recommended_augments_json": "[]",
     "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\"]",
+    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789438878087\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
     "display_order": 4
   },
@@ -145,7 +145,7 @@
     "dedicated_augment": "",
     "recommended_augments_json": "[\"\\u6355\\u98df\\u690d\\u7269\"]",
     "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
+    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789438878087\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
     "display_order": 5
   },
@@ -200,6 +200,31 @@
     "display_order": 7
   },
   {
+    "comp_key": "custom_1160_TFT18_アフェリオス_1789438878087",
+    "display_name": "ルナー・アフェリオス・ニダリー",
+    "main_carry_id": "TFT18_アフェリオス",
+    "traits_summary": "2 インヴォーカー, 2 ヴァンガード, 2 インフェルノ, 2 ジャガーノート, 2 プライマル, 2 ルナー, 2 ラピッドファイア, 2 アダプター, 1 腐敗",
+    "sample_size": 100,
+    "avg_placement": 1.5,
+    "top2_rate": 80.0,
+    "win_rate": 40.0,
+    "tier": "S",
+    "best_items_json": "[\"TFT_Item_GuinsoosRageblade\", \"TFT_Item_RunaansHurricane\", \"TFT_Item_Deathblade\"]",
+    "units_detail_json": "[{\"id\": \"TFT18_\\u5b88\\u8b77\\u795e\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 3, \"star\": 2, \"items\": [\"TFT_Item_ProtectorsVow\", \"TFT_Item_ProtectorsVow\", \"TFT_Item_AdaptiveHelm\"]}, {\"id\": \"TFT18_\\u30a2\\u30e0\\u30e0\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 4, \"star\": 2, \"items\": [\"TFT_Item_WarmogsArmor\", \"TFT_Item_GargoyleStoneplate\", \"TFT_Item_Crownguard\"]}, {\"id\": \"TFT18_\\u30f4\\u30a1\\u30a4\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 0, \"col\": 2, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30c0\\u30a4\\u30a2\\u30ca\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 1, \"col\": 3, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30f4\\u30a1\\u30eb\\u30b9\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 6, \"star\": 2, \"items\": []}, {\"id\": \"TFT18_\\u30cb\\u30c0\\u30ea\\u30fc\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 2, \"col\": 0, \"star\": 2, \"items\": [\"TFT_Item_InfinityEdge\", \"TFT_Item_SpearOfShojin\", \"TFT_Item_SteraksGage\"]}, {\"id\": \"TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 0, \"star\": 2, \"items\": [\"TFT_Item_GuinsoosRageblade\", \"TFT_Item_RunaansHurricane\", \"TFT_Item_Deathblade\"]}, {\"id\": \"TFT18_\\u30b3\\u30b0\\uff1d\\u30de\\u30a6\", \"role\": \"\\u30e6\\u30cb\\u30c3\\u30c8\", \"row\": 3, \"col\": 1, \"star\": 2, \"items\": []}]",
+    "queue_id": 1160,
+    "top4_rate": 90.0,
+    "reroll_level": "Fast 8",
+    "overview": "",
+    "play_conditions": "",
+    "progression_guide": "",
+    "dedicated_augment": "",
+    "recommended_augments_json": "[]",
+    "level_boards_json": "{}",
+    "partner_comp_keys_json": "[\"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_DA_18_Tristana_1788336105\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
+    "is_custom": 1,
+    "display_order": 8
+  },
+  {
     "comp_key": "custom_1160_TFT18_アカリ_1789118981",
     "display_name": "インフェルノ・アカリ",
     "main_carry_id": "TFT18_アカリ",
@@ -222,7 +247,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789166996\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_DA_18_Tristana_1788336105\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 8
+    "display_order": 9
   },
   {
     "comp_key": "custom_1160_TFT18_ドレイヴン_1789119189",
@@ -247,7 +272,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789163360\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_DA_18_Tristana_1788336105\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 9
+    "display_order": 10
   },
   {
     "comp_key": "custom_1160_TFT18_アフェリオス_1789163360",
@@ -272,7 +297,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\"]",
     "is_custom": 1,
-    "display_order": 10
+    "display_order": 11
   },
   {
     "comp_key": "custom_1160_TFT18_レンガー_1789163554",
@@ -297,7 +322,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 11
+    "display_order": 12
   },
   {
     "comp_key": "custom_1160_TFT18_ケイトリン_1789119686",
@@ -322,7 +347,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789163360\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789166996\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 12
+    "display_order": 13
   },
   {
     "comp_key": "custom_1160_TFT18_シヴィア_1789117947",
@@ -347,7 +372,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789166996\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 13
+    "display_order": 14
   },
   {
     "comp_key": "custom_1160_TFT18_小石_1789119910",
@@ -372,7 +397,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789163360\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_DA_18_Tristana_1788336105\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 14
+    "display_order": 15
   },
   {
     "comp_key": "custom_1160_TFT18_モルガナ_1789120063",
@@ -397,7 +422,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 15
+    "display_order": 16
   },
   {
     "comp_key": "custom_1160_TFT18_エズリアル_1789163800",
@@ -420,9 +445,9 @@
     "dedicated_augment": "",
     "recommended_augments_json": "[]",
     "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\"]",
+    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789438878087\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
-    "display_order": 16
+    "display_order": 17
   },
   {
     "comp_key": "custom_1160_TFT18_ソラカ_1789169983",
@@ -447,7 +472,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789163360\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_DA_18_Tristana_1788336105\"]",
     "is_custom": 1,
-    "display_order": 17
+    "display_order": 18
   },
   {
     "comp_key": "custom_1160_TFT18_エズリアル_1789164005",
@@ -470,9 +495,9 @@
     "dedicated_augment": "",
     "recommended_augments_json": "[]",
     "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\"]",
+    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789438878087\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
-    "display_order": 18
+    "display_order": 19
   },
   {
     "comp_key": "custom_1160_TFT18_レンガー_1789167146",
@@ -497,7 +522,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30e2\\u30eb\\u30ac\\u30ca_1789120063\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789166996\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\"]",
     "is_custom": 1,
-    "display_order": 19
+    "display_order": 20
   },
   {
     "comp_key": "custom_1160_TFT18_アーリ_1789166996",
@@ -522,7 +547,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_DA_18_Tristana_1788336105\"]",
     "is_custom": 1,
-    "display_order": 20
+    "display_order": 21
   },
   {
     "comp_key": "custom_1160_TFT18_ニダリー_1789166844",
@@ -547,7 +572,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789163554\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\"]",
     "is_custom": 1,
-    "display_order": 21
+    "display_order": 22
   },
   {
     "comp_key": "custom_1160_TFT18_ワーウィック_1789170433",
@@ -572,7 +597,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_DA_18_Cassiopeia_1788173088\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789101654\", \"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30c8\\u30ea\\u30f3_1789119686\", \"custom_1160_TFT18_\\u30b7\\u30f4\\u30a3\\u30a2_1789117947\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_DA_18_Tristana_1788336105\"]",
     "is_custom": 1,
-    "display_order": 22
+    "display_order": 23
   },
   {
     "comp_key": "custom_1160_TFT18_ケイル_1789164244",
@@ -597,7 +622,7 @@
     "level_boards_json": "{}",
     "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789111014\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789194968\", \"custom_1160_TFT18_\\u30a8\\u30eb\\u30c0\\u30fc\\u30c9\\u30e9\\u30b4\\u30f3_1789096100\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789101993\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789117781\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789163800\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30a8\\u30ba\\u30ea\\u30a2\\u30eb_1789164005\", \"custom_1160_TFT18_\\u30ec\\u30f3\\u30ac\\u30fc_1789167146\", \"custom_1160_TFT18_\\u30cb\\u30c0\\u30ea\\u30fc_1789166844\", \"custom_1160_DA_18_Tristana_1788336105\", \"custom_1160_TFT18_\\u30d9\\u30a4\\u30ac\\u30fc_1789283574428\"]",
     "is_custom": 1,
-    "display_order": 23
+    "display_order": 24
   },
   {
     "comp_key": "custom_1160_DA_18_Tristana_1788336105",
@@ -620,8 +645,8 @@
     "dedicated_augment": "",
     "recommended_augments_json": "[]",
     "level_boards_json": "{}",
-    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789166996\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\"]",
+    "partner_comp_keys_json": "[\"custom_1160_TFT18_\\u30a2\\u30ab\\u30ea_1789118981\", \"custom_1160_TFT18_\\u30a2\\u30d5\\u30a7\\u30ea\\u30aa\\u30b9_1789438878087\", \"custom_1160_TFT18_\\u30a2\\u30fc\\u30ea_1789166996\", \"custom_1160_TFT18_\\u30b1\\u30a4\\u30eb_1789164244\", \"custom_1160_TFT18_\\u30bd\\u30e9\\u30ab_1789169983\", \"custom_1160_TFT18_\\u30c9\\u30ec\\u30a4\\u30f4\\u30f3_1789119189\", \"custom_1160_TFT18_\\u30ef\\u30fc\\u30a6\\u30a3\\u30c3\\u30af_1789170433\", \"custom_1160_TFT18_\\u5c0f\\u77f3_1789119910\"]",
     "is_custom": 1,
-    "display_order": 24
+    "display_order": 25
   }
 ]

@@ -171,18 +171,18 @@ export default function TftHexBoard({
 
   return (
     <div
-      className={`min-w-[670px] select-none py-7 px-4 overflow-x-auto flex flex-col items-center justify-center ${className}`}
+      className={`w-full min-w-0 select-none py-4 px-1 flex flex-col items-center justify-center overflow-hidden ${className}`}
     >
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start max-w-full">
         {rows.map((rowIdx) => {
           const isOffset = rowIdx % 2 === 1;
-          const marginTopClass = rowIdx > 0 ? '-mt-[20px]' : '';
+          const marginTopClass = rowIdx > 0 ? '-mt-[18px]' : '';
 
           return (
             <div
               key={rowIdx}
-              className={`flex items-center gap-[5px] ${marginTopClass} ${
-                isOffset ? 'pl-[45px]' : ''
+              className={`flex items-center gap-[4px] ${marginTopClass} ${
+                isOffset ? 'pl-[40px]' : ''
               }`}
             >
               {cols.map((colIdx) => {
@@ -212,7 +212,7 @@ export default function TftHexBoard({
                     key={colIdx}
                     onMouseEnter={(e) => unit && onUnitMouseEnter && onUnitMouseEnter(e, unit)}
                     onMouseLeave={() => unit && onUnitMouseLeave && onUnitMouseLeave()}
-                    className={`relative w-[84px] h-[96px] shrink-0 group transition-transform duration-200 ${
+                    className={`relative w-[76px] h-[88px] shrink-0 group transition-transform duration-200 ${
                       unit || isSacrificeHex ? 'hover:scale-105 hover:z-30 cursor-pointer' : 'z-0'
                     }`}
                   >
