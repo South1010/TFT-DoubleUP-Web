@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { CompStat, getTierStyle } from '../utils/compTypes';
-import { getChampion, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
+import { getChampion, getChampionName, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
 import { Search, Sparkles, User, SlidersHorizontal, Filter, RotateCcw, Award, CheckCircle, X, ChevronDown } from 'lucide-react';
 
 interface BubbleCompSelectorProps {
