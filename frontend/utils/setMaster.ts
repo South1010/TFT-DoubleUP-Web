@@ -589,14 +589,14 @@ export function getAugmentTierStyle(idOrName?: string, tierInput?: string): Augm
     return {
       tier: 'prismatic',
       label: '紋章',
-      badgeBg: 'bg-purple-600 text-purple-100 font-black border border-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.6)]',
-      badgeText: 'text-purple-300',
-      cardBorder: 'border-purple-500/80',
-      cardBg: 'bg-gradient-to-r from-purple-950/90 via-slate-900 to-purple-950/90 hover:border-purple-400 hover:from-purple-900/80 hover:to-purple-900/80',
-      cardText: 'text-purple-200 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]',
+      badgeBg: 'bg-purple-600 text-purple-100 font-black border border-purple-400 shadow-xs',
+      badgeText: 'text-purple-200',
+      cardBorder: 'border-purple-400/90',
+      cardBg: 'bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950 hover:border-purple-300',
+      cardText: 'text-purple-100 font-black',
       cardSelectedBorder: 'border-purple-400 ring-2 ring-purple-400/90',
-      cardSelectedBg: 'bg-gradient-to-r from-purple-900 via-purple-950 to-purple-900',
-      cardSelectedText: 'text-purple-100 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]',
+      cardSelectedBg: 'bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950',
+      cardSelectedText: 'text-purple-100 font-black',
       glow: 'shadow-[0_0_14px_rgba(168,85,247,0.5)]'
     };
   }
@@ -607,15 +607,15 @@ export function getAugmentTierStyle(idOrName?: string, tierInput?: string): Augm
     return {
       tier: 'silver',
       label: 'SILVER',
-      badgeBg: 'bg-slate-200 text-slate-900 border border-slate-100 font-extrabold shadow-[0_0_6px_rgba(255,255,255,0.4)]',
+      badgeBg: 'bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 text-slate-950 border border-slate-300 font-black shadow-xs',
       badgeText: 'text-slate-300',
-      cardBorder: 'border-slate-500/70',
-      cardBg: 'bg-slate-900/90 hover:bg-slate-800 hover:border-slate-300',
-      cardText: 'text-slate-200',
-      cardSelectedBorder: 'border-slate-200 ring-2 ring-slate-300/80',
-      cardSelectedBg: 'bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800',
-      cardSelectedText: 'text-white font-extrabold',
-      glow: 'shadow-[0_0_10px_rgba(203,213,225,0.3)]'
+      cardBorder: 'border-slate-400/80',
+      cardBg: 'bg-slate-900 hover:bg-slate-850 hover:border-slate-300',
+      cardText: 'text-slate-100 font-extrabold',
+      cardSelectedBorder: 'border-slate-300 ring-2 ring-slate-300/80',
+      cardSelectedBg: 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900',
+      cardSelectedText: 'text-slate-100 font-black',
+      glow: 'shadow-[0_0_10px_rgba(203,213,225,0.35)]'
     };
   }
 
@@ -623,15 +623,15 @@ export function getAugmentTierStyle(idOrName?: string, tierInput?: string): Augm
     return {
       tier: 'prismatic',
       label: '虹',
-      badgeBg: 'bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400 text-white font-black shadow-[0_0_8px_rgba(236,72,153,0.7)]',
+      badgeBg: 'bg-gradient-to-r from-purple-500 via-pink-500 via-emerald-400 to-cyan-400 text-white font-black shadow-[0_0_8px_rgba(236,72,153,0.6)]',
       badgeText: 'text-pink-300',
-      cardBorder: 'border-pink-500/60',
-      cardBg: 'bg-gradient-to-r from-purple-950/40 via-slate-900 to-pink-950/40 hover:border-pink-400 hover:from-purple-950/70 hover:to-pink-950/70',
-      cardText: 'text-purple-100',
+      cardBorder: 'border-pink-400/90',
+      cardBg: 'bg-gradient-to-r from-purple-950 via-indigo-950 to-pink-950 hover:border-pink-300',
+      cardText: 'text-pink-100 font-black',
       cardSelectedBorder: 'border-pink-400 ring-2 ring-pink-400',
-      cardSelectedBg: 'bg-gradient-to-r from-purple-900 via-pink-900 to-purple-900',
+      cardSelectedBg: 'bg-gradient-to-r from-purple-950 via-pink-950 to-purple-950',
       cardSelectedText: 'text-white font-black',
-      glow: 'shadow-[0_0_16px_rgba(236,72,153,0.45)]'
+      glow: 'shadow-[0_0_16px_rgba(236,72,153,0.55)]'
     };
   }
 
@@ -639,15 +639,15 @@ export function getAugmentTierStyle(idOrName?: string, tierInput?: string): Augm
   return {
     tier: 'gold',
     label: 'GOLD',
-    badgeBg: 'bg-amber-400 text-slate-950 border border-amber-300 font-black shadow-[0_0_6px_rgba(245,158,11,0.5)]',
+    badgeBg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 border border-amber-300 font-black shadow-xs',
     badgeText: 'text-amber-300',
     cardBorder: 'border-amber-400',
-    cardBg: 'bg-slate-900 hover:bg-slate-800 hover:border-amber-300',
-    cardText: 'text-amber-300 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]',
+    cardBg: 'bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 hover:border-amber-300',
+    cardText: 'text-amber-200 font-black',
     cardSelectedBorder: 'border-amber-400 ring-2 ring-amber-400',
     cardSelectedBg: 'bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950',
-    cardSelectedText: 'text-amber-300 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]',
-    glow: 'shadow-[0_0_12px_rgba(245,158,11,0.5)]'
+    cardSelectedText: 'text-amber-200 font-black',
+    glow: 'shadow-[0_0_14px_rgba(245,158,11,0.45)]'
   };
 }
 

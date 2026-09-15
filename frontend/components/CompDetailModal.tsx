@@ -5,7 +5,7 @@ import { X, HeartHandshake, Grid, Users, Zap, Sparkles, AlertCircle, BookmarkChe
 import ItemIcon from './ItemIcon';
 import { calculateAllTeamTraits } from '../utils/traitHelpers';
 import { CompStat, UnitDetail, getTierStyle } from '../utils/compTypes';
-import { getChampion, getChampionIcon, getChampionName, getItemIcon, getAugmentTierStyle } from '../utils/setMaster';
+import { getChampion, getChampionIcon, getChampionName, getItemIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
 
 interface CompDetailModalProps {
   comp: CompStat | null;
@@ -417,40 +417,44 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
 
               {/* Dedicated Augment & Recommended Augments */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-gradient-to-r from-amber-950/40 to-slate-900 rounded-xl border border-amber-500/30 space-y-1.5">
-                  <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                <div className="p-3.5 bg-slate-900 rounded-xl border border-amber-500/40 space-y-1.5 shadow-md">
+                  <div className="text-xs font-black text-amber-400 flex items-center gap-1.5 uppercase">
                     <Award className="w-4 h-4 text-amber-400" /> 専用・キーオーグメント
                   </div>
                   {comp.dedicated_augment ? (() => {
                     const style = getAugmentTierStyle(comp.dedicated_augment);
+                    const iconUrl = getAugmentIcon(comp.dedicated_augment, style.tier);
                     return (
-                      <div className={`text-xs font-extrabold px-2.5 py-1.5 rounded-lg border inline-flex items-center gap-2 ${style.cardSelectedBorder} ${style.cardSelectedBg} ${style.cardSelectedText} ${style.glow}`}>
-                        <span className={`px-1.5 py-0.5 text-[9px] rounded shrink-0 ${style.badgeBg}`}>{style.label}</span>
-                        <span>{comp.dedicated_augment}</span>
+                      <div className={`text-xs font-extrabold px-3 py-1.5 rounded-lg border inline-flex items-center gap-2 shadow-sm ${style.cardSelectedBorder} ${style.cardSelectedBg} ${style.cardSelectedText} ${style.glow}`}>
+                        <img src={iconUrl} alt={comp.dedicated_augment} className="w-6 h-6 rounded-lg object-contain bg-slate-950/80 p-0.5 border border-white/20 shrink-0 shadow-sm" />
+                        <span className={`px-1.5 py-0.5 text-[9px] rounded-md shrink-0 font-black ${style.badgeBg}`}>{style.label}</span>
+                        <span className="font-bold">{comp.dedicated_augment}</span>
                       </div>
                     );
                   })() : (
-                    <div className="text-xs text-slate-400 italic">汎用強化オーグメント対応</div>
+                    <div className="text-xs text-slate-400 italic font-medium">汎用強化オーグメント対応</div>
                   )}
                 </div>
 
-                <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 space-y-1.5">
-                  <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-cyan-400" /> おすすめオーグメント
+                <div className="p-3.5 bg-slate-900 rounded-xl border border-sky-400/30 space-y-1.5 shadow-md">
+                  <div className="text-xs font-black text-sky-400 flex items-center gap-1.5 uppercase">
+                    <Sparkles className="w-4 h-4 text-sky-400" /> おすすめオーグメント
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {comp.recommended_augments && comp.recommended_augments.length > 0 ? (
                       comp.recommended_augments.map((aug, idx) => {
                         const style = getAugmentTierStyle(aug);
+                        const iconUrl = getAugmentIcon(aug, style.tier);
                         return (
-                          <span key={idx} className={`text-[11px] px-2.5 py-1 rounded-lg border font-semibold flex items-center gap-1.5 ${style.cardSelectedBorder} ${style.cardSelectedBg} ${style.cardSelectedText} ${style.glow}`}>
-                            <span className={`px-1 py-0.2 text-[9px] rounded shrink-0 ${style.badgeBg}`}>{style.label}</span>
-                            <span>{aug}</span>
-                          </span>
+                          <div key={idx} className={`text-[11px] px-2.5 py-1 rounded-lg border font-extrabold flex items-center gap-1.5 shadow-xs transition-all hover:scale-105 ${style.cardSelectedBorder} ${style.cardSelectedBg} ${style.cardSelectedText} ${style.glow}`}>
+                            <img src={iconUrl} alt={aug} className="w-5 h-5 rounded-md object-contain bg-slate-950/80 p-0.5 border border-white/20 shrink-0 shadow-sm" />
+                            <span className={`px-1.5 py-0.5 text-[9px] rounded-md shrink-0 font-black ${style.badgeBg}`}>{style.label}</span>
+                            <span className="truncate max-w-[170px] font-bold">{aug}</span>
+                          </div>
                         );
                       })
                     ) : (
-                      <span className="text-xs text-slate-500">汎用オーグメント全般</span>
+                      <span className="text-xs text-slate-400 font-medium">汎用オーグメント全般</span>
                     )}
                   </div>
                 </div>

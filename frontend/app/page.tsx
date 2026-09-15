@@ -96,6 +96,10 @@ export default function Home() {
     }, 150);
   };
 
+  const handleReselectPartner = () => {
+    setSelectedPartnerCompKey(null);
+  };
+
   const handleReselect = () => {
     setSelectedMyCompKey(null);
     setSelectedPartnerCompKey(null);
@@ -132,7 +136,7 @@ export default function Home() {
         </section>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
         {/* --- PART 1: BUBBLE COMP SELECTOR SECTION --- */}
         {/* Rendered ONLY after clicking '構成を選択する' (isSelectorExpanded is true) */}
@@ -173,122 +177,132 @@ export default function Home() {
               </button>
             </div>
 
-            {/* 1. Selected Primary Composition Inline Details & Board Grid */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-sky-600" />
-                  1. あなた（または相方）の選択構成ボード＆詳細
-                </h2>
-                <span className="text-xs text-slate-500 font-medium">盤面レベル別エディタ</span>
-              </div>
+            {/* Side-by-Side 2-Column Responsive Layout: My Selected Comp on Left, Recommended Partner on Right */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
 
-              <CompInlineDetail comp={selectedMyComp} />
-            </div>
-
-
-            {/* 2. Recommended Partner Comps Section */}
-            <div className="space-y-4 pt-4 border-t border-sky-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-amber-500" />
-                    2. 【相性抜群】おすすめ相方構成 パートナー
-                  </h3>
-                  <p className="text-xs text-slate-600 font-medium mt-0.5">
-                    「{selectedMyComp.display_name}」とシナジー相性の良いおすすめ構成一覧です。クリックすると下に詳細ボードが表示されます。
-                  </p>
+              {/* LEFT COLUMN: Player 1 (Your Selected Comp Board & Details) */}
+              <div className="space-y-4 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-sky-600" />
+                    1. あなたの選択構成ボード＆詳細
+                  </h2>
+                  <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-900 font-black text-xs border border-sky-300">
+                    Player 1 盤面
+                  </span>
                 </div>
+
+                <CompInlineDetail comp={selectedMyComp} />
               </div>
 
-              {selectedMyComp.partner_comps && selectedMyComp.partner_comps.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedMyComp.partner_comps.map((partnerKeyObj) => {
-                    const isPartnerSelected = selectedPartnerCompKey === partnerKeyObj.comp_key;
-                    const { name: pCarryName, icon: pCarryIcon } = resolveCarryInfo(partnerKeyObj.main_carry);
-
-                    return (
-                      <div
-                        key={partnerKeyObj.comp_key}
-                        onClick={() => handleSelectPartnerComp(partnerKeyObj.comp_key)}
-                        className={`p-6 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4 shadow-sm hover:shadow-md group ${
-                          isPartnerSelected
-                            ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300'
-                            : 'bg-white border-sky-200 hover:border-emerald-300 hover:bg-emerald-50/30'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold">
-                            <Zap className="w-3.5 h-3.5 text-emerald-600" /> 相性ベストマッチ
-                          </div>
-                          <span className={`px-2.5 py-1 rounded-lg text-xs font-black border ${getTierStyle(partnerKeyObj.tier).badge}`}>
-                            {partnerKeyObj.tier} Tier
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={pCarryIcon}
-                            alt={pCarryName}
-                            className="w-14 h-14 rounded-2xl border-2 border-emerald-400/60 object-cover shadow-sm shrink-0"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                          <div>
-                            <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition">
-                              {partnerKeyObj.display_name}
-                            </h4>
-                            <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-                              {partnerKeyObj.traits_summary}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="pt-2 flex items-center justify-end border-t border-slate-100/80">
-                          <span className="text-sm font-extrabold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1.5 transition-all duration-200 group-hover:translate-x-1">
-                            {isPartnerSelected ? '選択中 (下部に表示)' : '相方の盤面を見る'} <ArrowRight className="w-4 h-4" />
-                          </span>
-                        </div>
+              {/* RIGHT COLUMN: Player 2 (Recommended Partner Comps List OR Selected Partner Board) */}
+              <div className="space-y-4 min-w-0">
+                {!selectedPartnerComp ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                          <Zap className="w-5 h-5 text-amber-500" />
+                          2. 【相性抜群】おすすめ相方構成 パートナー
+                        </h3>
+                        <p className="text-xs text-slate-600 font-medium mt-0.5">
+                          「{selectedMyComp.display_name}」とシナジー相性の良いおすすめ構成一覧です。
+                        </p>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="p-8 text-center text-slate-500 bg-sky-50/50 rounded-2xl border border-sky-200 space-y-2">
-                  <p className="text-sm font-bold text-slate-700">現在この構成に対する専用相方ペア構成は登録されていません</p>
-                  <p className="text-xs text-slate-500">管理者ポータルからいつでも新しい相性ペアを追加登録・リンク可能です</p>
-                </div>
-              )}
-            </div>
-
-
-            {/* 3. Selected Recommended Partner Comp Details & Board Grid */}
-            {selectedPartnerComp && (
-              <div ref={partnerDetailsRef} className="space-y-4 pt-6 border-t-2 border-emerald-300 animate-fadeIn scroll-mt-24">
-                <div className="p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 rounded-2xl text-white shadow-md flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="p-2 rounded-xl bg-white/20 backdrop-blur-md">
-                      <Zap className="w-5 h-5 text-amber-300" />
-                    </span>
-                    <div>
-                      <div className="text-xs font-bold text-emerald-100">おすすめ相方構成の詳細</div>
-                      <div className="text-sm font-black">{selectedPartnerComp.display_name}</div>
+                      <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 font-black text-xs border border-emerald-300 shrink-0">
+                        Player 2 盤面
+                      </span>
                     </div>
+
+                    {/* Recommended Partner Selection Cards */}
+                    {selectedMyComp.partner_comps && selectedMyComp.partner_comps.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {selectedMyComp.partner_comps.map((partnerKeyObj) => {
+                          const { name: pCarryName, icon: pCarryIcon } = resolveCarryInfo(partnerKeyObj.main_carry);
+
+                          return (
+                            <div
+                              key={partnerKeyObj.comp_key}
+                              onClick={() => handleSelectPartnerComp(partnerKeyObj.comp_key)}
+                              className="p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md group bg-white border-sky-200 hover:border-emerald-300 hover:bg-emerald-50/30"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold">
+                                  <Zap className="w-3 h-3 text-emerald-600" /> 相性ベストマッチ
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border ${getTierStyle(partnerKeyObj.tier).badge}`}>
+                                  {partnerKeyObj.tier} Tier
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={pCarryIcon}
+                                  alt={pCarryName}
+                                  className="w-11 h-11 rounded-xl border-2 border-emerald-400/60 object-cover shadow-sm shrink-0"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                                <div className="min-w-0">
+                                  <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
+                                    {partnerKeyObj.display_name}
+                                  </h4>
+                                  <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                                    {partnerKeyObj.traits_summary}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="pt-1.5 flex items-center justify-end border-t border-slate-100/80">
+                                <span className="text-xs font-extrabold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1 transition-all duration-200 group-hover:translate-x-1">
+                                  この相方構成を表示 <ArrowRight className="w-3.5 h-3.5" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="p-6 text-center text-slate-500 bg-sky-50/50 rounded-2xl border border-sky-200 space-y-2">
+                        <p className="text-xs font-bold text-slate-700">現在この構成に対する専用相方ペア構成は登録されていません</p>
+                        <p className="text-[10px] text-slate-500">管理者ポータルからいつでも新しい相性ペアを追加登録・リンク可能です</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Selected Recommended Partner Comp Details & Board Grid */
+                  <div ref={partnerDetailsRef} className="space-y-4 animate-fadeIn scroll-mt-24">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                          <Zap className="w-5 h-5 text-emerald-500" />
+                          2. 相方の選択構成ボード＆詳細
+                        </h3>
+                        <p className="text-xs text-slate-600 font-medium mt-0.5">
+                          おすすめパートナー: <span className="font-extrabold text-emerald-700">{selectedPartnerComp.display_name}</span>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleReselectPartner}
+                          className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 font-extrabold text-xs transition border border-emerald-300 shadow-sm flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 text-emerald-600" />
+                          相方を変更する
+                        </button>
+                        <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 font-black text-xs border border-emerald-300 shrink-0">
+                          Player 2 盤面
+                        </span>
+                      </div>
+                    </div>
+
+                    <CompInlineDetail comp={selectedPartnerComp} />
                   </div>
-
-                  <button
-                    onClick={handleReselect}
-                    className="px-4 py-2 rounded-xl bg-white text-emerald-950 hover:bg-emerald-50 text-xs font-black transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                  >
-                    <RotateCcw className="w-4 h-4 text-emerald-700" />
-                    新たに構成を選びなおす
-                  </button>
-                </div>
-
-                <CompInlineDetail comp={selectedPartnerComp} />
+                )}
               </div>
-            )}
+
+            </div>
 
             {/* Bottom Reselect Floating Action Bar */}
             <div className="pt-6 flex justify-center">
