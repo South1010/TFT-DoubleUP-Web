@@ -22,6 +22,11 @@ export interface PartnerCompSummary {
   display_name: string;
   tier: string;
   top2_rate?: number;
+  top4_rate?: number;
+  win_rate?: number;
+  avg_placement?: number;
+  dedicated_augment?: string;
+  reroll_level?: string;
   traits_summary?: string;
   main_carry: {
     id: string;
