@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import CompInlineDetail from '@/components/CompInlineDetail';
 import BubbleCompSelector from '@/components/BubbleCompSelector';
 import { CompStat, getTierStyle } from '@/utils/compTypes';
-import { getChampion, getChampionIcon } from '@/utils/setMaster';
+import { getChampion, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '@/utils/setMaster';
 import { FALLBACK_COMPS } from '@/utils/fallbackComps';
 import {
   Zap,
@@ -13,7 +13,8 @@ import {
   Sparkles,
   ChevronDown,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Award
 } from 'lucide-react';
 
 export default function Home() {
@@ -72,6 +73,32 @@ export default function Home() {
 
   const selectedMyComp = comps.find(c => c.comp_key === selectedMyCompKey);
   const selectedPartnerComp = comps.find(c => c.comp_key === selectedPartnerCompKey);
+
+  // Strictly sort recommended partner comps by Tier weight (OP -> S -> A -> B -> C)
+  const sortedPartnerComps = useMemo(() => {
+    if (!selectedMyComp || !selectedMyComp.partner_comps) return [];
+
+    const TIER_WEIGHTS: Record<string, number> = { OP: 1, S: 2, A: 3, B: 4, C: 5 };
+    const getWeight = (tier?: string) => {
+      if (!tier) return 99;
+      return TIER_WEIGHTS[tier.toUpperCase()] || 99;
+    };
+
+    return [...selectedMyComp.partner_comps].sort((a, b) => {
+      const wA = getWeight(a.tier);
+      const wB = getWeight(b.tier);
+      if (wA !== wB) return wA - wB;
+
+      const fullA = comps.find(c => c.comp_key === a.comp_key);
+      const fullB = comps.find(c => c.comp_key === b.comp_key);
+
+      const top2A = a.top2_rate || fullA?.top2_rate || 0;
+      const top2B = b.top2_rate || fullB?.top2_rate || 0;
+      if (top2A !== top2B) return top2B - top2A;
+
+      return a.display_name.localeCompare(b.display_name, 'ja-JP');
+    });
+  }, [selectedMyComp, comps]);
 
   const handleOpenSelector = () => {
     setIsSelectorExpanded(true);
@@ -215,18 +242,20 @@ export default function Home() {
                     </div>
 
                     {/* Recommended Partner Selection Cards */}
-                    {selectedMyComp.partner_comps && selectedMyComp.partner_comps.length > 0 ? (
+                    {sortedPartnerComps && sortedPartnerComps.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {selectedMyComp.partner_comps.map((partnerKeyObj) => {
+                        {sortedPartnerComps.map((partnerKeyObj) => {
+                          const partnerFullComp = comps.find(c => c.comp_key === partnerKeyObj.comp_key);
+                          const dedicatedAug = partnerKeyObj.dedicated_augment || partnerFullComp?.dedicated_augment;
                           const { name: pCarryName, icon: pCarryIcon } = resolveCarryInfo(partnerKeyObj.main_carry);
 
                           return (
                             <div
                               key={partnerKeyObj.comp_key}
                               onClick={() => handleSelectPartnerComp(partnerKeyObj.comp_key)}
-                              className="p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md group bg-white border-sky-200 hover:border-emerald-300 hover:bg-emerald-50/30"
+                              className="p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md group bg-white border-sky-200 hover:border-emerald-300 hover:bg-emerald-50/30 relative overflow-hidden"
                             >
-                              <div className="flex items-center justify-between">
+                              <div className="flex items-center justify-between gap-1 flex-wrap">
                                 <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold">
                                   <Zap className="w-3 h-3 text-emerald-600" /> 相性ベストマッチ
                                 </div>
@@ -235,22 +264,34 @@ export default function Home() {
                                 </span>
                               </div>
 
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-start gap-3">
                                 <img
                                   src={pCarryIcon}
                                   alt={pCarryName}
-                                  className="w-11 h-11 rounded-xl border-2 border-emerald-400/60 object-cover shadow-sm shrink-0"
+                                  className="w-11 h-11 rounded-xl border-2 border-emerald-400/60 object-cover shadow-sm shrink-0 mt-0.5"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = 'none';
                                   }}
                                 />
-                                <div className="min-w-0">
+                                <div className="min-w-0 flex-1 space-y-1">
                                   <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
                                     {partnerKeyObj.display_name}
                                   </h4>
-                                  <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                                  <p className="text-[11px] text-slate-500 truncate font-medium">
                                     {partnerKeyObj.traits_summary}
                                   </p>
+
+                                  {/* Dedicated Augment Badge on Partner Card */}
+                                  {dedicatedAug && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-900 text-amber-300 text-[10px] font-black border border-amber-400/60 shadow-xs max-w-full">
+                                      <img
+                                        src={getAugmentIcon(dedicatedAug, getAugmentTierStyle(dedicatedAug).tier)}
+                                        alt={dedicatedAug}
+                                        className="w-3.5 h-3.5 rounded object-contain bg-slate-950 p-0.5 shrink-0"
+                                      />
+                                      <span className="truncate">専用: {dedicatedAug}</span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 

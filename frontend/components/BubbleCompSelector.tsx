@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { CompStat, getTierStyle } from '@/utils/compTypes';
-import { getChampion, getChampionIcon } from '@/utils/setMaster';
-import { Search, Sparkles, User, SlidersHorizontal, Filter, RotateCcw, Flame, CheckCircle, X } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { CompStat, getTierStyle } from '../utils/compTypes';
+import { getChampion, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
+import { Search, Sparkles, User, SlidersHorizontal, Filter, RotateCcw, Award, CheckCircle, X, ChevronDown } from 'lucide-react';
 
 interface BubbleCompSelectorProps {
   comps: CompStat[];
@@ -12,21 +12,118 @@ interface BubbleCompSelectorProps {
   loading?: boolean;
 }
 
+interface ChampOption {
+  name: string;
+  icon: string;
+  cost: number;
+}
+
+interface AugOption {
+  name: string;
+  icon: string;
+  style: any;
+}
+
+export function getCostStyle(cost: number) {
+  switch (cost) {
+    case 1:
+      return {
+        border: 'border-slate-400',
+        bg: 'bg-slate-100',
+        text: 'text-slate-800',
+        badge: 'bg-slate-200 text-slate-800 border-slate-300 font-bold',
+        glow: 'shadow-slate-200'
+      };
+    case 2:
+      return {
+        border: 'border-emerald-500',
+        bg: 'bg-emerald-50',
+        text: 'text-emerald-800',
+        badge: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold',
+        glow: 'shadow-emerald-200'
+      };
+    case 3:
+      return {
+        border: 'border-blue-500',
+        bg: 'bg-blue-50',
+        text: 'text-blue-800',
+        badge: 'bg-blue-100 text-blue-800 border-blue-300 font-bold',
+        glow: 'shadow-blue-200'
+      };
+    case 4:
+      return {
+        border: 'border-purple-500',
+        bg: 'bg-purple-50',
+        text: 'text-purple-800',
+        badge: 'bg-purple-100 text-purple-800 border-purple-300 font-bold',
+        glow: 'shadow-purple-200'
+      };
+    case 5:
+    case 6:
+    case 7:
+      return {
+        border: 'border-amber-500 ring-2 ring-amber-300',
+        bg: 'bg-amber-50',
+        text: 'text-amber-900',
+        badge: 'bg-amber-100 text-amber-900 border-amber-400 font-black',
+        glow: 'shadow-amber-200'
+      };
+    default:
+      return {
+        border: 'border-slate-300',
+        bg: 'bg-slate-50',
+        text: 'text-slate-700',
+        badge: 'bg-slate-100 text-slate-700 border-slate-200 font-bold',
+        glow: 'shadow-slate-100'
+      };
+  }
+}
+
+// Clean helper to remove all numbers (half and full width), counts, parentheses, and spaces from trait names
+export function cleanTraitName(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .replace(/[0-9０-９]+/g, '')
+    .replace(/[\(（].*?[\)）]/g, '')
+    .replace(/[\s\u3000\u00a0]+/g, '')
+    .trim();
+}
+
 export default function BubbleCompSelector({ comps = [], onSelectComp, selectedCompKey, loading }: BubbleCompSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTrait, setSelectedTrait] = useState('ALL');
+  const [selectedCarryChampion, setSelectedCarryChampion] = useState('ALL');
   const [selectedChampion, setSelectedChampion] = useState('ALL');
+  const [selectedDedicatedAugment, setSelectedDedicatedAugment] = useState('ALL');
   const [selectedTierFilter, setSelectedTierFilter] = useState('ALL');
   const [sortBy, setSortBy] = useState('DEFAULT');
   const [poppingCompKey, setPoppingCompKey] = useState<string | null>(null);
 
-  // Extract all traits dynamically
+  // Dropdown Open States
+  const [openDropdown, setOpenDropdown] = useState<'CARRY' | 'CHAMPION' | 'AUGMENT' | null>(null);
+  
+  // Outer container ref for click-outside detection (without transparent backdrop overlay)
+  const filterContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterContainerRef.current && !filterContainerRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // 1. Grouped Traits (strip ALL numbers/counts, group into unique base trait names)
   const availableTraits = useMemo(() => {
     const traitSet = new Set<string>();
     comps.forEach((c) => {
       if (c.traits_summary) {
         c.traits_summary.split(',').forEach((part) => {
-          const cleaned = part.replace(/^\d+\s*/, '').trim();
+          const cleaned = cleanTraitName(part);
           if (cleaned) traitSet.add(cleaned);
         });
       }
@@ -34,22 +131,72 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
     return Array.from(traitSet).sort((a, b) => a.localeCompare(b, 'ja-JP'));
   }, [comps]);
 
-  // Extract all champions dynamically
-  const availableChampions = useMemo(() => {
-    const champSet = new Set<string>();
+  // 2. Available Registered Carry Champions Only
+  const availableCarryChampions = useMemo(() => {
+    const carryMap = new Map<string, ChampOption>();
     comps.forEach((c) => {
       if (c.main_carry?.name) {
-        champSet.add(c.main_carry.name);
+        const master = getChampion(c.main_carry.id || c.main_carry.name);
+        const name = c.main_carry.name || master.name;
+        const icon = c.main_carry.icon || master.icon || getChampionIcon(c.main_carry.id || name);
+        const cost = c.main_carry.cost || master.cost || 1;
+        if (name && !carryMap.has(name)) {
+          carryMap.set(name, { name, icon, cost });
+        }
+      }
+    });
+    return Array.from(carryMap.values()).sort((a, b) => {
+      if (a.cost !== b.cost) return a.cost - b.cost;
+      return a.name.localeCompare(b.name, 'ja-JP');
+    });
+  }, [comps]);
+
+  // 3. Available Registered Unit Champions (All units in compositions)
+  const availableChampions = useMemo(() => {
+    const champMap = new Map<string, ChampOption>();
+    comps.forEach((c) => {
+      if (c.main_carry?.name) {
+        const master = getChampion(c.main_carry.id || c.main_carry.name);
+        const name = c.main_carry.name || master.name;
+        const icon = c.main_carry.icon || master.icon || getChampionIcon(c.main_carry.id || name);
+        const cost = c.main_carry.cost || master.cost || 1;
+        if (name && !champMap.has(name)) {
+          champMap.set(name, { name, icon, cost });
+        }
       }
       (c.units_detail || []).forEach((u: any) => {
         const uName = typeof u === 'string' ? u : u.name || u.id;
         if (uName) {
           const master = getChampion(uName);
-          champSet.add(master.name || uName);
+          const name = master.name || uName;
+          const icon = master.icon || getChampionIcon(uName);
+          const cost = (typeof u === 'object' && u.cost) || master.cost || 1;
+          if (name && !champMap.has(name)) {
+            champMap.set(name, { name, icon, cost });
+          }
         }
       });
     });
-    return Array.from(champSet).sort((a, b) => a.localeCompare(b, 'ja-JP'));
+    return Array.from(champMap.values()).sort((a, b) => {
+      if (a.cost !== b.cost) return a.cost - b.cost;
+      return a.name.localeCompare(b.name, 'ja-JP');
+    });
+  }, [comps]);
+
+  // 4. Available Registered Dedicated Augments Only
+  const availableDedicatedAugments = useMemo(() => {
+    const augMap = new Map<string, AugOption>();
+    comps.forEach((c) => {
+      if (c.dedicated_augment && c.dedicated_augment.trim()) {
+        const augName = c.dedicated_augment.trim();
+        if (!augMap.has(augName)) {
+          const style = getAugmentTierStyle(augName);
+          const icon = getAugmentIcon(augName, style.tier);
+          augMap.set(augName, { name: augName, icon, style });
+        }
+      }
+    });
+    return Array.from(augMap.values()).sort((a, b) => a.name.localeCompare(b.name, 'ja-JP'));
   }, [comps]);
 
   // Filter comps based on search and dropdown selections
@@ -58,10 +205,17 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
       .filter((comp) => {
         const matchesTier = selectedTierFilter === 'ALL' || comp.tier === selectedTierFilter;
 
+        // Grouped trait matching (matches "インフェルノ" regardless of count "2 インフェルノ", "3 インフェルノ", etc.)
         const matchesTrait =
           selectedTrait === 'ALL' ||
           (comp.traits_summary && comp.traits_summary.includes(selectedTrait));
 
+        // Dedicated carry champion filter
+        const matchesCarry =
+          selectedCarryChampion === 'ALL' ||
+          (comp.main_carry?.name && comp.main_carry.name.includes(selectedCarryChampion));
+
+        // Composition unit champion filter
         const matchesChampion =
           selectedChampion === 'ALL' ||
           comp.main_carry?.name?.includes(selectedChampion) ||
@@ -71,11 +225,18 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
             return (master.name || uName || '').includes(selectedChampion);
           });
 
+        // Dedicated augment filter
+        const matchesDedicatedAugment =
+          selectedDedicatedAugment === 'ALL' ||
+          (comp.dedicated_augment && comp.dedicated_augment.includes(selectedDedicatedAugment));
+
+        // Keyword query
         const q = searchQuery.toLowerCase().trim();
         const matchesQuery =
           q === '' ||
           comp.display_name?.toLowerCase().includes(q) ||
           comp.main_carry?.name?.toLowerCase().includes(q) ||
+          (comp.dedicated_augment && comp.dedicated_augment.toLowerCase().includes(q)) ||
           (comp.traits_summary && comp.traits_summary.toLowerCase().includes(q)) ||
           (comp.units_detail || []).some((u: any) => {
             const uName = typeof u === 'string' ? u : u.name || u.id;
@@ -83,11 +244,24 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
             return (master.name || uName || '').toLowerCase().includes(q);
           });
 
-        return matchesTier && matchesTrait && matchesChampion && matchesQuery;
+        return (
+          matchesTier &&
+          matchesTrait &&
+          matchesCarry &&
+          matchesChampion &&
+          matchesDedicatedAugment &&
+          matchesQuery
+        );
       })
       .sort((a, b) => {
         if (sortBy === 'NAME') {
           return a.display_name.localeCompare(b.display_name, 'ja-JP');
+        }
+        if (sortBy === 'WIN_RATE') {
+          return (b.win_rate || 0) - (a.win_rate || 0);
+        }
+        if (sortBy === 'TOP2_RATE') {
+          return (b.top2_rate || 0) - (a.top2_rate || 0);
         }
         const tierWeight: { [key: string]: number } = { OP: 1, S: 2, A: 3, B: 4, C: 5 };
         const weightA = tierWeight[a.tier?.toUpperCase()] || 99;
@@ -95,9 +269,18 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
         if (weightA !== weightB) return weightA - weightB;
         return a.display_name.localeCompare(b.display_name, 'ja-JP');
       });
-  }, [comps, selectedTierFilter, selectedTrait, selectedChampion, searchQuery, sortBy]);
+  }, [
+    comps,
+    selectedTierFilter,
+    selectedTrait,
+    selectedCarryChampion,
+    selectedChampion,
+    selectedDedicatedAugment,
+    searchQuery,
+    sortBy
+  ]);
 
-  // Group comps by Tier bands (OP, S, A, B, C), excluding empty bands
+  // Group comps by Tier bands (OP, S, A, B, C)
   const tierBands = useMemo(() => {
     const op = filteredComps.filter((c) => c.tier === 'OP');
     const sTier = filteredComps.filter((c) => c.tier === 'S');
@@ -117,15 +300,20 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
   const resetFilters = () => {
     setSelectedTierFilter('ALL');
     setSelectedTrait('ALL');
+    setSelectedCarryChampion('ALL');
     setSelectedChampion('ALL');
+    setSelectedDedicatedAugment('ALL');
     setSortBy('DEFAULT');
     setSearchQuery('');
+    setOpenDropdown(null);
   };
 
   const isFilterActive =
     selectedTierFilter !== 'ALL' ||
     selectedTrait !== 'ALL' ||
+    selectedCarryChampion !== 'ALL' ||
     selectedChampion !== 'ALL' ||
+    selectedDedicatedAugment !== 'ALL' ||
     sortBy !== 'DEFAULT' ||
     searchQuery.trim() !== '';
 
@@ -175,56 +363,64 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
     );
   }
 
+  // Selected Champion & Augment objects for dropdown trigger display
+  const selectedCarryObj = availableCarryChampions.find((c) => c.name === selectedCarryChampion);
+  const selectedChampObj = availableChampions.find((c) => c.name === selectedChampion);
+  const selectedAugObj = availableDedicatedAugments.find((a) => a.name === selectedDedicatedAugment);
+
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn relative">
       
-      {/* Filter & Search Bar */}
-      <div className="p-4 bg-white/95 backdrop-blur-md rounded-2xl border border-sky-200 shadow-md space-y-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-sky-100 pb-2.5">
+      {/* Filter & Search Bar Outer Container */}
+      <div ref={filterContainerRef} className="p-4 sm:p-5 bg-white/95 backdrop-blur-md rounded-2xl border border-sky-200 shadow-md space-y-4 relative z-20">
+        
+        {/* Header summary bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-sky-100 pb-3">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-sky-100 text-sky-600">
+            <span className="p-2 rounded-xl bg-sky-100 text-sky-600 shadow-2xs">
               <Filter className="w-4 h-4" />
             </span>
             <div>
-              <h3 className="text-xs font-black text-slate-900">シャボン玉 構成絞り込み・検索</h3>
-              <p className="text-[11px] text-slate-500 font-medium">下のシャボン玉をクリックするか、検索・ソートで構成を絞り込みます</p>
+              <h3 className="text-sm font-black text-slate-900">シャボン玉 構成絞り込み・ソート</h3>
+              <p className="text-[11px] text-slate-500 font-medium">シナジー・キャリー・全構成駒・専用オーグメントで自在に検索できます</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-900 font-black">
+            <span className="px-3 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-sky-900 font-black shadow-2xs">
               {filteredComps.length} / {comps.length} 構成表示
             </span>
             {isFilterActive && (
               <button
                 onClick={resetFilters}
-                className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center gap-1 transition"
+                className="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold flex items-center gap-1 transition cursor-pointer shadow-2xs"
               >
-                <RotateCcw className="w-3.5 h-3.5" /> リセット
+                <RotateCcw className="w-3.5 h-3.5" /> 条件をリセット
               </button>
             )}
           </div>
         </div>
 
-        {/* Inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Keyword Search */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1">
-              <Search className="w-3 h-3 text-sky-600" /> 検索
+        {/* Filters Controls Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+          
+          {/* 1. Keyword Search */}
+          <div className="min-w-0">
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+              <Search className="w-3 h-3 text-sky-600" /> キーワード検索
             </label>
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="構成名・ユニット名・シナジー..."
-                className="w-full pl-3 pr-8 py-1.5 rounded-xl bg-sky-50/50 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs"
+                placeholder="構成名・ユニット名..."
+                className="w-full pl-3 pr-8 py-2 rounded-xl bg-sky-50/60 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2 top-2.5 text-slate-400 hover:text-slate-600"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -232,15 +428,15 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
             </div>
           </div>
 
-          {/* Trait Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-500" /> シナジー
+          {/* 2. Grouped Synergy (Trait) Filter */}
+          <div className="min-w-0">
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-500" /> シナジー ({availableTraits.length})
             </label>
             <select
               value={selectedTrait}
               onChange={(e) => setSelectedTrait(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-xl bg-sky-50/50 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2 rounded-xl bg-sky-50/60 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs cursor-pointer truncate"
             >
               <option value="ALL">すべてのシナジー ({availableTraits.length})</option>
               {availableTraits.map((t) => (
@@ -249,49 +445,276 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
             </select>
           </div>
 
-          {/* Champion Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1">
-              <User className="w-3 h-3 text-emerald-600" /> チャンピオン
+          {/* 3. Main Carry Champion Filter (Custom 5-Column Grid Popover) */}
+          <div className="min-w-0 relative">
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+              <Award className="w-3 h-3 text-amber-500" /> メインキャリー ({availableCarryChampions.length})
             </label>
-            <select
-              value={selectedChampion}
-              onChange={(e) => setSelectedChampion(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-xl bg-sky-50/50 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs cursor-pointer"
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'CARRY' ? null : 'CARRY')}
+              className="w-full px-3 py-2 rounded-xl bg-sky-50/60 border border-sky-200 text-xs font-bold text-slate-900 flex items-center justify-between shadow-2xs hover:bg-sky-100/50 transition cursor-pointer"
             >
-              <option value="ALL">すべてのチャンピオン ({availableChampions.length})</option>
-              {availableChampions.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+              {selectedCarryObj ? (
+                <div className="flex items-center gap-2 min-w-0 truncate">
+                  <img
+                    src={selectedCarryObj.icon}
+                    alt={selectedCarryObj.name}
+                    className={`w-5 h-5 rounded-md object-cover border ${getCostStyle(selectedCarryObj.cost).border} shrink-0`}
+                  />
+                  <span className="truncate">{selectedCarryObj.name}</span>
+                  <span className={`px-1.5 py-0.2 rounded text-[9px] ${getCostStyle(selectedCarryObj.cost).badge}`}>
+                    {selectedCarryObj.cost}G
+                  </span>
+                </div>
+              ) : (
+                <span className="text-slate-700 truncate">すべてのキャリー ({availableCarryChampions.length})</span>
+              )}
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
+            </button>
+
+            {/* Carry Dropdown Popover (5-Column Grid Layout) */}
+            {openDropdown === 'CARRY' && (
+              <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-2 w-[340px] sm:w-[400px] max-h-80 overflow-y-auto bg-white/95 backdrop-blur-md rounded-2xl border-2 border-sky-300 shadow-2xl z-50 p-3 space-y-2 animate-fadeIn">
+                <button
+                  onClick={() => {
+                    setSelectedCarryChampion('ALL');
+                    setOpenDropdown(null);
+                  }}
+                  className={`w-full px-3 py-2 rounded-xl text-xs text-left font-bold flex items-center justify-between transition cursor-pointer ${
+                    selectedCarryChampion === 'ALL' ? 'bg-sky-500 text-white font-black shadow-md' : 'hover:bg-sky-50 text-slate-700 bg-sky-50/50'
+                  }`}
+                >
+                  <span>すべてのキャリー ({availableCarryChampions.length})</span>
+                  {selectedCarryChampion === 'ALL' && <CheckCircle className="w-4 h-4 text-white" />}
+                </button>
+
+                <div className="h-px bg-slate-200/80 my-2" />
+
+                {/* 5-Column Grid with Icon on Top and Name Directly Below */}
+                <div className="grid grid-cols-5 gap-2">
+                  {availableCarryChampions.map((c) => {
+                    const style = getCostStyle(c.cost);
+                    const isSelected = selectedCarryChampion === c.name;
+                    return (
+                      <button
+                        key={c.name}
+                        onClick={() => {
+                          setSelectedCarryChampion(c.name);
+                          setOpenDropdown(null);
+                        }}
+                        className={`p-1.5 rounded-xl text-center flex flex-col items-center justify-between transition group cursor-pointer border ${
+                          isSelected
+                            ? 'bg-sky-100 border-sky-500 ring-2 ring-sky-400 font-extrabold shadow-sm scale-105'
+                            : 'bg-white hover:bg-sky-50/80 border-slate-200/80 hover:border-sky-300 shadow-2xs'
+                        }`}
+                      >
+                        <div className="relative">
+                          <img
+                            src={c.icon}
+                            alt={c.name}
+                            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 ${style.border} object-cover shadow-xs group-hover:scale-105 transition-transform`}
+                          />
+                          <span className={`absolute -bottom-1 -right-1 px-1 py-0.2 rounded font-black text-[9px] shadow ${style.badge}`}>
+                            {c.cost}G
+                          </span>
+                        </div>
+
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-900 truncate w-full mt-1.5 leading-tight group-hover:text-sky-700">
+                          {c.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Sort */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1">
+          {/* 4. Composition Champion Filter (Custom 5-Column Grid Popover) */}
+          <div className="min-w-0 relative">
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+              <User className="w-3 h-3 text-emerald-600" /> 構成チャンピオン ({availableChampions.length})
+            </label>
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'CHAMPION' ? null : 'CHAMPION')}
+              className="w-full px-3 py-2 rounded-xl bg-sky-50/60 border border-sky-200 text-xs font-bold text-slate-900 flex items-center justify-between shadow-2xs hover:bg-sky-100/50 transition cursor-pointer"
+            >
+              {selectedChampObj ? (
+                <div className="flex items-center gap-2 min-w-0 truncate">
+                  <img
+                    src={selectedChampObj.icon}
+                    alt={selectedChampObj.name}
+                    className={`w-5 h-5 rounded-md object-cover border ${getCostStyle(selectedChampObj.cost).border} shrink-0`}
+                  />
+                  <span className="truncate">{selectedChampObj.name}</span>
+                  <span className={`px-1.5 py-0.2 rounded text-[9px] ${getCostStyle(selectedChampObj.cost).badge}`}>
+                    {selectedChampObj.cost}G
+                  </span>
+                </div>
+              ) : (
+                <span className="text-slate-700 truncate">全チャンピオン ({availableChampions.length})</span>
+              )}
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
+            </button>
+
+            {/* Champion Dropdown Popover (5-Column Grid Layout) */}
+            {openDropdown === 'CHAMPION' && (
+              <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-2 w-[340px] sm:w-[400px] max-h-80 overflow-y-auto bg-white/95 backdrop-blur-md rounded-2xl border-2 border-sky-300 shadow-2xl z-50 p-3 space-y-2 animate-fadeIn">
+                <button
+                  onClick={() => {
+                    setSelectedChampion('ALL');
+                    setOpenDropdown(null);
+                  }}
+                  className={`w-full px-3 py-2 rounded-xl text-xs text-left font-bold flex items-center justify-between transition cursor-pointer ${
+                    selectedChampion === 'ALL' ? 'bg-sky-500 text-white font-black shadow-md' : 'hover:bg-sky-50 text-slate-700 bg-sky-50/50'
+                  }`}
+                >
+                  <span>すべてのチャンピオン ({availableChampions.length})</span>
+                  {selectedChampion === 'ALL' && <CheckCircle className="w-4 h-4 text-white" />}
+                </button>
+
+                <div className="h-px bg-slate-200/80 my-2" />
+
+                {/* 5-Column Grid with Icon on Top and Name Directly Below */}
+                <div className="grid grid-cols-5 gap-2">
+                  {availableChampions.map((c) => {
+                    const style = getCostStyle(c.cost);
+                    const isSelected = selectedChampion === c.name;
+                    return (
+                      <button
+                        key={c.name}
+                        onClick={() => {
+                          setSelectedChampion(c.name);
+                          setOpenDropdown(null);
+                        }}
+                        className={`p-1.5 rounded-xl text-center flex flex-col items-center justify-between transition group cursor-pointer border ${
+                          isSelected
+                            ? 'bg-sky-100 border-sky-500 ring-2 ring-sky-400 font-extrabold shadow-sm scale-105'
+                            : 'bg-white hover:bg-sky-50/80 border-slate-200/80 hover:border-sky-300 shadow-2xs'
+                        }`}
+                      >
+                        <div className="relative">
+                          <img
+                            src={c.icon}
+                            alt={c.name}
+                            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 ${style.border} object-cover shadow-xs group-hover:scale-105 transition-transform`}
+                          />
+                          <span className={`absolute -bottom-1 -right-1 px-1 py-0.2 rounded font-black text-[9px] shadow ${style.badge}`}>
+                            {c.cost}G
+                          </span>
+                        </div>
+
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-900 truncate w-full mt-1.5 leading-tight group-hover:text-sky-700">
+                          {c.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 5. Dedicated Augment Filter (Custom Visual Dropdown) */}
+          <div className="min-w-0 relative">
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+              <Award className="w-3 h-3 text-purple-600" /> 専用オーグメント ({availableDedicatedAugments.length})
+            </label>
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'AUGMENT' ? null : 'AUGMENT')}
+              className="w-full px-3 py-2 rounded-xl bg-sky-50/60 border border-sky-200 text-xs font-bold text-slate-900 flex items-center justify-between shadow-2xs hover:bg-sky-100/50 transition cursor-pointer"
+            >
+              {selectedAugObj ? (
+                <div className="flex items-center gap-2 min-w-0 truncate">
+                  <img
+                    src={selectedAugObj.icon}
+                    alt={selectedAugObj.name}
+                    className="w-5 h-5 rounded-md object-contain bg-slate-900 p-0.5 shrink-0"
+                  />
+                  <span className="truncate">{selectedAugObj.name}</span>
+                </div>
+              ) : (
+                <span className="text-slate-700 truncate">専用オーグメント ({availableDedicatedAugments.length})</span>
+              )}
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
+            </button>
+
+            {/* Augment Dropdown Popover */}
+            {openDropdown === 'AUGMENT' && (
+              <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-2 w-72 max-h-80 overflow-y-auto bg-white/95 backdrop-blur-md rounded-2xl border-2 border-sky-300 shadow-2xl z-50 p-2 space-y-1 animate-fadeIn">
+                <button
+                  onClick={() => {
+                    setSelectedDedicatedAugment('ALL');
+                    setOpenDropdown(null);
+                  }}
+                  className={`w-full px-3 py-2 rounded-xl text-xs text-left font-bold flex items-center justify-between transition cursor-pointer ${
+                    selectedDedicatedAugment === 'ALL' ? 'bg-sky-500 text-white font-black shadow-md' : 'hover:bg-sky-50 text-slate-700 bg-sky-50/50'
+                  }`}
+                >
+                  <span>すべての専用オーグメント ({availableDedicatedAugments.length})</span>
+                  {selectedDedicatedAugment === 'ALL' && <CheckCircle className="w-4 h-4 text-white" />}
+                </button>
+                <div className="h-px bg-slate-200/80 my-1" />
+                {availableDedicatedAugments.map((aug) => {
+                  const isSelected = selectedDedicatedAugment === aug.name;
+                  return (
+                    <button
+                      key={aug.name}
+                      onClick={() => {
+                        setSelectedDedicatedAugment(aug.name);
+                        setOpenDropdown(null);
+                      }}
+                      className={`w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition group cursor-pointer ${
+                        isSelected ? 'bg-sky-50 border border-sky-300 font-extrabold shadow-2xs' : 'hover:bg-sky-50/70'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <img
+                          src={aug.icon}
+                          alt={aug.name}
+                          className="w-6 h-6 rounded-lg object-contain bg-slate-900 p-0.5 border border-slate-700 shadow-2xs shrink-0"
+                        />
+                        <span className="truncate text-slate-900 font-bold">{aug.name}</span>
+                      </div>
+                      <span className={`px-1.5 py-0.5 text-[9px] rounded-md shrink-0 font-black ${aug.style.badgeBg}`}>
+                        {aug.style.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 6. Sort Order */}
+          <div className="min-w-0">
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
               <SlidersHorizontal className="w-3 h-3 text-purple-600" /> 並び替え
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-xl bg-sky-50/50 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2 rounded-xl bg-sky-50/60 border border-sky-200 text-xs text-slate-900 focus:outline-none focus:border-sky-500 font-bold shadow-2xs cursor-pointer"
             >
               <option value="DEFAULT">標準順 (Tier順)</option>
               <option value="NAME">構成名 (五十音順)</option>
+              <option value="TOP2_RATE">Top2率 (高い順)</option>
+              <option value="WIN_RATE">勝率 (高い順)</option>
             </select>
           </div>
+
         </div>
 
-        {/* Quick Tier Buttons */}
+        {/* Tier Quick Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto pt-1">
-          <span className="text-[11px] font-bold text-slate-400 mr-1 shrink-0">Tier絞り込み:</span>
+          <span className="text-[11px] font-bold text-slate-500 mr-1 shrink-0">Tier絞り込み:</span>
           {(['ALL', 'OP', 'S', 'A', 'B', 'C'] as const).map((tier) => {
             const isSelected = selectedTierFilter === tier;
             return (
               <button
                 key={tier}
                 onClick={() => setSelectedTierFilter(tier)}
-                className={`px-3 py-1 rounded-full text-xs font-black transition flex items-center gap-1 shrink-0 ${
+                className={`px-3 py-1 rounded-full text-xs font-black transition flex items-center gap-1 shrink-0 cursor-pointer ${
                   isSelected
                     ? 'bg-sky-600 text-white shadow-md ring-2 ring-sky-300'
                     : 'bg-white text-slate-700 hover:bg-sky-50 border border-sky-200'
@@ -383,6 +806,20 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
                             </span>
                           )}
 
+                          {/* Dedicated Augment Icon Badge (Top Right) */}
+                          {comp.dedicated_augment && (
+                            <div
+                              title={`専用オーグメント: ${comp.dedicated_augment}`}
+                              className="absolute top-1 right-1 p-1 bg-slate-900/95 text-amber-300 rounded-full border border-amber-400/80 shadow-md z-20 flex items-center justify-center"
+                            >
+                              <img
+                                src={getAugmentIcon(comp.dedicated_augment, getAugmentTierStyle(comp.dedicated_augment).tier)}
+                                alt={comp.dedicated_augment}
+                                className="w-4 h-4 rounded object-contain bg-slate-950 p-0.5 shrink-0"
+                              />
+                            </div>
+                          )}
+
                           {/* Tier Badge */}
                           <span className={`absolute top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-xs border ${getTierStyle(comp.tier).badgeSolid}`}>
                             {comp.tier} Tier
@@ -400,14 +837,22 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
                             />
                           </div>
 
-                          {/* Comp Display Name */}
-                          <div className="w-full px-1">
-                            <div className="font-black text-[11px] md:text-xs text-slate-950 truncate drop-shadow-xs leading-tight">
+                          {/* Comp Display Name & Dedicated Augment Label */}
+                          <div className="w-full px-1 flex flex-col items-center">
+                            <div className="font-black text-[11px] md:text-xs text-slate-950 truncate w-full drop-shadow-xs leading-tight">
                               {comp.display_name}
                             </div>
-                            <span className="text-[9px] md:text-[10px] text-slate-800 font-extrabold block truncate opacity-90">
-                              {carryName}
-                            </span>
+                            
+                            {comp.dedicated_augment ? (
+                              <div className="mt-0.5 inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-slate-900/90 text-amber-300 text-[9px] font-black border border-amber-400/60 shadow-2xs max-w-full truncate">
+                                <Award className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                                <span className="truncate">{comp.dedicated_augment}</span>
+                              </div>
+                            ) : (
+                              <span className="text-[9px] md:text-[10px] text-slate-800 font-extrabold block truncate opacity-90">
+                                {carryName}
+                              </span>
+                            )}
                           </div>
 
                           {/* Hover Inflate Glow Hint */}
@@ -427,11 +872,11 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
               条件に一致する構成が見つかりませんでした 🫧
             </p>
             <p className="text-xs text-slate-600 font-medium">
-              検索キーワードや絞り込み条件（シナジー・チャンピオン・Tier）を変更してください。
+              検索キーワードや絞り込み条件（シナジー・キャリー・チャンピオン・専用オーグメント・Tier）を変更してください。
             </p>
             <button
               onClick={resetFilters}
-              className="mt-2 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-sky-600 text-white text-xs font-black hover:bg-sky-700 transition shadow-md"
+              className="mt-2 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-sky-600 text-white text-xs font-black hover:bg-sky-700 transition shadow-md cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" /> 絞り込み条件をリセット
             </button>

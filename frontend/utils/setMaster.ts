@@ -419,7 +419,137 @@ const ITEM_ICON_KEYS: { [key: string]: string } = {
   "FaeEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png",
   "Fae Emblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png",
   "faeemblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png",
-  "フェイの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png"
+  "フェイの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png",
+
+  // Invoker Emblem
+  "TFT18_Item_InvokerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "TFT_Item_InvokerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "DA_18_EmblemInvoker": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "InvokerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "Invoker Emblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "invokeremblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "インヴォーカーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+  "インヴォーカー 紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_invoker.png",
+
+  // Elderwood Emblem
+  "TFT18_Item_ElderwoodEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "TFT_Item_ElderwoodEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "DA_18_EmblemElderwood": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "ElderwoodEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "Elderwood Emblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "elderwoodemblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "エルダーウッドの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+  "エルダーウッド 紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+
+  // Inferno Emblem
+  "TFT18_Item_InfernoEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "TFT_Item_InfernoEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "DA_18_EmblemInferno": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "InfernoEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "Inferno Emblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "infernoemblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "インフェルノの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+  "インフェルノ 紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+
+  // Executioner Emblem
+  "TFT18_Item_ExecutionerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "TFT_Item_ExecutionerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "DA_18_EmblemExecutioner": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "ExecutionerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "Executioner Emblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "executioneremblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "エクセキューショナーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+  "エクセキューショナー 紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_executioner.png",
+
+  // Blackthorn Emblem
+  "TFT18_Item_BlackthornEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blackthorn.png",
+  "BlackthornEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blackthorn.png",
+  "ブラックソーンの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blackthorn.png",
+
+  // Blossom Emblem
+  "TFT18_Item_BlossomEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blossom.png",
+  "BlossomEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blossom.png",
+  "ブロッサムの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blossom.png",
+
+  // Witch Emblem
+  "TFT18_Item_WitchEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_witch.png",
+  "WitchEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_witch.png",
+  "魔女の紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_witch.png",
+
+  // Solar Emblem
+  "TFT18_Item_SolarEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_solar.png",
+  "SolarEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_solar.png",
+  "ソーラーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_solar.png",
+
+  // Primal Emblem
+  "TFT18_Item_PrimalEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_primal.png",
+  "PrimalEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_primal.png",
+  "プライマルの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_primal.png",
+
+  // Lunar Emblem
+  "TFT18_Item_LunarEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_lunar.png",
+  "LunarEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_lunar.png",
+  "ルナーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_lunar.png",
+
+  // Hunter Emblem
+  "TFT18_Item_HunterEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_hunter.png",
+  "HunterEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_hunter.png",
+  "ハンターの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_hunter.png",
+
+  // Defender Emblem
+  "TFT18_Item_DefenderEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_defender.png",
+  "DefenderEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_defender.png",
+  "ディフェンダーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_defender.png",
+
+  // Vanguard Emblem
+  "TFT18_Item_VanguardEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_vanguard.png",
+  "VanguardEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_vanguard.png",
+  "ヴァンガードの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_vanguard.png",
+
+  // Juggernaut Emblem
+  "TFT18_Item_JuggernautEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_juggernaut.png",
+  "JuggernautEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_juggernaut.png",
+  "ジャガーノートの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_juggernaut.png",
+
+  // Brawler Emblem
+  "TFT18_Item_BrawlerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_brawler.png",
+  "BrawlerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_brawler.png",
+  "ブローラーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_brawler.png",
+
+  // Spellweaver Emblem
+  "TFT18_Item_SpellweaverEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_spellweaver.png",
+  "SpellweaverEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_spellweaver.png",
+  "スペルウィーバーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_spellweaver.png",
+
+  // Rapidfire Emblem
+  "TFT18_Item_RapidfireEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_rapidfire.png",
+  "RapidfireEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_rapidfire.png",
+  "ラピッドファイアの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_rapidfire.png",
+
+  // Ravager Emblem
+  "TFT18_Item_RavagerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_ravager.png",
+  "RavagerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_ravager.png",
+  "ラヴィジャーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_ravager.png",
+
+  // Slayer Emblem
+  "TFT18_Item_SlayerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_slayer.png",
+  "SlayerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_slayer.png",
+  "スレイヤーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_slayer.png",
+
+  // Summoner Emblem
+  "TFT18_Item_SummonerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_summoner.png",
+  "SummonerEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_summoner.png",
+  "サモナーの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_summoner.png",
+
+  // Spriteling Emblem
+  "TFT18_Item_SpritelingEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_spriteling.png",
+  "SpritelingEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_spriteling.png",
+  "スプライキンの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_spriteling.png",
+
+  // Adapter Emblem
+  "TFT18_Item_AdapterEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_adapter.png",
+  "AdapterEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_adapter.png",
+  "アダプターの紋章": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_adapter.png"
 };
 
 /**
@@ -850,7 +980,29 @@ const STANDARD_SET_ITEMS: MasterItem[] = [
   { id: "TFT_Item_Evenshroud", name: "イーブンシュラウド", icon: getItemIcon("TFT_Item_Evenshroud"), desc: "体力+150、魔法防御+20。周囲2マスの敵の物理防御を30%低下させる。" },
   { id: "TFT18_Item_FloraFatalisEmblem", name: "フローラ・ファターリスの紋章", icon: getItemIcon("TFT18_Item_FloraFatalisEmblem"), desc: "フローラ・ファターリス特性を獲得する。" },
   { id: "TFT18_Item_FaeEmblem", name: "フェイの紋章", icon: getItemIcon("TFT18_Item_FaeEmblem"), desc: "フェイ特性を獲得する。" },
-  { id: "DA_18_EmblemFae", name: "フェイの紋章", icon: getItemIcon("DA_18_EmblemFae"), desc: "フェイ特性を獲得する。" }
+  { id: "DA_18_EmblemFae", name: "フェイの紋章", icon: getItemIcon("DA_18_EmblemFae"), desc: "フェイ特性を獲得する。" },
+  { id: "TFT18_Item_InvokerEmblem", name: "インヴォーカーの紋章", icon: getItemIcon("TFT18_Item_InvokerEmblem"), desc: "インヴォーカー特性を獲得する。" },
+  { id: "TFT18_Item_ElderwoodEmblem", name: "エルダーウッドの紋章", icon: getItemIcon("TFT18_Item_ElderwoodEmblem"), desc: "エルダーウッド特性を獲得する。" },
+  { id: "TFT18_Item_InfernoEmblem", name: "インフェルノの紋章", icon: getItemIcon("TFT18_Item_InfernoEmblem"), desc: "インフェルノ特性を獲得する。" },
+  { id: "TFT18_Item_ExecutionerEmblem", name: "エクセキューショナーの紋章", icon: getItemIcon("TFT18_Item_ExecutionerEmblem"), desc: "エクセキューショナー特性を獲得する。" },
+  { id: "TFT18_Item_BlackthornEmblem", name: "ブラックソーンの紋章", icon: getItemIcon("TFT18_Item_BlackthornEmblem"), desc: "ブラックソーン特性を獲得する。" },
+  { id: "TFT18_Item_BlossomEmblem", name: "ブロッサムの紋章", icon: getItemIcon("TFT18_Item_BlossomEmblem"), desc: "ブロッサム特性を獲得する。" },
+  { id: "TFT18_Item_WitchEmblem", name: "魔女の紋章", icon: getItemIcon("TFT18_Item_WitchEmblem"), desc: "魔女特性を獲得する。" },
+  { id: "TFT18_Item_SolarEmblem", name: "ソーラーの紋章", icon: getItemIcon("TFT18_Item_SolarEmblem"), desc: "ソーラー特性を獲得する。" },
+  { id: "TFT18_Item_PrimalEmblem", name: "プライマルの紋章", icon: getItemIcon("TFT18_Item_PrimalEmblem"), desc: "プライマル特性を獲得する。" },
+  { id: "TFT18_Item_LunarEmblem", name: "ルナーの紋章", icon: getItemIcon("TFT18_Item_LunarEmblem"), desc: "ルナー特性を獲得する。" },
+  { id: "TFT18_Item_HunterEmblem", name: "ハンターの紋章", icon: getItemIcon("TFT18_Item_HunterEmblem"), desc: "ハンター特性を獲得する。" },
+  { id: "TFT18_Item_DefenderEmblem", name: "ディフェンダーの紋章", icon: getItemIcon("TFT18_Item_DefenderEmblem"), desc: "ディフェンダー特性を獲得する。" },
+  { id: "TFT18_Item_VanguardEmblem", name: "ヴァンガードの紋章", icon: getItemIcon("TFT18_Item_VanguardEmblem"), desc: "ヴァンガード特性を獲得する。" },
+  { id: "TFT18_Item_JuggernautEmblem", name: "ジャガーノートの紋章", icon: getItemIcon("TFT18_Item_JuggernautEmblem"), desc: "ジャガーノート特性を獲得する。" },
+  { id: "TFT18_Item_BrawlerEmblem", name: "ブローラーの紋章", icon: getItemIcon("TFT18_Item_BrawlerEmblem"), desc: "ブローラー特性を獲得する。" },
+  { id: "TFT18_Item_SpellweaverEmblem", name: "スペルウィーバーの紋章", icon: getItemIcon("TFT18_Item_SpellweaverEmblem"), desc: "スペルウィーバー特性を獲得する。" },
+  { id: "TFT18_Item_RapidfireEmblem", name: "ラピッドファイアの紋章", icon: getItemIcon("TFT18_Item_RapidfireEmblem"), desc: "ラピッドファイア特性を獲得する。" },
+  { id: "TFT18_Item_RavagerEmblem", name: "ラヴィジャーの紋章", icon: getItemIcon("TFT18_Item_RavagerEmblem"), desc: "ラヴィジャー特性を獲得する。" },
+  { id: "TFT18_Item_SlayerEmblem", name: "スレイヤーの紋章", icon: getItemIcon("TFT18_Item_SlayerEmblem"), desc: "スレイヤー特性を獲得する。" },
+  { id: "TFT18_Item_SummonerEmblem", name: "サモナーの紋章", icon: getItemIcon("TFT18_Item_SummonerEmblem"), desc: "サモナー特性を獲得する。" },
+  { id: "TFT18_Item_SpritelingEmblem", name: "スプライキンの紋章", icon: getItemIcon("TFT18_Item_SpritelingEmblem"), desc: "スプライキン特性を獲得する。" },
+  { id: "TFT18_Item_AdapterEmblem", name: "アダプターの紋章", icon: getItemIcon("TFT18_Item_AdapterEmblem"), desc: "アダプター特性を獲得する。" }
 ];
 
 STANDARD_SET_ITEMS.forEach(i => {
