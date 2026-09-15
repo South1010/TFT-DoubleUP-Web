@@ -349,7 +349,8 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
   const resolveCarryInfo = (mainCarry: { id?: string; name?: string; icon?: string }) => {
     if (!mainCarry) return { name: 'ユニット', icon: '' };
     const master = getChampion(mainCarry.id || mainCarry.name);
-    const name = mainCarry.name || master.name || 'ユニット';
+    const rawName = mainCarry.name || master.name || 'ユニット';
+    const name = getChampionName(rawName);
     const icon = mainCarry.icon || master.icon || getChampionIcon(mainCarry.id || name);
     return { name, icon };
   };

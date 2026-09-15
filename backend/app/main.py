@@ -125,10 +125,7 @@ def on_startup():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE aggregated_comps SET is_custom = 1 WHERE is_custom IS NULL OR is_custom = 0")
-    cursor.execute("SELECT COUNT(*) as cnt FROM aggregated_comps WHERE is_custom = 1")
-    row = cursor.fetchone()
-    if not row or row["cnt"] < 20:
-        load_custom_comps_from_seed(cursor)
+    load_custom_comps_from_seed(cursor)
     _sync_all_bidirectional_partners(cursor)
     _normalize_display_orders(cursor)
     conn.commit()
