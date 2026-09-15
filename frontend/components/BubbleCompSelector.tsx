@@ -135,13 +135,16 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
   const availableCarryChampions = useMemo(() => {
     const carryMap = new Map<string, ChampOption>();
     comps.forEach((c) => {
-      if (c.main_carry?.name) {
-        const master = getChampion(c.main_carry.id || c.main_carry.name);
-        const name = c.main_carry.name || master.name;
-        const icon = c.main_carry.icon || master.icon || getChampionIcon(c.main_carry.id || name);
-        const cost = c.main_carry.cost || master.cost || 1;
-        if (name && !carryMap.has(name)) {
-          carryMap.set(name, { name, icon, cost });
+      if (c.main_carry) {
+        const rawIdOrName = c.main_carry.id || c.main_carry.name || '';
+        if (rawIdOrName) {
+          const master = getChampion(rawIdOrName);
+          const cleanName = getChampionName(rawIdOrName) || master.name;
+          const icon = master.icon || c.main_carry.icon || getChampionIcon(rawIdOrName);
+          const cost = master.cost || (c.main_carry.cost && c.main_carry.cost > 1 ? c.main_carry.cost : 1);
+          if (cleanName && cleanName !== '未知のユニット' && !carryMap.has(cleanName)) {
+            carryMap.set(cleanName, { name: cleanName, icon, cost });
+          }
         }
       }
     });
@@ -155,24 +158,27 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
   const availableChampions = useMemo(() => {
     const champMap = new Map<string, ChampOption>();
     comps.forEach((c) => {
-      if (c.main_carry?.name) {
-        const master = getChampion(c.main_carry.id || c.main_carry.name);
-        const name = c.main_carry.name || master.name;
-        const icon = c.main_carry.icon || master.icon || getChampionIcon(c.main_carry.id || name);
-        const cost = c.main_carry.cost || master.cost || 1;
-        if (name && !champMap.has(name)) {
-          champMap.set(name, { name, icon, cost });
+      if (c.main_carry) {
+        const rawIdOrName = c.main_carry.id || c.main_carry.name || '';
+        if (rawIdOrName) {
+          const master = getChampion(rawIdOrName);
+          const cleanName = getChampionName(rawIdOrName) || master.name;
+          const icon = master.icon || c.main_carry.icon || getChampionIcon(rawIdOrName);
+          const cost = master.cost || (c.main_carry.cost && c.main_carry.cost > 1 ? c.main_carry.cost : 1);
+          if (cleanName && cleanName !== '未知のユニット' && !champMap.has(cleanName)) {
+            champMap.set(cleanName, { name: cleanName, icon, cost });
+          }
         }
       }
       (c.units_detail || []).forEach((u: any) => {
-        const uName = typeof u === 'string' ? u : u.name || u.id;
-        if (uName) {
-          const master = getChampion(uName);
-          const name = master.name || uName;
-          const icon = master.icon || getChampionIcon(uName);
-          const cost = (typeof u === 'object' && u.cost) || master.cost || 1;
-          if (name && !champMap.has(name)) {
-            champMap.set(name, { name, icon, cost });
+        const rawUnit = typeof u === 'string' ? u : (u.id || u.name || '');
+        if (rawUnit) {
+          const master = getChampion(rawUnit);
+          const cleanName = getChampionName(rawUnit) || master.name;
+          const icon = master.icon || (typeof u === 'object' && u.icon) || getChampionIcon(rawUnit);
+          const unitCost = master.cost || (typeof u === 'object' && u.cost && u.cost > 1 ? u.cost : 1);
+          if (cleanName && cleanName !== '未知のユニット' && !champMap.has(cleanName)) {
+            champMap.set(cleanName, { name: cleanName, icon, cost: unitCost });
           }
         }
       });
@@ -213,16 +219,24 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
         // Dedicated carry champion filter
         const matchesCarry =
           selectedCarryChampion === 'ALL' ||
-          (comp.main_carry?.name && comp.main_carry.name.includes(selectedCarryChampion));
+          (comp.main_carry && (
+            getChampionName(comp.main_carry.id || comp.main_carry.name) === selectedCarryChampion ||
+            comp.main_carry.name?.includes(selectedCarryChampion)
+          ));
 
         // Composition unit champion filter
         const matchesChampion =
           selectedChampion === 'ALL' ||
-          comp.main_carry?.name?.includes(selectedChampion) ||
+          (comp.main_carry && (
+            getChampionName(comp.main_carry.id || comp.main_carry.name) === selectedChampion ||
+            comp.main_carry.name?.includes(selectedChampion)
+          )) ||
           (comp.units_detail || []).some((u: any) => {
-            const uName = typeof u === 'string' ? u : u.name || u.id;
-            const master = getChampion(uName);
-            return (master.name || uName || '').includes(selectedChampion);
+            const uRaw = typeof u === 'string' ? u : u.id || u.name;
+            return (
+              getChampionName(uRaw) === selectedChampion ||
+              (typeof u === 'object' && u.name && u.name.includes(selectedChampion))
+            );
           });
 
         // Dedicated augment filter
