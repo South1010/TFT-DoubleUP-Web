@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -7,22 +7,12 @@ RUN npm ci
 
 COPY . .
 
-# Set environment variables for build
 ENV NEXT_PUBLIC_ENABLE_ADMIN=true
-RUN npm run build
-
-FROM node:18-alpine AS runner
-
-WORKDIR /app
-
+ENV BACKEND_INTERNAL_URL=http://backend:8000
 ENV NODE_ENV=production
 ENV PORT=3000
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
+RUN npm run build
 
 EXPOSE 3000
 

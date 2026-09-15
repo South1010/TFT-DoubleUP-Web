@@ -4,8 +4,26 @@ import Header from '@/components/Header';
 import AmbientBubbleBackground from '@/components/AmbientBubbleBackground';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://doubleup-gg.com'),
   title: 'DoubleUp.GG ⚔️ TFT ダブルアップ特化 統計 & メタ分析',
   description: 'Teamfight Tactics (TFT) ダブルアップモード (Queue 1160) 専用のTop 100対戦データ解析・Meta Tierリスト・チャンピオン推奨アイテム・パートナーシナジー攻略サイト',
+  keywords: ['TFT', 'チームファイトタクティクス', 'ダブルアップ', 'Double Up', 'メタ構成', 'ティアリスト', 'TFT 統計', 'TFT 攻略'],
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'DoubleUp.GG ⚔️ TFT ダブルアップ特化 統計 & メタ分析',
+    description: 'TFTダブルアップモード専用のTierリスト・チームシナジー・統計解析データサイト',
+    url: 'https://doubleup-gg.com',
+    siteName: 'DoubleUp.GG',
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DoubleUp.GG ⚔️ TFT ダブルアップ特化 統計 & メタ分析',
+    description: 'TFTダブルアップモード専用のTierリスト・チームシナジー・統計解析データサイト',
+  },
 };
 
 export default function RootLayout({

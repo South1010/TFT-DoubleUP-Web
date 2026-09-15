@@ -1,0 +1,8 @@
+{
+  "files.exclude": {
+    "app": true
+  },
+  "search.exclude": {
+    "app": true
+  }
+}

@@ -21,6 +21,9 @@ cloudflared.exe
 
 # Logs & temp
 *.log
+*.db-journal
+*.db-shm
+*.db-wal
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

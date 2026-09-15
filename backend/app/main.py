@@ -1,5 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, Query
 from fastapi.middleware.cors import CORSMiddleware
+import os
 import json
 from app.database import init_db, get_connection
 from app.services.crawler import crawl_and_save, seed_sample_data
@@ -62,13 +63,74 @@ def _sync_all_bidirectional_partners(cursor):
                 (json.dumps(sorted_list), ckey)
             )
 
+def load_custom_comps_from_seed(cursor):
+    seed_path = os.path.join(os.path.dirname(__file__), "custom_comps_seed.json")
+    if os.path.exists(seed_path):
+        try:
+            with open(seed_path, "r", encoding="utf-8") as f:
+                comps = json.load(f)
+            for idx, c in enumerate(comps):
+                best_items_val = c.get("best_items_json") if isinstance(c.get("best_items_json"), str) else json.dumps(c.get("best_items_json", []))
+                units_detail_val = c.get("units_detail_json") if isinstance(c.get("units_detail_json"), str) else json.dumps(c.get("units_detail_json", []))
+                rec_augments_val = c.get("recommended_augments_json") if isinstance(c.get("recommended_augments_json"), str) else json.dumps(c.get("recommended_augments_json", []))
+                level_boards_val = c.get("level_boards_json") if isinstance(c.get("level_boards_json"), str) else json.dumps(c.get("level_boards_json", {}))
+                partner_keys_val = c.get("partner_comp_keys_json") if isinstance(c.get("partner_comp_keys_json"), str) else json.dumps(c.get("partner_comp_keys_json", []))
+
+                cursor.execute("""
+                    INSERT OR REPLACE INTO aggregated_comps 
+                    (comp_key, queue_id, display_name, main_carry_id, traits_summary, sample_size, avg_placement, top2_rate, top4_rate, win_rate, tier, best_items_json, units_detail_json, reroll_level, overview, play_conditions, progression_guide, dedicated_augment, recommended_augments_json, level_boards_json, partner_comp_keys_json, is_custom, display_order)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+                """, (
+                    c["comp_key"],
+                    c.get("queue_id", 1160),
+                    c["display_name"],
+                    c["main_carry_id"],
+                    c.get("traits_summary", ""),
+                    c.get("sample_size", 100),
+                    c.get("avg_placement", 1.5),
+                    c.get("top2_rate", 80.0),
+                    c.get("top4_rate", 90.0),
+                    c.get("win_rate", 40.0),
+                    c.get("tier", "S"),
+                    best_items_val,
+                    units_detail_val,
+                    c.get("reroll_level", "Standard"),
+                    c.get("overview", ""),
+                    c.get("play_conditions", ""),
+                    c.get("progression_guide", ""),
+                    c.get("dedicated_augment", ""),
+                    rec_augments_val,
+                    level_boards_val,
+                    partner_keys_val,
+                    c.get("display_order", idx)
+                ))
+            print(f"Loaded {len(comps)} custom comps from custom_comps_seed.json successfully.")
+        except Exception as e:
+            print(f"Error loading custom_comps_seed.json: {e}")
+
+def dump_custom_comps_to_seed(cursor):
+    seed_path = os.path.join(os.path.dirname(__file__), "custom_comps_seed.json")
+    try:
+        cursor.execute("SELECT * FROM aggregated_comps WHERE is_custom = 1 ORDER BY COALESCE(display_order, 0) ASC, rowid ASC")
+        rows = cursor.fetchall()
+        comps_data = [dict(r) for r in rows]
+        with open(seed_path, "w", encoding="utf-8") as f:
+            json.dump(comps_data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error dumping custom_comps_seed.json: {e}")
+
 @app.on_event("startup")
 def on_startup():
     init_db()
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM aggregated_comps WHERE is_custom != 1 OR is_custom IS NULL")
+    cursor.execute("UPDATE aggregated_comps SET is_custom = 1 WHERE is_custom IS NULL OR is_custom = 0")
+    cursor.execute("SELECT COUNT(*) as cnt FROM aggregated_comps WHERE is_custom = 1")
+    row = cursor.fetchone()
+    if not row or row["cnt"] < 20:
+        load_custom_comps_from_seed(cursor)
     _sync_all_bidirectional_partners(cursor)
+    _normalize_display_orders(cursor)
     conn.commit()
     conn.close()
 
@@ -464,6 +526,7 @@ def create_or_update_comp(req: CustomCompSaveRequest):
     # データベース全域の双方向リンク完全同期および表示順序正規化
     _sync_all_bidirectional_partners(cursor)
     _normalize_display_orders(cursor)
+    dump_custom_comps_to_seed(cursor)
 
     conn.commit()
     conn.close()
@@ -513,6 +576,7 @@ def toggle_partner_link(req: TogglePartnerRequest):
         cursor.execute("UPDATE aggregated_comps SET partner_comp_keys_json = ? WHERE comp_key = ?", (json.dumps(tgt_list), tgt_key))
 
     _normalize_display_orders(cursor)
+    dump_custom_comps_to_seed(cursor)
     conn.commit()
     conn.close()
 
@@ -531,6 +595,7 @@ def reorder_comps(req: ReorderCompsRequest):
     cursor = conn.cursor()
     for idx, ckey in enumerate(req.comp_keys):
         cursor.execute("UPDATE aggregated_comps SET display_order = ? WHERE comp_key = ?", (idx, ckey))
+    dump_custom_comps_to_seed(cursor)
     conn.commit()
     conn.close()
     return {"status": "ok", "message": "表示順序を正常に更新しました"}
@@ -555,6 +620,7 @@ def delete_comp(comp_key: str, passcode: str = Query(...)):
 
     cursor.execute("DELETE FROM aggregated_comps WHERE comp_key = ?", (comp_key,))
     _normalize_display_orders(cursor)
+    dump_custom_comps_to_seed(cursor)
     conn.commit()
     conn.close()
     return {"status": "ok", "message": f"構成 {comp_key} を削除しました"}
