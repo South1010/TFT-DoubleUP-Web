@@ -1,20 +1,20 @@
 export interface Item {
   id: string;
-  name: string;
-  icon: string;
+  name?: string;
+  icon?: string;
 }
 
 export interface UnitDetail {
   id: string;
-  name: string;
-  cost: number;
-  icon: string;
-  role: string;
-  row: number; // 0..3
-  col: number; // 0..6
-  star: number; // 1..3
+  name?: string;
+  cost?: number;
+  icon?: string;
+  role?: string;
+  row?: number; // 0..3
+  col?: number; // 0..6
+  star?: number; // 1..3
   traits?: string[];
-  items: Item[];
+  items?: (Item | string)[];
 }
 
 export interface PartnerCompSummary {

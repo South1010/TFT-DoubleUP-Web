@@ -195,7 +195,7 @@ export function parseTraitsSummary(traitsSummary?: string): ParsedTrait[] {
 
 export interface UnitDetailWithTraits {
   id: string;
-  name: string;
+  name?: string;
   cost?: number;
   icon?: string;
   role?: string;

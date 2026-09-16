@@ -10,7 +10,7 @@ echo.
 
 echo [1/3] Committing and pushing local changes to GitHub...
 git add .
-git commit -m "Fix CompDetailModal costColor type error and update_vps script"
+git commit -m "Fix UnitDetail and Item TypeScript types for Next.js build"
 git push origin main
 
 echo.
