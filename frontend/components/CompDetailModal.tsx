@@ -60,76 +60,10 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
     t.name.includes('Blackthorn')
   );
 
-  // 4x7 Hexagonal Board Representation
-  const renderBoardGrid = () => {
-    const levelTabs = ['FINAL', '3', '4', '5', '6', '7', '8', '9'];
+  const dedicatedAugmentStyle = comp.dedicated_augment ? getAugmentTierStyle(comp.dedicated_augment) : null;
+  const dedicatedAugmentIcon = comp.dedicated_augment && dedicatedAugmentStyle ? getAugmentIcon(comp.dedicated_augment, dedicatedAugmentStyle.tier) : '';
 
-    return (
-      <div className="p-6 bg-gradient-to-b from-sky-100/80 via-sky-50/40 to-white rounded-2xl border border-sky-200 shadow-sm overflow-x-auto space-y-4">
-        
-        {/* Level Selector Tabs */}
-        <div className="flex items-center justify-between gap-2 border-b border-sky-200/80 pb-3 flex-wrap">
-          <div className="flex items-center gap-2 text-xs font-black text-sky-900">
-            <Grid className="w-4 h-4 text-sky-600" />
-            <span>プレイヤーレベル別 盤面配置:</span>
-          </div>
-          <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-sky-200 shadow-2xs overflow-x-auto">
-            {levelTabs.map((lvl) => {
-              const hasCustomBoard = lvl === 'FINAL' || (comp.level_boards && comp.level_boards[lvl]);
-              return (
-                <button
-                  key={lvl}
-                  onClick={() => setSelectedLevel(lvl)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                    selectedLevel === lvl
-                      ? 'bg-sky-500 text-white shadow-md font-black'
-                      : hasCustomBoard
-                      ? 'text-slate-700 hover:bg-sky-50'
-                      : 'text-slate-400 hover:text-slate-600 opacity-60'
-                  }`}
-                >
-                  {lvl === 'FINAL' ? '完成形 (Lv8-9)' : `Lv.${lvl}`}
-                  {hasCustomBoard && lvl !== 'FINAL' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Active Traits summary bar */}
-        <div className="p-3 bg-white rounded-xl border border-sky-200 shadow-xs flex items-center gap-2 overflow-x-auto">
-          <span className="text-[11px] font-bold text-slate-600 shrink-0 flex items-center gap-1">
-            <Zap className="w-3.5 h-3.5 text-amber-500" /> 発動中シナジー ({activeTraits.length}):
-          </span>
-          <div className="flex items-center gap-1.5 flex-nowrap">
-            {activeTraits.map((t, idx) => (
-              <span
-                key={idx}
-                className={`inline-flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg border shrink-0 ${t.bgClass} ${t.borderClass} ${t.colorClass}`}
-              >
-                <span className={`px-1 rounded text-[9px] ${t.badgeBg}`}>{t.count}</span>
-                <span>{t.name}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* 4x7 Hex Grid Container */}
-        <TftHexBoard
-          units={currentUnits}
-          theme="light"
-          isBloodthornsActive={isBloodthornsActive}
-        />
-
-        <div className="flex items-center justify-between text-[11px] text-slate-500 font-bold pt-2.5 border-t border-sky-200/80">
-          <span>Row 1: 最前衛 タンクライン</span>
-          <span>Row 4: 最後衛 キャリーライン</span>
-        </div>
-      </div>
-    );
-  };
+  const levelTabs = ['FINAL', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn overflow-y-auto">
@@ -232,7 +166,71 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
         <div className="mt-5 space-y-5">
 
           {/* TAB 1: 4x7 Board Grid View */}
-          {activeTab === 'BOARD' && renderBoardGrid()}
+          {activeTab === 'BOARD' && (
+            <div className="p-6 bg-gradient-to-b from-sky-100/80 via-sky-50/40 to-white rounded-2xl border border-sky-200 shadow-sm overflow-x-auto space-y-4">
+              
+              {/* Level Selector Tabs */}
+              <div className="flex items-center justify-between gap-2 border-b border-sky-200/80 pb-3 flex-wrap">
+                <div className="flex items-center gap-2 text-xs font-black text-sky-900">
+                  <Grid className="w-4 h-4 text-sky-600" />
+                  <span>プレイヤーレベル別 盤面配置:</span>
+                </div>
+                <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-sky-200 shadow-2xs overflow-x-auto">
+                  {levelTabs.map((lvl) => {
+                    const hasCustomBoard = lvl === 'FINAL' || (comp.level_boards && comp.level_boards[lvl]);
+                    return (
+                      <button
+                        key={lvl}
+                        onClick={() => setSelectedLevel(lvl)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          selectedLevel === lvl
+                            ? 'bg-sky-500 text-white shadow-md font-black'
+                            : hasCustomBoard
+                            ? 'text-slate-700 hover:bg-sky-50'
+                            : 'text-slate-400 hover:text-slate-600 opacity-60'
+                        }`}
+                      >
+                        {lvl === 'FINAL' ? '完成形 (Lv8-9)' : `Lv.${lvl}`}
+                        {hasCustomBoard && lvl !== 'FINAL' && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Active Traits summary bar */}
+              <div className="p-3 bg-white rounded-xl border border-sky-200 shadow-xs flex items-center gap-2 overflow-x-auto">
+                <span className="text-[11px] font-bold text-slate-600 shrink-0 flex items-center gap-1">
+                  <Zap className="w-3.5 h-3.5 text-amber-500" /> 発動中シナジー ({activeTraits.length}):
+                </span>
+                <div className="flex items-center gap-1.5 flex-nowrap">
+                  {activeTraits.map((t, idx) => (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg border shrink-0 ${t.bgClass} ${t.borderClass} ${t.colorClass}`}
+                    >
+                      <span className={`px-1 rounded text-[9px] ${t.badgeBg}`}>{t.count}</span>
+                      <span>{t.name}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4x7 Hex Grid Container */}
+              <TftHexBoard
+                units={currentUnits}
+                theme="light"
+                isBloodthornsActive={isBloodthornsActive}
+              />
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 font-bold pt-2.5 border-t border-sky-200/80">
+                <span>Row 1: 最前衛 タンクライン</span>
+                <span>Row 4: 最後衛 キャリーライン</span>
+              </div>
+            </div>
+          )}
 
           {/* TAB 2: Recommended Partner Comps for Double Up */}
           {activeTab === 'PARTNERS' && (
@@ -327,17 +325,13 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
                   <div className="text-xs font-black text-amber-400 flex items-center gap-1.5 uppercase">
                     <Award className="w-4 h-4 text-amber-400" /> 専用・キーオーグメント
                   </div>
-                  {comp.dedicated_augment ? (() => {
-                    const style = getAugmentTierStyle(comp.dedicated_augment);
-                    const iconUrl = getAugmentIcon(comp.dedicated_augment, style.tier);
-                    return (
-                      <div className={`text-xs font-extrabold px-3 py-1.5 rounded-lg border inline-flex items-center gap-2 shadow-sm ${style.cardSelectedBorder} ${style.cardSelectedBg} ${style.cardSelectedText} ${style.glow}`}>
-                        <img src={iconUrl} alt={comp.dedicated_augment} className="w-6 h-6 rounded-lg object-contain bg-slate-950/80 p-0.5 border border-white/20 shrink-0 shadow-sm" />
-                        <span className={`px-1.5 py-0.5 text-[9px] rounded-md shrink-0 font-black ${style.badgeBg}`}>{style.label}</span>
-                        <span className="font-bold">{comp.dedicated_augment}</span>
-                      </div>
-                    );
-                  })() : (
+                  {comp.dedicated_augment && dedicatedAugmentStyle ? (
+                    <div className={`text-xs font-extrabold px-3 py-1.5 rounded-lg border inline-flex items-center gap-2 shadow-sm ${dedicatedAugmentStyle.cardSelectedBorder} ${dedicatedAugmentStyle.cardSelectedBg} ${dedicatedAugmentStyle.cardSelectedText} ${dedicatedAugmentStyle.glow}`}>
+                      <img src={dedicatedAugmentIcon} alt={comp.dedicated_augment} className="w-6 h-6 rounded-lg object-contain bg-slate-950/80 p-0.5 border border-white/20 shrink-0 shadow-sm" />
+                      <span className={`px-1.5 py-0.5 text-[9px] rounded-md shrink-0 font-black ${dedicatedAugmentStyle.badgeBg}`}>{dedicatedAugmentStyle.label}</span>
+                      <span className="font-bold">{comp.dedicated_augment}</span>
+                    </div>
+                  ) : (
                     <div className="text-xs text-slate-400 italic font-medium">汎用強化オーグメント対応</div>
                   )}
                 </div>
@@ -501,7 +495,7 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
                               alt={uName}
                               className={`w-11 h-11 rounded-xl border-2 object-cover ${costColor(uCost)}`}
                               onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
+                                e.currentTarget.style.display = 'none';
                               }}
                             />
                           ) : (
@@ -536,21 +530,22 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
                       </div>
 
                       <div className="flex items-center gap-1">
-                      {unit.items && unit.items.length > 0 ? (
-                        unit.items.map((item: any, idx: number) => {
-                          const itemKey = typeof item === 'string' ? item : (item.id || item.name || '');
-                          const itemName = typeof item === 'object' && item.name ? item.name : (getItemName(itemKey) || itemKey);
-                          const itemIcon = typeof item === 'object' && item.icon ? item.icon : getItemIcon(itemKey);
-                          return (
-                            <ItemIcon key={`${itemKey}-${idx}`} name={itemName} icon={itemIcon} size="sm" />
-                          );
-                        })
-                      ) : (
-                        <span className="text-[10px] text-slate-600">装備なし</span>
-                      )}
+                        {unit.items && unit.items.length > 0 ? (
+                          unit.items.map((item: any, idx: number) => {
+                            const itemKey = typeof item === 'string' ? item : (item.id || item.name || '');
+                            const itemName = typeof item === 'object' && item.name ? item.name : (getItemName(itemKey) || itemKey);
+                            const itemIcon = typeof item === 'object' && item.icon ? item.icon : getItemIcon(itemKey);
+                            return (
+                              <ItemIcon key={`${itemKey}-${idx}`} name={itemName} icon={itemIcon} size="sm" />
+                            );
+                          })
+                        ) : (
+                          <span className="text-[10px] text-slate-600">装備なし</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
