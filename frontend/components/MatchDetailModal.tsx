@@ -79,8 +79,8 @@ export default function MatchDetailModal({ match, onClose }: MatchDetailModalPro
     t.name.includes('Blackthorn')
   );
 
-  const costColor = (cost: number | string) => {
-    const c = Number(cost);
+  const costColor = (cost?: number | string | null) => {
+    const c = Number(cost || 1);
     switch (c) {
       case 5: return 'border-amber-400 text-amber-400 bg-amber-500/10';
       case 4: return 'border-purple-400 text-purple-400 bg-purple-500/10';

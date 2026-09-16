@@ -10,7 +10,7 @@ echo.
 
 echo [1/3] Committing and pushing local changes to GitHub...
 git add .
-git commit -m "Fix Item interface type and safe item search filter in admin"
+git commit -m "Fix costColor optional cost and champion details in CompDetailModal"
 git push origin main
 
 echo.

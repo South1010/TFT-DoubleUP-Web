@@ -42,8 +42,8 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
     comp.traits_summary
   );
 
-  const costColor = (cost: number | string) => {
-    const c = Number(cost);
+  const costColor = (cost?: number | string | null) => {
+    const c = Number(cost || 1);
     switch (c) {
       case 5: return 'border-amber-400 text-amber-400 bg-amber-500/10';
       case 4: return 'border-purple-400 text-purple-400 bg-purple-500/10';
@@ -483,51 +483,59 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
                 <span className="text-[10px] text-slate-400 font-semibold">💡 カーソル合わせで所持シナジー・装備詳細を表示</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
-                {currentUnits.map((unit) => (
-                  <div
-                    key={unit.id}
-                    className="flex items-center justify-between p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-slate-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        {unit.icon ? (
-                          <img
-                            src={unit.icon}
-                            alt={unit.name}
-                            className={`w-11 h-11 rounded-xl border-2 object-cover ${costColor(unit.cost)}`}
-                          />
-                        ) : (
-                          <div className="w-11 h-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-300">
-                            {unit.name}
-                          </div>
-                        )}
-                        <span className="absolute -bottom-1 -right-1 px-1 text-[8px] font-bold rounded bg-slate-900 text-cyan-300 border border-cyan-500/40">
-                          コスト{unit.cost}
-                        </span>
-                      </div>
+                {currentUnits.map((unit, uIdx) => {
+                  const uName = unit.name || getChampionName(unit.id) || unit.id;
+                  const uIcon = unit.icon || getChampionIcon(unit.id || unit.name);
+                  const uCost = unit.cost ?? 1;
 
-                      <div>
-                        <div className="font-bold text-sm text-white flex items-center gap-1.5">
-                          {unit.name}
-                          <span className="text-[10px] text-amber-300 font-bold bg-amber-500/20 px-1 rounded">
-                            ★{unit.star}
+                  return (
+                    <div
+                      key={`${unit.id}-${uIdx}`}
+                      className="flex items-center justify-between p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          {uIcon ? (
+                            <img
+                              src={uIcon}
+                              alt={uName}
+                              className={`w-11 h-11 rounded-xl border-2 object-cover ${costColor(uCost)}`}
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-11 h-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-300">
+                              {uName}
+                            </div>
+                          )}
+                          <span className="absolute -bottom-1 -right-1 px-1 text-[8px] font-bold rounded bg-slate-900 text-cyan-300 border border-cyan-500/40">
+                            コスト{uCost}
                           </span>
                         </div>
-                        {unit.traits && unit.traits.length > 0 ? (
-                          <div className="flex items-center gap-1 mt-0.5">
-                            {unit.traits.map((tName, tIdx) => (
-                              <span key={tIdx} className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-cyan-500/20 font-medium">
-                                {tName}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-[10px] text-cyan-300 font-semibold">{unit.role}</span>
-                        )}
-                      </div>
-                    </div>
 
-                    <div className="flex items-center gap-1">
+                        <div>
+                          <div className="font-bold text-sm text-white flex items-center gap-1.5">
+                            {uName}
+                            <span className="text-[10px] text-amber-300 font-bold bg-amber-500/20 px-1 rounded">
+                              ★{unit.star || 2}
+                            </span>
+                          </div>
+                          {unit.traits && unit.traits.length > 0 ? (
+                            <div className="flex items-center gap-1 mt-0.5">
+                              {unit.traits.map((tName, tIdx) => (
+                                <span key={tIdx} className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-cyan-500/20 font-medium">
+                                  {tName}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-cyan-300 font-semibold">{unit.role || 'ユニット'}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
                       {unit.items && unit.items.length > 0 ? (
                         unit.items.map((item: any, idx: number) => {
                           const itemKey = typeof item === 'string' ? item : (item.id || item.name || '');
