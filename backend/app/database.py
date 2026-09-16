@@ -99,5 +99,20 @@ def init_db():
     cursor.execute("UPDATE aggregated_comps SET display_order = 0 WHERE display_order IS NULL")
     cursor.execute("UPDATE aggregated_comps SET is_custom = 1 WHERE is_custom IS NULL OR is_custom = 0")
 
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        category TEXT DEFAULT '構成ガイド',
+        cover_image TEXT DEFAULT '',
+        summary TEXT DEFAULT '',
+        content TEXT DEFAULT '',
+        board_data_json TEXT DEFAULT '{}',
+        created_at INTEGER DEFAULT 0,
+        updated_at INTEGER DEFAULT 0,
+        is_published INTEGER DEFAULT 1
+    )
+    ''')
+
     conn.commit()
     conn.close()
