@@ -1,7 +1,7 @@
 export interface Item {
   id: string;
-  name?: string;
-  icon?: string;
+  name: string;
+  icon: string;
 }
 
 export interface UnitDetail {

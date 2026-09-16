@@ -2628,7 +2628,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-3 gap-1.5 max-h-[160px] overflow-y-auto p-1 bg-sky-50/50 rounded-xl border border-sky-200">
                 {items
-                  .filter(i => !itemSearchQuery || i.name.toLowerCase().includes(itemSearchQuery.toLowerCase()))
+                  .filter(i => !itemSearchQuery || (i.name || '').toLowerCase().includes(itemSearchQuery.toLowerCase()))
                   .map((i) => {
                     const count = selectedItemsForCell.filter(id => id === i.id).length;
                     const isMax = selectedItemsForCell.length >= 3;

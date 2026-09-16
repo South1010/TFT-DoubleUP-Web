@@ -10,7 +10,7 @@ echo.
 
 echo [1/3] Committing and pushing local changes to GitHub...
 git add .
-git commit -m "Safely handle item IDs and icons for string or Item in admin and CompDetailModal"
+git commit -m "Fix Item interface type and safe item search filter in admin"
 git push origin main
 
 echo.
