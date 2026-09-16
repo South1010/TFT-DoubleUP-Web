@@ -6,7 +6,7 @@ import ItemIcon from './ItemIcon';
 import TftHexBoard from './TftHexBoard';
 import { calculateAllTeamTraits } from '../utils/traitHelpers';
 import { CompStat, UnitDetail, getTierStyle } from '../utils/compTypes';
-import { getChampion, getChampionIcon, getChampionName, getItemIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
+import { getChampion, getChampionIcon, getChampionName, getItemIcon, getItemName, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
 
 interface CompDetailModalProps {
   comp: CompStat | null;
@@ -529,9 +529,14 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
 
                     <div className="flex items-center gap-1">
                       {unit.items && unit.items.length > 0 ? (
-                        unit.items.map((item, idx) => (
-                          <ItemIcon key={`${item.id || item.name}-${idx}`} name={item.name} icon={item.icon} size="sm" />
-                        ))
+                        unit.items.map((item: any, idx: number) => {
+                          const itemKey = typeof item === 'string' ? item : (item.id || item.name || '');
+                          const itemName = typeof item === 'object' && item.name ? item.name : (getItemName(itemKey) || itemKey);
+                          const itemIcon = typeof item === 'object' && item.icon ? item.icon : getItemIcon(itemKey);
+                          return (
+                            <ItemIcon key={`${itemKey}-${idx}`} name={itemName} icon={itemIcon} size="sm" />
+                          );
+                        })
                       ) : (
                         <span className="text-[10px] text-slate-600">装備なし</span>
                       )}

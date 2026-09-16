@@ -703,7 +703,7 @@ export default function AdminPage() {
     if (existingUnit) {
       setSelectedChampForCell(existingUnit.id);
       setSelectedStarForCell(existingUnit.star || 2);
-      setSelectedItemsForCell((existingUnit.items || []).map(i => i.id));
+      setSelectedItemsForCell((existingUnit.items || []).map((i: any) => typeof i === 'string' ? i : (i.id || '')));
     } else {
       setSelectedChampForCell(champions.length > 0 ? champions[0].id : '');
       setSelectedStarForCell(2);
@@ -1004,7 +1004,7 @@ export default function AdminPage() {
           row: u.row,
           col: u.col,
           star: u.star,
-          items: (u.items || []).map(i => i.id)
+          items: (u.items || []).map((i: any) => typeof i === 'string' ? i : (i.id || ''))
         }));
       }
     });
@@ -1015,7 +1015,7 @@ export default function AdminPage() {
       row: u.row,
       col: u.col,
       star: u.star,
-      items: (u.items || []).map(i => i.id)
+      items: (u.items || []).map((i: any) => typeof i === 'string' ? i : (i.id || ''))
     }));
 
     const targetCompKey = isNew || selectedCompKey === 'NEW' ? null : selectedCompKey;
