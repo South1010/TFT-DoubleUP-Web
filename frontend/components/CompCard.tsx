@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { ChevronRight, HeartHandshake, Award } from 'lucide-react';
+import { ChevronRight, HeartHandshake, Award, Sparkles, Zap } from 'lucide-react';
 import ItemIcon from './ItemIcon';
 import { parseTraitsSummary } from '../utils/traitHelpers';
 import { CompStat } from '../utils/compTypes';
-import { getChampion, getChampionIcon } from '../utils/setMaster';
+import { getChampion, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
 
 interface CompCardProps {
   comp: CompStat;
@@ -50,23 +50,47 @@ export default function CompCard({ comp, isSingleRank = false, onSelect }: CompC
   const mainCarryIcon = comp.main_carry.icon || mainCarryMaster.icon || getChampionIcon(comp.main_carry.id || mainCarryName);
   const mainCarryCost = comp.main_carry.cost || mainCarryMaster.cost;
 
+  // Dedicated augment styling
+  const dedicatedAugName = comp.dedicated_augment?.trim();
+  const augStyle = dedicatedAugName ? getAugmentTierStyle(dedicatedAugName) : null;
+  const augIcon = dedicatedAugName ? getAugmentIcon(dedicatedAugName, augStyle?.tier) : '';
+
   return (
     <div
       onClick={() => onSelect(comp)}
-      className="group relative glass-panel glass-panel-hover rounded-2xl p-5 cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
+      className="group relative glass-panel glass-panel-hover rounded-2xl p-5 cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 border border-sky-200/80 hover:border-sky-400"
     >
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
         
         {/* Left: Tier Badge & Comp Info */}
-        <div className="flex items-start gap-4 min-w-[300px]">
+        <div className="flex items-start gap-4 flex-1 min-w-[280px]">
           <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg tracking-wider shrink-0 transition-transform group-hover:scale-105 shadow-md ${getTierBadgeStyle(comp.tier)}`}>
             {comp.tier}
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-black text-lg text-slate-900 group-hover:text-sky-600 transition-colors">
                 {comp.display_name}
               </h3>
+
+              {/* Dedicated Augment Badge - Prominent Display */}
+              {dedicatedAugName && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-400/80 text-amber-900 shadow-2xs">
+                  {augIcon ? (
+                    <img
+                      src={augIcon}
+                      alt={dedicatedAugName}
+                      className="w-4 h-4 rounded object-cover"
+                      onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                  )}
+                  <span className="text-[11px] font-black tracking-tight">
+                    専用: {dedicatedAugName}
+                  </span>
+                </div>
+              )}
 
               {comp.reroll_level && (
                 <span className="text-[10px] px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
@@ -103,7 +127,7 @@ export default function CompCard({ comp, isSingleRank = false, onSelect }: CompC
         </div>
 
         {/* Center: Main Carry & Best Items */}
-        <div className="flex items-center gap-4 bg-sky-50/80 p-2.5 rounded-xl border border-sky-200/80">
+        <div className="flex items-center gap-4 bg-sky-50/80 p-2.5 rounded-xl border border-sky-200/80 shrink-0">
           <div className="relative">
             {mainCarryIcon ? (
               <img
@@ -135,7 +159,7 @@ export default function CompCard({ comp, isSingleRank = false, onSelect }: CompC
         </div>
 
         {/* Right Action Button */}
-        <div className="flex items-center justify-end w-full lg:w-auto pt-2 lg:pt-0">
+        <div className="flex items-center justify-end w-full lg:w-auto pt-2 lg:pt-0 shrink-0">
           <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center group-hover:bg-sky-500 group-hover:text-white transition-colors shadow-sm">
             <ChevronRight className="w-5 h-5" />
           </div>
@@ -145,3 +169,4 @@ export default function CompCard({ comp, isSingleRank = false, onSelect }: CompC
     </div>
   );
 }
+

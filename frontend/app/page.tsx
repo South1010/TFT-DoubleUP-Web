@@ -76,7 +76,21 @@ export default function Home() {
 
   // Strictly sort recommended partner comps by Tier weight (OP -> S -> A -> B -> C)
   const sortedPartnerComps = useMemo(() => {
-    if (!selectedMyComp || !selectedMyComp.partner_comps) return [];
+    if (!selectedMyComp) return [];
+
+    let pList: CompStat[] = [];
+    if (selectedMyComp.partner_comps && selectedMyComp.partner_comps.length > 0) {
+      pList = selectedMyComp.partner_comps.map(p => {
+        const full = comps.find(c => c.comp_key === p.comp_key);
+        return full || p;
+      });
+    } else if (selectedMyComp.partner_comp_keys && selectedMyComp.partner_comp_keys.length > 0) {
+      pList = selectedMyComp.partner_comp_keys
+        .map(key => comps.find(c => c.comp_key === key))
+        .filter((c): c is CompStat => Boolean(c));
+    }
+
+    if (pList.length === 0) return [];
 
     const TIER_WEIGHTS: Record<string, number> = { OP: 1, S: 2, A: 3, B: 4, C: 5 };
     const getWeight = (tier?: string) => {
@@ -84,19 +98,16 @@ export default function Home() {
       return TIER_WEIGHTS[tier.toUpperCase()] || 99;
     };
 
-    return [...selectedMyComp.partner_comps].sort((a, b) => {
+    return [...pList].sort((a, b) => {
       const wA = getWeight(a.tier);
       const wB = getWeight(b.tier);
       if (wA !== wB) return wA - wB;
 
-      const fullA = comps.find(c => c.comp_key === a.comp_key);
-      const fullB = comps.find(c => c.comp_key === b.comp_key);
-
-      const top2A = a.top2_rate || fullA?.top2_rate || 0;
-      const top2B = b.top2_rate || fullB?.top2_rate || 0;
+      const top2A = a.top2_rate || 0;
+      const top2B = b.top2_rate || 0;
       if (top2A !== top2B) return top2B - top2A;
 
-      return a.display_name.localeCompare(b.display_name, 'ja-JP');
+      return (a.display_name || '').localeCompare(b.display_name || '', 'ja-JP');
     });
   }, [selectedMyComp, comps]);
 
