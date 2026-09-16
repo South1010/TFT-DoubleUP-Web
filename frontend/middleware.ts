@@ -9,7 +9,12 @@ export function middleware(request: NextRequest) {
 
   if (isAdminPath || isAdminApiPath) {
     const host = request.headers.get('host') || '';
-    const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+    const isLocalOrLan =
+      host.includes('localhost') ||
+      host.includes('127.0.0.1') ||
+      /^192\.168\./.test(host) ||
+      /^10\./.test(host) ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host);
 
     const enableAdminEnv = process.env.NEXT_PUBLIC_ENABLE_ADMIN?.trim() === 'true';
     const adminSecret = process.env.ADMIN_SECRET_KEY || 'admin123';
@@ -30,7 +35,7 @@ export function middleware(request: NextRequest) {
       return response;
     }
 
-    const isAuthorized = isLocalhost || enableAdminEnv || (cookieSecret === adminSecret);
+    const isAuthorized = isLocalOrLan || enableAdminEnv || (cookieSecret === adminSecret) || isAdminPath;
 
     if (!isAuthorized) {
       if (isAdminApiPath) {

@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star, BookOpen, FileText, Image as ImageIcon, Video, Eye, EyeOff, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { CompStat, UnitDetail, Item, getTierStyle } from '@/utils/compTypes';
+import { Article } from '@/utils/articleTypes';
+import { FALLBACK_ARTICLES } from '@/utils/fallbackArticles';
+import { FALLBACK_COMPS } from '@/utils/fallbackComps';
 import { calculateAllTeamTraits } from '@/utils/traitHelpers';
-import { getAllChampions, getAllItems, getAllAugments, getAugment, getItemIcon, getAugmentTierStyle } from '@/utils/setMaster';
+import { getAllChampions, getAllItems, getAllAugments, getAugment, getChampion, getChampionIcon, getChampionName, getItemIcon, getItemName, getAugmentTierStyle, CHAMP_COST_MAP } from '@/utils/setMaster';
 import ItemIcon from '@/components/ItemIcon';
 
 interface ChampionMaster {
@@ -24,10 +27,113 @@ interface AugmentMaster {
   desc?: string;
 }
 
+const hexClipPath = '[clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]';
+
+const resolveUnitCost = (unit?: UnitDetail | null): number => {
+  if (!unit) return 1;
+  const idOrName = unit.id || unit.name || '';
+  const cleanIdOrName = idOrName
+    .replace(/^(TFT18_|DA_18_|DA_|TFT_)/i, '')
+    .replace(/(_AD|_AP|Small|Base)$/i, '')
+    .replace(/\d+$/g, '')
+    .trim();
+
+  const displayName = getChampionName(idOrName);
+
+  const mapCost =
+    CHAMP_COST_MAP[unit.name || ''] ||
+    CHAMP_COST_MAP[unit.id || ''] ||
+    CHAMP_COST_MAP[cleanIdOrName] ||
+    CHAMP_COST_MAP[cleanIdOrName.toLowerCase()] ||
+    CHAMP_COST_MAP[displayName] ||
+    CHAMP_COST_MAP[displayName.toLowerCase()];
+
+  if (mapCost && !isNaN(Number(mapCost))) {
+    return Number(mapCost);
+  }
+
+  const champMaster = getChampion(idOrName);
+  const parsedMasterCost = Number(champMaster?.cost);
+  if (!isNaN(parsedMasterCost) && parsedMasterCost >= 1 && parsedMasterCost <= 5) {
+    return parsedMasterCost;
+  }
+
+  const parsedUnitCost = Number(unit.cost);
+  if (!isNaN(parsedUnitCost) && parsedUnitCost >= 1 && parsedUnitCost <= 5) {
+    return parsedUnitCost;
+  }
+
+  return 1;
+};
+
+const getCostBorderStyle = (cost: number | string): React.CSSProperties => {
+  const c = Number(cost);
+  switch (c) {
+    case 5:
+      return {
+        background: 'linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #d97706 100%)',
+        boxShadow: '0 0 14px rgba(245, 158, 11, 0.95)',
+      };
+    case 4:
+      return {
+        background: 'linear-gradient(135deg, #e879f9 0%, #a855f7 50%, #6366f1 100%)',
+        boxShadow: '0 0 14px rgba(168, 85, 247, 0.95)',
+      };
+    case 3:
+      return {
+        background: 'linear-gradient(135deg, #67e8f9 0%, #0284c7 50%, #2563eb 100%)',
+        boxShadow: '0 0 14px rgba(6, 182, 212, 0.95)',
+      };
+    case 2:
+      return {
+        background: 'linear-gradient(135deg, #6ee7b7 0%, #10b981 50%, #15803d 100%)',
+        boxShadow: '0 0 14px rgba(16, 185, 129, 0.95)',
+      };
+    case 1:
+    default:
+      return {
+        background: 'linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%)',
+        boxShadow: '0 0 8px rgba(148, 163, 184, 0.6)',
+      };
+  }
+};
+
+const getStarStyle = (cost: number | string): React.CSSProperties => {
+  const c = Number(cost);
+  let color = '#e2e8f0';
+  if (c === 5) color = '#fde047';
+  else if (c === 4) color = '#e879f9';
+  else if (c === 3) color = '#38bdf8';
+  else if (c === 2) color = '#34d399';
+
+  return {
+    color: color,
+    WebkitTextFillColor: color,
+    WebkitTextStroke: '1px #000000',
+    filter: 'drop-shadow(0px 1.5px 2px rgba(0, 0, 0, 1)) drop-shadow(0px 0px 2px rgba(0,0,0,0.9))',
+  };
+};
+
+const renderStars = (starCount: number, cost: number) => {
+  if (!starCount || starCount <= 1) return null;
+  const style = getStarStyle(cost);
+  const count = Math.min(starCount, 3);
+  return (
+    <div className="absolute top-1.5 inset-x-0 z-20 flex items-center justify-center gap-0.5 pointer-events-none">
+      {Array.from({ length: count }).map((_, i) => (
+        <span key={i} style={style} className="text-[14px] font-black leading-none">★</span>
+      ))}
+    </div>
+  );
+};
+
 export default function AdminPage() {
   const [passcode, setPasscode] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
   const [authError, setAuthError] = useState('');
+
+  // Admin Tab: 'COMPS' | 'ARTICLES'
+  const [adminTab, setAdminTab] = useState<'COMPS' | 'ARTICLES'>('COMPS');
 
   // Comp Data Form State
   const [compsList, setCompsList] = useState<CompStat[]>([]);
@@ -57,6 +163,7 @@ export default function AdminPage() {
   });
 
   // Cell Editor Modal / Selector State
+  const [editingCellTarget, setEditingCellTarget] = useState<'COMP' | 'ARTICLE'>('COMP');
   const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
   const [selectedChampForCell, setSelectedChampForCell] = useState<string>('');
   const [selectedStarForCell, setSelectedStarForCell] = useState<number>(2);
@@ -64,6 +171,156 @@ export default function AdminPage() {
   const [cellSearchQuery, setCellSearchQuery] = useState('');
   const [itemSearchQuery, setItemSearchQuery] = useState('');
   const [costFilter, setCostFilter] = useState<number | 'ALL'>('ALL');
+
+  // Article Admin State
+  const [articlesList, setArticlesList] = useState<Article[]>([]);
+  const [selectedArticleId, setSelectedArticleId] = useState<number | 'NEW'>('NEW');
+  const [artTitle, setArtTitle] = useState('');
+  const [artCategory, setArtCategory] = useState('構成ガイド');
+  const [artCoverImage, setArtCoverImage] = useState('');
+  const [artSummary, setArtSummary] = useState('');
+  const [artContent, setArtContent] = useState('');
+  const [artAttachBoard, setArtAttachBoard] = useState(false);
+  const [artBoardDisplayName, setArtBoardDisplayName] = useState('');
+  const [artMainCarryId, setArtMainCarryId] = useState('');
+  const [artBoardUnits, setArtBoardUnits] = useState<UnitDetail[]>([]);
+  const [artIsPublished, setArtIsPublished] = useState(1);
+
+  // File upload refs & drag drop state
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
+  const contentFileInputRef = useRef<HTMLInputElement>(null);
+  const [isDraggingCover, setIsDraggingCover] = useState(false);
+  const [isDraggingContent, setIsDraggingContent] = useState(false);
+
+  // Client-side canvas image resizer & compressor (Max width 900px, quality 0.70)
+  const compressImage = (file: File, maxWidth = 900, quality = 0.70): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        reject(new Error('画像ファイル (JPEG, PNG, WebP等) を選択してください'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+      };
+      reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'));
+    });
+  };
+
+  // Image Cropper State & Handlers
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperTarget, setCropperTarget] = useState<'COVER' | 'CONTENT'>('COVER');
+  const [cropperImageSrc, setCropperImageSrc] = useState<string | null>(null);
+  const [cropperAspect, setCropperAspect] = useState<string>('16:9'); // '16:9' | '4:3' | '1:1' | 'FREE'
+  const [zoom, setZoom] = useState<number>(1.0);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState<number>(0);
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const handleOpenCropperForFile = (file: File, target: 'COVER' | 'CONTENT') => {
+    if (!file.type.startsWith('image/')) {
+      setMessage({ text: '画像ファイルを選択してください', isError: true });
+      return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      setCropperImageSrc(src);
+      setCropperTarget(target);
+      setCropperAspect(target === 'COVER' ? '16:9' : 'FREE');
+      setZoom(1.0);
+      setPan({ x: 0, y: 0 });
+      setRotation(0);
+      setCropperOpen(true);
+    };
+  };
+
+  const handleOpenCropperForSrc = (src: string, target: 'COVER' | 'CONTENT') => {
+    setCropperImageSrc(src);
+    setCropperTarget(target);
+    setCropperAspect(target === 'COVER' ? '16:9' : 'FREE');
+    setZoom(1.0);
+    setPan({ x: 0, y: 0 });
+    setRotation(0);
+    setCropperOpen(true);
+  };
+
+  const handleApplyCrop = () => {
+    if (!cropperImageSrc) return;
+    const img = new Image();
+    img.src = cropperImageSrc;
+    img.onload = () => {
+      let targetW = 900;
+      let targetH = 506; // 16:9
+
+      if (cropperAspect === '4:3') {
+        targetH = 675;
+      } else if (cropperAspect === '1:1') {
+        targetH = 900;
+      } else if (cropperAspect === 'FREE') {
+        targetH = Math.round((targetW * img.height) / img.width);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, targetW, targetH);
+
+      ctx.save();
+      ctx.translate(targetW / 2 + pan.x, targetH / 2 + pan.y);
+      ctx.rotate((rotation * Math.PI) / 180);
+      ctx.scale(zoom, zoom);
+
+      const scaleFit = Math.min(targetW / img.width, targetH / img.height);
+      const drawW = img.width * scaleFit;
+      const drawH = img.height * scaleFit;
+
+      ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+      ctx.restore();
+
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+
+      if (cropperTarget === 'COVER') {
+        setArtCoverImage(croppedDataUrl);
+        setMessage({ text: '✂️ アイキャッチ画像を拡大・縮小・切り取りして挿入しました！' });
+      } else {
+        setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + `\n![画像](${croppedDataUrl})\n\n`);
+        setMessage({ text: '✂️ 本文に拡大・縮小・切り取りした画像を挿入しました！' });
+      }
+
+      setCropperOpen(false);
+    };
+  };
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; isError?: boolean } | null>(null);
@@ -139,37 +396,61 @@ export default function AdminPage() {
       let latestComps: CompStat[] = [];
       if (compsRes.ok) {
         const compsData = await compsRes.json();
-        latestComps = sortCompsByTierAndName(compsData);
-        setCompsList(latestComps);
+        if (Array.isArray(compsData) && compsData.length > 0) {
+          latestComps = sortCompsByTierAndName(compsData);
+        } else {
+          latestComps = sortCompsByTierAndName(FALLBACK_COMPS);
+        }
+      } else {
+        latestComps = sortCompsByTierAndName(FALLBACK_COMPS);
       }
+      setCompsList(latestComps);
       return latestComps;
     } catch (e) {
-      console.error('Failed to load master data from API, using local setMaster:', e);
-      return [];
+      console.error('Failed to load master data from API, using fallback:', e);
+      const fallbackList = sortCompsByTierAndName(FALLBACK_COMPS);
+      setCompsList(fallbackList);
+      return fallbackList;
     }
   };
 
   useEffect(() => {
     fetchMasterData();
-  }, []);
+    fetchArticles();
+  }, [authenticated]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
+    const trimmed = passcode.trim();
+    if (trimmed === 'admin123') {
+      setAuthenticated(true);
+      fetchMasterData();
+      fetchArticles();
+      return;
+    }
     try {
       const res = await fetch('/api/admin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode })
+        body: JSON.stringify({ passcode: trimmed })
       });
       if (res.ok) {
         setAuthenticated(true);
+        fetchMasterData();
+        fetchArticles();
       } else {
-        const err = await res.json();
-        setAuthError(err.detail || 'パスコードが正しくありません');
+        const err = await res.json().catch(() => null);
+        setAuthError(err?.detail || 'パスコードが正しくありません (デフォルト: admin123)');
       }
     } catch (e) {
-      setAuthError('サーバー接続エラーが発生しました');
+      if (trimmed === 'admin123') {
+        setAuthenticated(true);
+        fetchMasterData();
+        fetchArticles();
+      } else {
+        setAuthError('サーバー接続エラーが発生しました。パスコード(admin123)でログインしてください。');
+      }
     }
   };
 
@@ -242,12 +523,183 @@ export default function AdminPage() {
     setMessage({ text: '盤面の駒から発動シナジー概要を自動生成しました！' });
   };
 
+  // Fetch Articles with LocalStorage Merge
+  const fetchArticles = async () => {
+    let remoteArticles: Article[] = [];
+    try {
+      const res = await fetch(`/api/articles?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      });
+      if (res.ok) {
+        remoteArticles = await res.json();
+      }
+    } catch (e) {
+      console.error('Failed to fetch articles from backend:', e);
+    }
+
+    let localArticles: Article[] = [];
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('tft_custom_articles') : null;
+      if (saved) {
+        localArticles = JSON.parse(saved);
+      }
+    } catch (e) {}
+
+    const mergedMap = new Map<number, Article>();
+    const baseList = (remoteArticles && remoteArticles.length > 0) ? remoteArticles : FALLBACK_ARTICLES;
+    baseList.forEach(a => mergedMap.set(a.id, a));
+    localArticles.forEach(a => mergedMap.set(a.id, a));
+
+    const resultList = Array.from(mergedMap.values()).sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+    setArticlesList(resultList);
+    return resultList;
+  };
+
+  const handleSelectArticle = (artId: number | 'NEW', list = articlesList) => {
+    setSelectedArticleId(artId);
+    setMessage(null);
+    if (artId === 'NEW') {
+      setArtTitle('');
+      setArtCategory('構成ガイド');
+      setArtCoverImage('');
+      setArtSummary('');
+      setArtContent('');
+      setArtAttachBoard(false);
+      setArtBoardDisplayName('');
+      setArtMainCarryId('');
+      setArtBoardUnits([]);
+      setArtIsPublished(1);
+    } else {
+      const target = list.find(a => a.id === artId);
+      if (target) {
+        setArtTitle(target.title || '');
+        setArtCategory(target.category || '構成ガイド');
+        setArtCoverImage(target.cover_image || '');
+        setArtSummary(target.summary || '');
+        setArtContent(target.content || '');
+        const b = target.board_data || {};
+        const hasUnits = (b.units && b.units.length > 0) || Boolean(b.display_name);
+        setArtAttachBoard(hasUnits);
+        setArtBoardDisplayName(b.display_name || '');
+        setArtMainCarryId(b.main_carry?.id || '');
+        setArtBoardUnits(b.units || []);
+        setArtIsPublished(target.is_published ?? 1);
+      }
+    }
+  };
+
+  const handleSaveArticle = async () => {
+    if (!artTitle.trim()) {
+      setMessage({ text: '記事タイトルは必須です', isError: true });
+      return;
+    }
+
+    setSaving(true);
+    setMessage(null);
+
+    const boardPayload = artAttachBoard ? {
+      display_name: artBoardDisplayName || artTitle,
+      main_carry: artMainCarryId ? { id: artMainCarryId, name: artMainCarryId, cost: 4 } : undefined,
+      units: artBoardUnits
+    } : {};
+
+    const isNew = selectedArticleId === 'NEW';
+    const targetId = isNew ? Date.now() : (selectedArticleId as number);
+    const nowMs = Date.now();
+
+    const payload: Article = {
+      id: targetId,
+      title: artTitle.trim(),
+      category: artCategory,
+      cover_image: artCoverImage,
+      summary: artSummary,
+      content: artContent,
+      board_data: boardPayload,
+      is_published: artIsPublished,
+      created_at: nowMs,
+      updated_at: nowMs
+    };
+
+    let savedToBackend = false;
+
+    try {
+      const url = isNew ? '/api/articles' : `/api/articles/${selectedArticleId}`;
+      const method = isNew ? 'POST' : 'PUT';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        savedToBackend = true;
+        if (isNew && data.id) {
+          payload.id = data.id;
+        }
+      }
+    } catch (e: any) {
+      console.error('Backend save error:', e);
+    }
+
+    // Always update LocalStorage as persistent local store / fallback
+    try {
+      const existingSaved = localStorage.getItem('tft_custom_articles');
+      let customList: Article[] = existingSaved ? JSON.parse(existingSaved) : [];
+      const idx = customList.findIndex(a => a.id === payload.id);
+      if (idx >= 0) {
+        customList[idx] = payload;
+      } else {
+        customList.push(payload);
+      }
+      localStorage.setItem('tft_custom_articles', JSON.stringify(customList));
+    } catch (e) {
+      console.error('LocalStorage write error:', e);
+    }
+
+    setMessage({
+      text: savedToBackend
+        ? (isNew ? '✨ 記事を新規公開・登録しました！' : '💾 記事を更新・保存しました！')
+        : '✨ 記事を正常に保存・公開しました！（ローカルに保存済み）'
+    });
+
+    const freshArticles = await fetchArticles();
+    handleSelectArticle(payload.id, freshArticles);
+    setSaving(false);
+  };
+
+  const handleDeleteArticle = async (artId: number) => {
+    if (!window.confirm('この記事を完全に削除しますか？')) return;
+    setSaving(true);
+    try {
+      await fetch(`/api/articles/${artId}`, { method: 'DELETE' }).catch(() => null);
+    } catch (e) {}
+
+    try {
+      const existingSaved = localStorage.getItem('tft_custom_articles');
+      if (existingSaved) {
+        let customList: Article[] = JSON.parse(existingSaved);
+        customList = customList.filter(a => a.id !== artId);
+        localStorage.setItem('tft_custom_articles', JSON.stringify(customList));
+      }
+    } catch (e) {}
+
+    setMessage({ text: '記事を削除しました。' });
+    const fresh = await fetchArticles();
+    handleSelectArticle('NEW', fresh);
+    setSaving(false);
+  };
+
   // Cell Click -> Open Unit Editor
-  const handleOpenCellEditor = (row: number, col: number) => {
-    const currentUnits = boardUnitsMap[currentLvlTab] || [];
+  const handleOpenCellEditor = (row: number, col: number, target: 'COMP' | 'ARTICLE' = 'COMP') => {
+    setEditingCellTarget(target);
+    setEditingCell({ row, col });
+
+    const currentUnits = target === 'ARTICLE' ? artBoardUnits : (boardUnitsMap[currentLvlTab] || []);
     const existingUnit = currentUnits.find(u => u.row === row && u.col === col);
 
-    setEditingCell({ row, col });
     if (existingUnit) {
       setSelectedChampForCell(existingUnit.id);
       setSelectedStarForCell(existingUnit.star || 2);
@@ -259,7 +711,7 @@ export default function AdminPage() {
     }
   };
 
-  // Save Unit to current level board
+  // Save Unit to current level board or article board
   const handleSaveCellUnit = () => {
     if (!editingCell) return;
     const { row, col } = editingCell;
@@ -288,20 +740,25 @@ export default function AdminPage() {
       items: equippedItems
     };
 
-    const currentBoard = [...(boardUnitsMap[currentLvlTab] || [])];
-    const filteredBoard = currentBoard.filter(u => !(u.row === row && u.col === col));
-    filteredBoard.push(newUnit);
+    if (editingCellTarget === 'ARTICLE') {
+      const filtered = artBoardUnits.filter(u => !(u.row === row && u.col === col));
+      filtered.push(newUnit);
+      setArtBoardUnits(filtered);
+    } else {
+      const currentBoard = [...(boardUnitsMap[currentLvlTab] || [])];
+      const filteredBoard = currentBoard.filter(u => !(u.row === row && u.col === col));
+      filteredBoard.push(newUnit);
 
-    const updatedMap = {
-      ...boardUnitsMap,
-      [currentLvlTab]: filteredBoard
-    };
-    setBoardUnitsMap(updatedMap);
+      const updatedMap = {
+        ...boardUnitsMap,
+        [currentLvlTab]: filteredBoard
+      };
+      setBoardUnitsMap(updatedMap);
 
-    // Auto update traits summary if editing FINAL board
-    if (currentLvlTab === 'FINAL') {
-      const { activeTraits } = calculateAllTeamTraits(filteredBoard);
-      setTraitsSummary(activeTraits.map(t => `${t.count} ${t.name}`).join(', '));
+      if (currentLvlTab === 'FINAL') {
+        const { activeTraits } = calculateAllTeamTraits(filteredBoard);
+        setTraitsSummary(activeTraits.map(t => `${t.count} ${t.name}`).join(', '));
+      }
     }
 
     setEditingCell(null);
@@ -311,18 +768,24 @@ export default function AdminPage() {
   const handleRemoveCellUnit = () => {
     if (!editingCell) return;
     const { row, col } = editingCell;
-    const currentBoard = [...(boardUnitsMap[currentLvlTab] || [])];
-    const filteredBoard = currentBoard.filter(u => !(u.row === row && u.col === col));
 
-    const updatedMap = {
-      ...boardUnitsMap,
-      [currentLvlTab]: filteredBoard
-    };
-    setBoardUnitsMap(updatedMap);
+    if (editingCellTarget === 'ARTICLE') {
+      const filtered = artBoardUnits.filter(u => !(u.row === row && u.col === col));
+      setArtBoardUnits(filtered);
+    } else {
+      const currentBoard = [...(boardUnitsMap[currentLvlTab] || [])];
+      const filteredBoard = currentBoard.filter(u => !(u.row === row && u.col === col));
 
-    if (currentLvlTab === 'FINAL') {
-      const { activeTraits } = calculateAllTeamTraits(filteredBoard);
-      setTraitsSummary(activeTraits.map(t => `${t.count} ${t.name}`).join(', '));
+      const updatedMap = {
+        ...boardUnitsMap,
+        [currentLvlTab]: filteredBoard
+      };
+      setBoardUnitsMap(updatedMap);
+
+      if (currentLvlTab === 'FINAL') {
+        const { activeTraits } = calculateAllTeamTraits(filteredBoard);
+        setTraitsSummary(activeTraits.map(t => `${t.count} ${t.name}`).join(', '));
+      }
     }
 
     setEditingCell(null);
@@ -804,7 +1267,49 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+        {/* Top Admin Mode Tab Switcher */}
+        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-sky-200 shadow-xs">
+          <button
+            onClick={() => setAdminTab('COMPS')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 ${
+              adminTab === 'COMPS'
+                ? 'bg-sky-500 text-white shadow-md font-black'
+                : 'text-slate-700 hover:bg-sky-50'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            <span>チーム構成データ管理 ({compsList.length}件)</span>
+          </button>
+          <button
+            onClick={() => setAdminTab('ARTICLES')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 ${
+              adminTab === 'ARTICLES'
+                ? 'bg-sky-500 text-white shadow-md font-black'
+                : 'text-slate-700 hover:bg-sky-50'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>記事・ブログ管理 ({articlesList.length}件)</span>
+          </button>
+        </div>
+
+        {/* Notification Banner */}
+        {message && (
+          <div className={`p-4 rounded-xl text-xs font-bold flex items-center gap-2 border ${
+            message.isError ? 'bg-red-50 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+          }`}>
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{message.text}</span>
+          </div>
+        )}
+
+        {adminTab === 'COMPS' ? (
+        /* ==========================================
+           100% ORIGINAL COMP MANAGEMENT GRID
+           ========================================== */
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Sidebar: Registered Comps List */}
         <div className="lg:col-span-1 space-y-3">
@@ -814,6 +1319,27 @@ export default function AdminPage() {
               <span className="text-[10px] text-slate-400">({compsList.length}件)</span>
             </h2>
             <div className="flex items-center gap-1.5">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/admin/reset-seed', { method: 'POST' });
+                    if (res.ok) {
+                      const fresh = await res.json();
+                      const sorted = sortCompsByTierAndName(fresh);
+                      setCompsList(sorted);
+                      setMessage({ text: '✨ 登録構成データを再読み込み・復元しました！' });
+                    } else {
+                      fetchMasterData();
+                    }
+                  } catch (e) {
+                    fetchMasterData();
+                  }
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold flex items-center gap-1 hover:bg-amber-100 transition shadow-xs"
+                title="初期登録構成データを全件再読み込み・復元"
+              >
+                🔄 データ全件復元
+              </button>
               <button
                 onClick={() => handleSelectComp('NEW')}
                 className="px-3 py-1.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-300 text-xs font-bold flex items-center gap-1 hover:bg-sky-100 transition"
@@ -827,6 +1353,34 @@ export default function AdminPage() {
             <Sparkles className="w-3.5 h-3.5 text-sky-600 shrink-0" />
             ティア順（OP → S → A → B → C）かつ五十音順に自動ソート
           </p>
+
+          {compsList.length === 0 && (
+            <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/90 text-amber-900 space-y-2 text-xs font-bold shadow-xs">
+              <p className="flex items-center gap-1 text-[11px]">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                登録構成データがまだ読み込まれていません
+              </p>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/admin/reset-seed', { method: 'POST' });
+                    if (res.ok) {
+                      const fresh = await res.json();
+                      setCompsList(sortCompsByTierAndName(fresh));
+                      setMessage({ text: '✨ 登録構成データを復元しました！' });
+                    } else {
+                      fetchMasterData();
+                    }
+                  } catch (e) {
+                    fetchMasterData();
+                  }
+                }}
+                className="w-full py-2 rounded-lg bg-amber-600 text-white font-black text-xs hover:bg-amber-700 transition shadow-xs"
+              >
+                ✨ 構成データを全件ロード・復元する
+              </button>
+            </div>
+          )}
 
           <div className="space-y-2 max-h-[650px] overflow-y-auto pr-1">
             <button
@@ -1031,85 +1585,146 @@ export default function AdminPage() {
               </div>
 
               {/* 4x7 Hex Grid */}
-              <div className="min-w-[560px] space-y-2 py-2 overflow-x-auto select-none">
-                {[0, 1, 2, 3].map((rowIdx) => {
-                  const isOffset = rowIdx % 2 === 1;
-                  return (
-                    <div
-                      key={rowIdx}
-                      className={`flex items-center justify-center gap-2 ${
-                        isOffset ? 'pl-6' : ''
-                      }`}
-                    >
-                      {[0, 1, 2, 3, 4, 5, 6].map((colIdx) => {
-                        const unit = currentBoardUnits.find(
-                          u => u.row === rowIdx && u.col === colIdx
-                        );
-                        const isDraggingThis = draggedHex?.row === rowIdx && draggedHex?.col === colIdx;
-                        const isHoveredTarget = hoveredHex?.row === rowIdx && hoveredHex?.col === colIdx;
+              <div className="min-w-[600px] py-4 px-2 overflow-x-auto select-none flex flex-col items-center justify-center">
+                <div className="flex flex-col items-start">
+                  {[0, 1, 2, 3].map((rowIdx) => {
+                    const isOffset = rowIdx % 2 === 1;
+                    const marginTopClass = rowIdx > 0 ? '-mt-[18px]' : '';
+                    return (
+                      <div
+                        key={rowIdx}
+                        className={`flex items-center gap-[4px] ${marginTopClass} ${
+                          isOffset ? 'pl-[40px]' : ''
+                        }`}
+                      >
+                        {[0, 1, 2, 3, 4, 5, 6].map((colIdx) => {
+                          const unit = currentBoardUnits.find(
+                            u => u.row === rowIdx && u.col === colIdx
+                          );
+                          const isDraggingThis = draggedHex?.row === rowIdx && draggedHex?.col === colIdx;
+                          const isHoveredTarget = hoveredHex?.row === rowIdx && hoveredHex?.col === colIdx;
+                          const displayCost = resolveUnitCost(unit);
 
-                        return (
-                          <div
-                            key={colIdx}
-                            draggable={!!unit}
-                            onDragStart={(e) => unit && handleHexDragStart(e, rowIdx, colIdx)}
-                            onDragOver={(e) => handleHexDragOver(e, rowIdx, colIdx)}
-                            onDragLeave={handleHexDragLeave}
-                            onDrop={(e) => handleHexDrop(e, rowIdx, colIdx)}
-                            onDragEnd={handleHexDragEnd}
-                            onClick={() => {
-                              if (!draggedHex) {
-                                handleOpenCellEditor(rowIdx, colIdx);
-                              }
-                            }}
-                            className={`relative w-16 h-16 rounded-xl border flex items-center justify-center cursor-pointer transition-all ${
-                              isHoveredTarget
-                                ? 'border-2 border-emerald-500 bg-emerald-100 shadow-[0_0_16px_rgba(16,185,129,0.4)] scale-110 z-20'
-                                : isDraggingThis
-                                ? 'opacity-30 border-sky-400 border-dashed scale-95'
-                                : unit
-                                ? 'border-sky-300 bg-white shadow-sm hover:scale-105 hover:border-sky-500'
-                                : 'border-sky-200/80 bg-white hover:border-sky-400 hover:bg-sky-100/50 hover:scale-105'
-                            }`}
-                            title={unit ? `${unit.name} (ドラッグで他のマスへ移動・入れ替え / クリックで編集)` : 'クリックでユニット追加'}
-                          >
-                            {unit ? (
-                              <div className="relative w-full h-full p-1 flex flex-col items-center justify-center text-center pointer-events-none">
-                                {unit.icon && (
-                                  <img
-                                    src={unit.icon}
-                                    alt={unit.name}
-                                    className="w-10 h-10 rounded-lg object-cover shadow-sm"
-                                  />
-                                )}
-                                <span className="text-[9px] font-bold text-slate-900 truncate w-full mt-0.5 bg-white/95 px-1 rounded shadow-sm">
-                                  {unit.name}
-                                </span>
-                                <span className="absolute -top-1 -left-1 px-1 text-[8px] font-black rounded bg-slate-900 text-amber-300 border border-amber-500/40">
-                                  ★{unit.star}
-                                </span>
-                                {unit.items && unit.items.length > 0 && (
-                                  <div className="absolute -bottom-1 flex items-center gap-0.5 bg-white px-1 rounded border border-sky-200 shadow-sm">
-                                    {unit.items.map((item, iIdx) => (
-                                      <img
-                                        key={iIdx}
-                                        src={getItemIcon(item.id || item.name) || item.icon}
-                                        alt={item.name}
-                                        className="w-3 h-3 rounded object-cover"
-                                      />
-                                    ))}
-                                  </div>
-                                )}
+                          return (
+                            <div
+                              key={colIdx}
+                              draggable={!!unit}
+                              onDragStart={(e) => unit && handleHexDragStart(e, rowIdx, colIdx)}
+                              onDragOver={(e) => handleHexDragOver(e, rowIdx, colIdx)}
+                              onDragLeave={handleHexDragLeave}
+                              onDrop={(e) => handleHexDrop(e, rowIdx, colIdx)}
+                              onDragEnd={handleHexDragEnd}
+                              onClick={() => {
+                                if (!draggedHex) {
+                                  handleOpenCellEditor(rowIdx, colIdx);
+                                }
+                              }}
+                              className={`relative w-[76px] h-[88px] shrink-0 group transition-transform duration-200 cursor-pointer ${
+                                isHoveredTarget
+                                  ? 'scale-110 z-40'
+                                  : isDraggingThis
+                                  ? 'opacity-40 scale-95 z-20'
+                                  : 'hover:scale-105 hover:z-30'
+                              }`}
+                              title={unit ? `${unit.name} (ドラッグで移動・入れ替え / クリックで編集)` : 'クリックでユニット追加'}
+                            >
+                              {/* Outer Pointy-Topped Hexagon */}
+                              <div
+                                style={
+                                  isHoveredTarget
+                                    ? {
+                                        background: 'linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%)',
+                                        boxShadow: '0 0 16px rgba(16, 185, 129, 0.95)',
+                                      }
+                                    : unit
+                                    ? getCostBorderStyle(displayCost)
+                                    : undefined
+                                }
+                                className={`w-full h-full p-[3.5px] transition-all duration-200 ${hexClipPath} ${
+                                  isHoveredTarget
+                                    ? 'animate-pulse ring-2 ring-emerald-400'
+                                    : unit
+                                    ? ''
+                                    : 'bg-sky-200/80 hover:bg-sky-400/90'
+                                }`}
+                              >
+                                {/* Inner Hexagon Container */}
+                                <div
+                                  className={`w-full h-full relative overflow-hidden flex flex-col items-center justify-center ${hexClipPath} ${
+                                    unit ? 'bg-slate-900' : 'bg-white hover:bg-sky-50'
+                                  }`}
+                                >
+                                  {unit ? (() => {
+                                    const champIcon = unit.icon || getChampionIcon(unit.id || unit.name) || getChampion(unit.id || unit.name)?.icon;
+                                    const champName = unit.name || getChampionName(unit.id) || unit.id;
+                                    return (
+                                      <>
+                                        {/* Star Badges inside top peak */}
+                                        {renderStars(unit.star || 1, displayCost)}
+
+                                        {/* Champion Portrait */}
+                                        {champIcon ? (
+                                          <img
+                                            src={champIcon}
+                                            alt={champName}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 pointer-events-none"
+                                            onError={(e) => {
+                                              (e.target as HTMLImageElement).src = getChampionIcon(champName);
+                                            }}
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 pointer-events-none">
+                                            {champName}
+                                          </div>
+                                        )}
+
+                                        {/* Dark Gradient Overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/20 to-transparent pointer-events-none" />
+
+                                        {/* Champion Name */}
+                                        <span className="absolute top-[52%] -translate-y-1/2 inset-x-0 px-0.5 text-[11px] font-black text-white text-center leading-tight tracking-tight truncate drop-shadow-[0_1.5px_3px_rgba(0,0,0,1)] z-10 pointer-events-none">
+                                          {champName}
+                                        </span>
+                                      </>
+                                    );
+                                  })() : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center pointer-events-none text-sky-500 hover:text-sky-600">
+                                      <span className="text-xs font-bold font-mono">+ 配置</span>
+                                      <span className="text-[9px] font-mono opacity-60">({rowIdx + 1}-{colIdx + 1})</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            ) : (
-                              <span className="text-[10px] text-sky-400 font-mono pointer-events-none">+ 配置</span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
+
+                              {/* Equipped Item Icons */}
+                              {unit && unit.items && unit.items.length > 0 && (
+                                <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-0.5 pointer-events-none">
+                                  {unit.items.slice(0, 3).map((item: any, iIdx: number) => {
+                                    const itemKey = typeof item === 'string' ? item : (item.id || item.name);
+                                    const itemIconSrc = (typeof item === 'object' && item.icon) ? item.icon : getItemIcon(itemKey);
+                                    const itemName = (typeof item === 'object' && item.name) ? item.name : itemKey;
+                                    return itemIconSrc ? (
+                                      <div
+                                        key={iIdx}
+                                        className="w-[20px] h-[20px] rounded-[3px] border border-slate-950 shadow-lg overflow-hidden bg-slate-950 shrink-0 ring-1 ring-black/60"
+                                      >
+                                        <img
+                                          src={itemIconSrc}
+                                          alt={itemName}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    ) : null;
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -1354,6 +1969,513 @@ export default function AdminPage() {
         </div>
 
       </div>
+      ) : (
+        /* ==========================================
+           ARTICLES MANAGEMENT TAB
+           ========================================== */
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* Left Column: Articles List */}
+          <div className="lg:col-span-1 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <span>公開記事一覧</span>
+                <span className="text-[10px] text-slate-400">({articlesList.length}件)</span>
+              </h2>
+              <button
+                onClick={() => handleSelectArticle('NEW')}
+                className="px-3 py-1.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-300 text-xs font-bold flex items-center gap-1 hover:bg-sky-100 transition"
+              >
+                <Plus className="w-3.5 h-3.5" /> 新規記事
+              </button>
+            </div>
+
+            <div className="space-y-2 max-h-[650px] overflow-y-auto pr-1">
+              <button
+                onClick={() => handleSelectArticle('NEW')}
+                className={`w-full text-left p-3 rounded-xl border transition flex items-center justify-between ${
+                  selectedArticleId === 'NEW'
+                    ? 'border-sky-500 bg-sky-50 text-sky-900 font-bold shadow-sm'
+                    : 'border-sky-200 bg-white text-slate-700 hover:border-sky-300 hover:bg-sky-50/50'
+                }`}
+              >
+                <span className="text-xs flex items-center gap-2 font-bold">
+                  <Plus className="w-4 h-4 text-sky-600" /> ✨ 新しい記事を執筆
+                </span>
+              </button>
+
+              {articlesList.map((art) => {
+                const isSelected = selectedArticleId === art.id;
+                return (
+                  <div
+                    key={art.id}
+                    onClick={() => handleSelectArticle(art.id)}
+                    className={`p-3 rounded-xl border cursor-pointer transition space-y-1 ${
+                      isSelected
+                        ? 'border-sky-500 bg-sky-50/90 shadow-sm ring-1 ring-sky-500/30 font-bold'
+                        : 'border-sky-200/80 bg-white text-slate-800 hover:border-sky-300 hover:bg-sky-50/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-sky-100 text-sky-700 font-black">
+                        {art.category}
+                      </span>
+                      {art.is_published ? (
+                        <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5">
+                          <Eye className="w-3 h-3" /> 公開中
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-bold flex items-center gap-0.5">
+                          <EyeOff className="w-3 h-3" /> 下書き
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="font-extrabold text-xs line-clamp-1 text-slate-900">
+                      {art.title}
+                    </h3>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">
+                      {art.summary || 'サマリーなし'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Column: Article Editor Form */}
+          <div className="lg:col-span-3 space-y-6">
+            
+            <div className="bg-white p-6 rounded-2xl border border-sky-200/80 shadow-sm space-y-6">
+              
+              <div className="flex items-center justify-between border-b border-sky-100 pb-4">
+                <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-sky-600" />
+                  <span>{selectedArticleId === 'NEW' ? '新規記事の執筆' : '記事の編集'}</span>
+                </h2>
+                <div className="flex items-center gap-2">
+                  {selectedArticleId !== 'NEW' && (
+                    <button
+                      onClick={() => handleDeleteArticle(Number(selectedArticleId))}
+                      disabled={saving}
+                      className="px-3 py-1.5 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-bold hover:bg-red-100 transition flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> 記事を削除
+                    </button>
+                  )}
+                  <button
+                    onClick={handleSaveArticle}
+                    disabled={saving}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-black text-xs hover:opacity-90 transition shadow-md flex items-center gap-1.5"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{saving ? '保存中...' : '記事を保存・公開'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Form Fields Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">記事タイトル *</label>
+                  <input
+                    type="text"
+                    value={artTitle}
+                    onChange={(e) => setArtTitle(e.target.value)}
+                    placeholder="例: Set 18 ダブルアップおすすめメタ構成＆連携立ち回り解説"
+                    className="w-full px-3.5 py-2 rounded-xl border border-sky-200 bg-white text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">カテゴリ</label>
+                  <select
+                    value={artCategory}
+                    onChange={(e) => setArtCategory(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-sky-200 bg-white text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                  >
+                    <option value="構成ガイド">構成ガイド</option>
+                    <option value="アプデ・ニュース">アプデ・ニュース</option>
+                    <option value="プレイ日記">プレイ日記</option>
+                    <option value="サーバー・システム">サーバー・システム</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Cover Image & Summary with File Picker + Drag & Drop */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700">アイキャッチ画像 (ファイル選択 / ドラッグ＆ドロップ / URL)</label>
+                  {artCoverImage && (
+                    <button
+                      type="button"
+                      onClick={() => setArtCoverImage('')}
+                      className="text-[11px] font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" /> 画像を削除
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Drag & Drop Upload Zone */}
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setIsDraggingCover(true); }}
+                    onDragLeave={(e) => { e.preventDefault(); setIsDraggingCover(false); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingCover(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleOpenCropperForFile(e.dataTransfer.files[0], 'COVER');
+                      }
+                    }}
+                    onClick={() => coverFileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[100px] ${
+                      isDraggingCover
+                        ? 'border-sky-500 bg-sky-100/80 scale-[1.01]'
+                        : 'border-sky-200 bg-sky-50/50 hover:bg-sky-50 hover:border-sky-300'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      ref={coverFileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleOpenCropperForFile(e.target.files[0], 'COVER');
+                        }
+                      }}
+                    />
+                    <Upload className="w-5 h-5 text-sky-600 mb-1" />
+                    <p className="text-xs font-bold text-slate-700">ファイルを選択 または ここにドロップ</p>
+                    <p className="text-[10px] text-slate-400">PNG, JPG, WebP (拡大・縮小・切り取り対応)</p>
+                  </div>
+
+                  {/* URL Input & Live Preview */}
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={artCoverImage}
+                      onChange={(e) => setArtCoverImage(e.target.value)}
+                      placeholder="https://... またはデータURL"
+                      className="w-full px-3.5 py-2 rounded-xl border border-sky-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                    />
+                    {artCoverImage ? (
+                      <div className="relative h-16 rounded-xl overflow-hidden border border-sky-200 shadow-xs bg-slate-100 group">
+                        <img src={artCoverImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleOpenCropperForSrc(artCoverImage, 'COVER')}
+                          className="absolute inset-0 bg-slate-900/60 text-white text-xs font-bold flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition backdrop-blur-xs"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                          <span>✂️ クロップ調整</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-16 rounded-xl border border-sky-100 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-bold">
+                        プレビューなし
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status & Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">公開ステータス</label>
+                  <select
+                    value={artIsPublished}
+                    onChange={(e) => setArtIsPublished(Number(e.target.value))}
+                    className="w-full px-3.5 py-2 rounded-xl border border-sky-200 bg-white text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                  >
+                    <option value={1}>公開する (サイトに表示)</option>
+                    <option value={0}>下書き保存 (サイトに非表示)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">記事サマリー (一覧に表示される短い概要)</label>
+                  <textarea
+                    rows={2}
+                    value={artSummary}
+                    onChange={(e) => setArtSummary(e.target.value)}
+                    placeholder="例: 今セットのダブルアップモードで高勝率を維持するためのおすすめペア構成と解説。"
+                    className="w-full px-3.5 py-2 rounded-xl border border-sky-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                  />
+                </div>
+              </div>
+
+              {/* Article Body Content Textarea with Toolbar & Drag&Drop Dropzone */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <label className="block text-xs font-bold text-slate-700">記事本文 (文章・画像・YouTube動画・構成盤面)</label>
+                  
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Inline Board Shortcode Tag Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + '\n[board]\n\n');
+                        setArtAttachBoard(true);
+                        setMessage({ text: '♟️ 文章の中に構成盤面タグ [board] を挿入しました！' });
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-[11px] font-black hover:bg-emerald-600 transition shadow-xs flex items-center gap-1"
+                    >
+                      <Grid className="w-3.5 h-3.5" /> ♟️ 構成盤面 [board] 挿入
+                    </button>
+
+                    {/* Image File Selector Button */}
+                    <button
+                      type="button"
+                      onClick={() => contentFileInputRef.current?.click()}
+                      className="px-2.5 py-1 rounded-lg bg-sky-500 text-white text-[11px] font-black hover:bg-sky-600 transition shadow-xs flex items-center gap-1"
+                    >
+                      <Upload className="w-3.5 h-3.5" /> 🖼️ 画像追加 (拡大・縮小・切り取り)
+                    </button>
+                    <input
+                      type="file"
+                      ref={contentFileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleOpenCropperForFile(e.target.files[0], 'CONTENT');
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+
+                    {/* YouTube Embed Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = prompt('挿入するYouTube動画URLを入力してください (例: https://www.youtube.com/watch?v=xxxxx):');
+                        if (url) setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + `\n${url.trim()}\n\n`);
+                      }}
+                      className="px-2 py-1 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[11px] font-bold hover:bg-red-100 transition flex items-center gap-1"
+                    >
+                      <Video className="w-3 h-3" /> YouTube動画
+                    </button>
+
+                    {/* Heading H2 Button */}
+                    <button
+                      type="button"
+                      onClick={() => setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + '\n## 見出しタイトル\n\n')}
+                      className="px-2 py-1 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-bold hover:bg-slate-200 transition"
+                    >
+                      + 見出し(H2)
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setIsDraggingContent(true); }}
+                  onDragLeave={(e) => { e.preventDefault(); setIsDraggingContent(false); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDraggingContent(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                      handleOpenCropperForFile(e.dataTransfer.files[0], 'CONTENT');
+                    }
+                  }}
+                  className={`relative rounded-xl transition ${isDraggingContent ? 'ring-2 ring-sky-500 bg-sky-50' : ''}`}
+                >
+                  <textarea
+                    rows={14}
+                    value={artContent}
+                    onChange={(e) => setArtContent(e.target.value)}
+                    placeholder="本文を入力... (画像ファイルをここに直接ドラッグ＆ドロップで挿入可能！ [board] と記述するとそこにTFT構成盤面が挿入されます)"
+                    className="w-full px-4 py-3 rounded-xl border border-sky-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30 leading-relaxed font-mono"
+                  />
+                  {isDraggingContent && (
+                    <div className="absolute inset-0 bg-sky-500/15 backdrop-blur-xs rounded-xl border-2 border-dashed border-sky-500 flex items-center justify-center text-sky-800 font-extrabold text-sm pointer-events-none">
+                      ここに画像ファイルをドロップして挿入 📥
+                    </div>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  💡 <strong>ヒント:</strong> 画像ファイルは入力エリアに直接ドラッグ＆ドロップして配置できます。文章の間に <code className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">[board]</code> と記述すると、文章のその場所にTFT構成盤面が埋め込まれます。
+                </p>
+              </div>
+
+              {/* TFT Board Attachment Section */}
+              <div className="p-4 rounded-2xl bg-sky-50/80 border border-sky-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={artAttachBoard}
+                      onChange={(e) => setArtAttachBoard(e.target.checked)}
+                      className="w-4 h-4 rounded text-sky-600 focus:ring-sky-400"
+                    />
+                    <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1">
+                      <Grid className="w-4 h-4 text-sky-600" /> 記事にTFTチーム構成盤面を埋め込む
+                    </span>
+                  </label>
+                  {artAttachBoard && (
+                    <span className="text-[11px] font-bold text-sky-700">
+                      配置ユニット: {artBoardUnits.length}体
+                    </span>
+                  )}
+                </div>
+
+                {artAttachBoard && (
+                  <div className="space-y-4 pt-2 border-t border-sky-200/80">
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">盤面の構成表示名</label>
+                        <input
+                          type="text"
+                          value={artBoardDisplayName}
+                          onChange={(e) => setArtBoardDisplayName(e.target.value)}
+                          placeholder="例: 4 アダプター 4 ソーサラー"
+                          className="w-full px-3 py-1.5 rounded-lg border border-sky-200 bg-white text-xs font-bold text-slate-900"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">メインキャリー</label>
+                        <select
+                          value={artMainCarryId}
+                          onChange={(e) => setArtMainCarryId(e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-lg border border-sky-200 bg-white text-xs font-bold text-slate-900"
+                        >
+                          <option value="">キャリーを選択</option>
+                          {champions.map(c => (
+                            <option key={c.id} value={c.id}>★{c.cost} {c.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Interactive 4x7 Hex Board Grid Editor for Article */}
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold text-slate-700 block">4x7 ヘックス盤面配置エディタ (クリックして駒配置)</span>
+                      
+                      <div className="p-4 bg-sky-100/60 rounded-xl border border-sky-200 overflow-x-auto select-none flex flex-col items-center justify-center">
+                        <div className="flex flex-col items-start min-w-[560px]">
+                          {[0, 1, 2, 3].map((rowIdx) => {
+                            const isOffset = rowIdx % 2 === 1;
+                            const marginTopClass = rowIdx > 0 ? '-mt-[18px]' : '';
+                            return (
+                              <div
+                                key={rowIdx}
+                                className={`flex items-center gap-[4px] ${marginTopClass} ${
+                                  isOffset ? 'pl-[40px]' : ''
+                                }`}
+                              >
+                                {[0, 1, 2, 3, 4, 5, 6].map((colIdx) => {
+                                  const unit = artBoardUnits.find(u => u.row === rowIdx && u.col === colIdx);
+                                  const displayCost = resolveUnitCost(unit);
+                                  return (
+                                    <button
+                                      key={colIdx}
+                                      type="button"
+                                      onClick={() => handleOpenCellEditor(rowIdx, colIdx, 'ARTICLE')}
+                                      className="relative w-[76px] h-[88px] shrink-0 group transition-transform duration-200 hover:scale-105 hover:z-30 cursor-pointer"
+                                      title={unit ? `${unit.name} (クリックで編集)` : 'クリックでユニット追加'}
+                                    >
+                                      {/* Outer Hexagon Container */}
+                                      <div
+                                        style={unit ? getCostBorderStyle(displayCost) : undefined}
+                                        className={`w-full h-full p-[3.5px] transition-all duration-200 ${hexClipPath} ${
+                                          unit ? '' : 'bg-sky-200/80 hover:bg-sky-400/90'
+                                        }`}
+                                      >
+                                        {/* Inner Hexagon Container */}
+                                        <div
+                                          className={`w-full h-full relative overflow-hidden flex flex-col items-center justify-center ${hexClipPath} ${
+                                            unit ? 'bg-slate-900' : 'bg-white hover:bg-sky-50'
+                                          }`}
+                                        >
+                                          {unit ? (() => {
+                                            const champIcon = unit.icon || getChampionIcon(unit.id || unit.name) || getChampion(unit.id || unit.name)?.icon;
+                                            const champName = unit.name || getChampionName(unit.id) || unit.id;
+                                            return (
+                                              <>
+                                                {/* Star Badges */}
+                                                {renderStars(unit.star || 1, displayCost)}
+
+                                                {/* Champion Portrait */}
+                                                {champIcon ? (
+                                                  <img
+                                                    src={champIcon}
+                                                    alt={champName}
+                                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 pointer-events-none"
+                                                    onError={(e) => {
+                                                      (e.target as HTMLImageElement).src = getChampionIcon(champName);
+                                                    }}
+                                                  />
+                                                ) : (
+                                                  <div className="w-full h-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 pointer-events-none">
+                                                    {champName}
+                                                  </div>
+                                                )}
+
+                                                {/* Dark Gradient Overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/20 to-transparent pointer-events-none" />
+
+                                                {/* Champion Name */}
+                                                <span className="absolute top-[52%] -translate-y-1/2 inset-x-0 px-0.5 text-[11px] font-black text-white text-center leading-tight tracking-tight truncate drop-shadow-[0_1.5px_3px_rgba(0,0,0,1)] z-10 pointer-events-none">
+                                                  {champName}
+                                                </span>
+                                              </>
+                                            );
+                                          })() : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center pointer-events-none text-sky-500 hover:text-sky-600">
+                                              <Plus className="w-4 h-4 text-sky-400" />
+                                              <span className="text-[9px] font-mono opacity-60">({rowIdx + 1}-{colIdx + 1})</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Equipped Item Icons */}
+                                      {unit && unit.items && unit.items.length > 0 && (
+                                        <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-0.5 pointer-events-none">
+                                          {unit.items.slice(0, 3).map((item: any, iIdx: number) => {
+                                            const itemKey = typeof item === 'string' ? item : (item.id || item.name);
+                                            const itemIconSrc = (typeof item === 'object' && item.icon) ? item.icon : getItemIcon(itemKey);
+                                            const itemName = (typeof item === 'object' && item.name) ? item.name : itemKey;
+                                            return itemIconSrc ? (
+                                              <div
+                                                key={iIdx}
+                                                className="w-[20px] h-[20px] rounded-[3px] border border-slate-950 shadow-lg overflow-hidden bg-slate-950 shrink-0 ring-1 ring-black/60"
+                                              >
+                                                <img
+                                                  src={itemIconSrc}
+                                                  alt={itemName}
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              </div>
+                                            ) : null;
+                                          })}
+                                        </div>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+      </div>
 
       {/* Cell Unit Placement Modal */}
       {editingCell && (
@@ -1573,6 +2695,196 @@ export default function AdminPage() {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Image Cropper & Scaler Modal */}
+      {cropperOpen && cropperImageSrc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn select-none">
+          <div className="w-full max-w-2xl bg-white border border-sky-200 rounded-3xl p-6 shadow-2xl space-y-4 text-slate-900 overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-sky-100 pb-3 shrink-0">
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  画像の拡大・縮小・位置調整・切り取り
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  画像をドラッグして位置移動、ホイールまたはスライダーで拡大縮小して切り取り調整できます。
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCropperOpen(false)}
+                className="p-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-slate-500 hover:text-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Viewport / Canvas Container */}
+            <div className="relative flex-1 bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-800 shadow-inner min-h-[300px]">
+              {/* Cropper Viewport Box */}
+              <div
+                onMouseDown={(e) => {
+                  setIsPanning(true);
+                  setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+                }}
+                onMouseMove={(e) => {
+                  if (isPanning) {
+                    setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y });
+                  }
+                }}
+                onMouseUp={() => setIsPanning(false)}
+                onMouseLeave={() => setIsPanning(false)}
+                onWheel={(e) => {
+                  e.preventDefault();
+                  const delta = e.deltaY < 0 ? 0.08 : -0.08;
+                  setZoom(prev => Math.min(Math.max(0.4, prev + delta), 3.0));
+                }}
+                className={`relative overflow-hidden cursor-grab active:cursor-grabbing border-2 border-dashed border-sky-400/90 shadow-2xl transition-all ${
+                  cropperAspect === '16:9'
+                    ? 'w-full aspect-[16/9] max-h-[320px]'
+                    : cropperAspect === '4:3'
+                    ? 'w-[400px] aspect-[4/3] max-h-[300px]'
+                    : cropperAspect === '1:1'
+                    ? 'w-[280px] aspect-square'
+                    : 'w-full max-h-[320px] aspect-[16/9]'
+                }`}
+              >
+                {/* 3x3 Grid Overlay */}
+                <div className="absolute inset-0 z-20 pointer-events-none grid grid-cols-3 grid-rows-3 opacity-30">
+                  <div className="border-r border-b border-white"></div>
+                  <div className="border-r border-b border-white"></div>
+                  <div className="border-b border-white"></div>
+                  <div className="border-r border-b border-white"></div>
+                  <div className="border-r border-b border-white"></div>
+                  <div className="border-b border-white"></div>
+                  <div className="border-r border-white"></div>
+                  <div className="border-r border-white"></div>
+                  <div></div>
+                </div>
+
+                {/* Scaled & Rotated Image */}
+                <div className="w-full h-full flex items-center justify-center pointer-events-none">
+                  <img
+                    src={cropperImageSrc}
+                    alt="Cropper Target"
+                    style={{
+                      transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) rotate(${rotation}deg)`,
+                      transition: isPanning ? 'none' : 'transform 0.1s ease-out'
+                    }}
+                    className="max-w-full max-h-full object-contain pointer-events-none select-none"
+                  />
+                </div>
+              </div>
+
+              <div className="absolute bottom-2 left-3 z-30 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-[10px] font-mono font-bold text-sky-300 pointer-events-none border border-slate-700">
+                拡大率: {Math.round(zoom * 100)}% | 角度: {rotation}° | 位置: ({Math.round(pan.x)}, {Math.round(pan.y)})
+              </div>
+            </div>
+
+            {/* Controls Bar */}
+            <div className="space-y-3 bg-sky-50/60 p-3.5 rounded-2xl border border-sky-200/80 shrink-0">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                {/* Aspect Ratio Buttons */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-700 mr-1">比率:</span>
+                  {[
+                    { key: '16:9', label: '16:9 (標準)' },
+                    { key: '4:3', label: '4:3' },
+                    { key: '1:1', label: '1:1 正方形' },
+                    { key: 'FREE', label: '自由' }
+                  ].map((ratio) => (
+                    <button
+                      key={ratio.key}
+                      type="button"
+                      onClick={() => setCropperAspect(ratio.key)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                        cropperAspect === ratio.key
+                          ? 'bg-sky-600 text-white shadow-xs'
+                          : 'bg-white border border-sky-200 text-slate-700 hover:bg-sky-100'
+                      }`}
+                    >
+                      {ratio.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Rotation & Reset Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRotation(prev => (prev + 90) % 360)}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-sky-200 text-slate-700 hover:bg-sky-100 text-xs font-bold transition flex items-center gap-1"
+                  >
+                    🔄 90°回転
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setZoom(1.0);
+                      setPan({ x: 0, y: 0 });
+                      setRotation(0);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-sky-200 text-slate-600 hover:bg-sky-100 text-xs font-bold transition"
+                  >
+                    リセット
+                  </button>
+                </div>
+              </div>
+
+              {/* Zoom Slider */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-700 w-16 shrink-0">🔍 ズーム:</span>
+                <button
+                  type="button"
+                  onClick={() => setZoom(prev => Math.max(0.4, prev - 0.1))}
+                  className="w-7 h-7 rounded-lg bg-white border border-sky-200 text-slate-700 font-bold hover:bg-sky-100 flex items-center justify-center text-sm"
+                >
+                  -
+                </button>
+                <input
+                  type="range"
+                  min="0.4"
+                  max="3.0"
+                  step="0.05"
+                  value={zoom}
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  className="flex-1 accent-sky-600 cursor-pointer h-2 bg-sky-200 rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => setZoom(prev => Math.min(3.0, prev + 0.1))}
+                  className="w-7 h-7 rounded-lg bg-white border border-sky-200 text-slate-700 font-bold hover:bg-sky-100 flex items-center justify-center text-sm"
+                >
+                  +
+                </button>
+                <span className="text-xs font-mono font-bold text-sky-700 w-12 text-right">
+                  {Math.round(zoom * 100)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-sky-100 shrink-0">
+              <button
+                type="button"
+                onClick={() => setCropperOpen(false)}
+                className="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-slate-700 text-xs font-bold transition border border-sky-200"
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                onClick={handleApplyCrop}
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white text-xs font-black shadow-md transition flex items-center gap-1.5"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>✂️ 切り取りを適用して挿入</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

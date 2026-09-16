@@ -12,6 +12,7 @@ interface TftHexBoardProps {
   className?: string;
   theme?: 'dark' | 'light';
   isBloodthornsActive?: boolean;
+  isInteractive?: boolean;
 }
 
 export default function TftHexBoard({
@@ -21,6 +22,7 @@ export default function TftHexBoard({
   className = '',
   theme = 'light',
   isBloodthornsActive,
+  isInteractive,
 }: TftHexBoardProps) {
   // Map units by row_col string key
   const unitsMap: { [key: string]: UnitDetail } = {};
@@ -190,9 +192,9 @@ export default function TftHexBoard({
                 const champMaster = unit ? getChampion(unit.id || unit.name) : null;
                 const displayCost = resolveUnitCost(unit);
                 const unitIcon = unit
-                  ? unit.icon || champMaster?.icon || getChampionIcon(unit.id || unit.name)
+                  ? (unit.icon || champMaster?.icon || getChampionIcon(unit.id || unit.name) || getChampionIcon(unit.name))
                   : null;
-                const displayName = unit ? getChampionName(unit.id || unit.name) : '';
+                const displayName = unit ? (getChampionName(unit.id || unit.name) || unit.name || unit.id || '') : '';
 
                 // Bloodthorns Sacrifice Hex Check: Position 3-4 (rowIdx 2, colIdx 3)
                 const isSacrificeHex = hasBloodthorns && rowIdx === 2 && colIdx === 3;
@@ -308,20 +310,22 @@ export default function TftHexBoard({
                     {/* Equipped Item Icons - HIGH Z-INDEX LAYER (z-30) OUTSIDE clip-path TO PREVENT CLIPPING */}
                     {unit && unit.items && unit.items.length > 0 && (
                       <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-0.5 pointer-events-none">
-                        {unit.items.slice(0, 3).map((item, iIdx) => {
-                          const itemIconSrc = item.icon || getItemIcon(item.id || item.name);
-                          return (
+                        {unit.items.slice(0, 3).map((item: any, iIdx: number) => {
+                          const itemKey = typeof item === 'string' ? item : (item.id || item.name);
+                          const itemIconSrc = (typeof item === 'object' && item.icon) ? item.icon : getItemIcon(itemKey);
+                          const itemName = (typeof item === 'object' && item.name) ? item.name : itemKey;
+                          return itemIconSrc ? (
                             <div
                               key={iIdx}
                               className="w-[20px] h-[20px] rounded-[3px] border border-slate-950 shadow-lg overflow-hidden bg-slate-950 shrink-0 ring-1 ring-black/60"
                             >
                               <img
                                 src={itemIconSrc}
-                                alt={item.name}
+                                alt={itemName}
                                 className="w-full h-full object-cover"
                               />
                             </div>
-                          );
+                          ) : null;
                         })}
                       </div>
                     )}
