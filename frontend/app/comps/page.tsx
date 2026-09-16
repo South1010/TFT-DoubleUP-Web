@@ -197,7 +197,7 @@ export default function CompsPage() {
 
       // Only dedicated augment toggle
       const matchesOnlyDedicated =
-        !onlyDedicatedAugments || (Boolean(comp.dedicated_augment) && comp.dedicated_augment.trim() !== '');
+        !onlyDedicatedAugments || Boolean(comp.dedicated_augment?.trim());
 
       // Keyword query
       const q = searchQuery.toLowerCase().trim();
