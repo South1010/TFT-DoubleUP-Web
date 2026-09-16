@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import CompInlineDetail from '@/components/CompInlineDetail';
 import BubbleCompSelector from '@/components/BubbleCompSelector';
-import { CompStat, getTierStyle } from '@/utils/compTypes';
+import { CompStat, PartnerCompSummary, getTierStyle } from '@/utils/compTypes';
 import { getChampion, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '@/utils/setMaster';
 import { FALLBACK_COMPS } from '@/utils/fallbackComps';
 import {
@@ -78,7 +78,7 @@ export default function Home() {
   const sortedPartnerComps = useMemo(() => {
     if (!selectedMyComp) return [];
 
-    let pList: CompStat[] = [];
+    let pList: (CompStat | PartnerCompSummary)[] = [];
     if (selectedMyComp.partner_comps && selectedMyComp.partner_comps.length > 0) {
       pList = selectedMyComp.partner_comps.map(p => {
         const full = comps.find(c => c.comp_key === p.comp_key);
