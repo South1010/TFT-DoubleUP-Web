@@ -70,11 +70,7 @@ export default function ArticleDetailPage() {
 
   const renderBoardComponent = () => {
     if (boardUnits.length === 0) {
-      return (
-        <div className="my-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold text-center">
-          ⚠️ 盤面データが設定されていません（管理者ポータルで構成盤面を設定してください）
-        </div>
-      );
+      return null;
     }
     return (
       <section className="my-8 p-6 bg-gradient-to-b from-sky-100/90 via-sky-50/50 to-white rounded-3xl border border-sky-200 shadow-sm space-y-5">

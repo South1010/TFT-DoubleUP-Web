@@ -318,7 +318,7 @@ export default function Home() {
                     ) : (
                       <div className="p-6 text-center text-slate-500 bg-sky-50/50 rounded-2xl border border-sky-200 space-y-2">
                         <p className="text-xs font-bold text-slate-700">現在この構成に対する専用相方ペア構成は登録されていません</p>
-                        <p className="text-[10px] text-slate-500">管理者ポータルからいつでも新しい相性ペアを追加登録・リンク可能です</p>
+                        <p className="text-[10px] text-slate-500">今後のメタ分析やアップデートに合わせて随時追加されます</p>
                       </div>
                     )}
                   </>

@@ -299,7 +299,7 @@ export default function CompDetailModal({ comp, onClose, onSelectComp }: CompDet
                 <div className="p-6 text-center text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800">
                   <ShieldAlert className="w-8 h-8 mx-auto mb-2 text-slate-600" />
                   <p className="text-xs">現在この構成に対する専用相方構成は未設定です。</p>
-                  <p className="text-[10px] text-slate-600 mt-1">管理者ポータルからいつでも新しい相性ペアを追加できます。</p>
+                  <p className="text-[10px] text-slate-600 mt-1">今後のアップデートやメタ変動に合わせて随時追加されます。</p>
                 </div>
               )}
             </div>

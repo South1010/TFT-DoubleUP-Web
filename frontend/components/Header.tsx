@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HeartHandshake, Layers, Home as HomeIcon, Menu, ChevronDown, Check, BookOpen, Shield } from 'lucide-react';
+import { HeartHandshake, Layers, Home as HomeIcon, Menu, ChevronDown, Check, BookOpen } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -141,16 +141,8 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Right: Admin Portal Button */}
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin"
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-50 text-sky-900 border border-sky-300 text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition hover:shadow-md hover:border-sky-400"
-            >
-              <Shield className="w-4 h-4 text-sky-600" />
-              <span>管理者ポータル</span>
-            </Link>
-          </div>
+          {/* Right: Layout spacer (keeps logo centered) */}
+          <div className="w-12 sm:w-16" />
 
         </div>
       </div>
