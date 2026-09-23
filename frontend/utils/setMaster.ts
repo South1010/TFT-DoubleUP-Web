@@ -617,9 +617,12 @@ Object.entries(itemNameJpMapData as Record<string, string>).forEach(([engKey, jp
  * Returns an official TFT Augment icon URL from CommunityDragon
  */
 export function getAugmentIcon(idOrName?: string, tier?: string): string {
-  if (!idOrName) return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_gold.png';
+  if (!idOrName) return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png';
 
-  const raw = idOrName.trim();
+  let raw = idOrName.trim();
+  if (raw === '酒食傾物') {
+    raw = '捕食植物';
+  }
   const lower = raw.toLowerCase();
   const cleaned = raw
     .replace(/^(TFT\d*_Augment_|TFT_Augment_|DA_\d*_Augment_|DA_Augment_|DA_|Augment_)/i, '')
@@ -649,16 +652,16 @@ export function getAugmentIcon(idOrName?: string, tier?: string): string {
     if (fromReverseIcon) return fromReverseIcon;
   }
 
-  // 4. Fallback based on tier
+  // 4. Fallback based on tier (Using verified CommunityDragon hexcore tier icons)
   const tierLower = (tier || '').toLowerCase();
   if (tierLower.includes('silver') || tierLower.includes('1') || tierLower.includes('i')) {
-    return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_silver.png';
+    return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t1.png';
   }
   if (tierLower.includes('prismatic') || tierLower.includes('3') || tierLower.includes('iii')) {
-    return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_prismatic.png';
+    return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t3.png';
   }
 
-  return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_gold.png';
+  return 'https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png';
 }
 
 export type AugmentTier = 'silver' | 'gold' | 'prismatic';
@@ -978,6 +981,7 @@ const STANDARD_SET_ITEMS: MasterItem[] = [
   { id: "TFT_Item_StrikerFlail", name: "ストライカーフレイル", icon: getItemIcon("TFT_Item_StrikerFlail"), desc: "攻撃速度+15%、クリティカル率+20%。通常攻撃またはスキル発動で追加物理ダメージを与える。" },
   { id: "TFT_Item_Deathblade", name: "デスブレード", icon: getItemIcon("TFT_Item_Deathblade"), desc: "物理攻撃力+55%、5%の追加ダメージを与える。" },
   { id: "TFT_Item_Evenshroud", name: "イーブンシュラウド", icon: getItemIcon("TFT_Item_Evenshroud"), desc: "体力+150、魔法防御+20。周囲2マスの敵の物理防御を30%低下させる。" },
+  { id: "TFT_Item_Leviathan", name: "ナッシャー トゥース", icon: getItemIcon("TFT_Item_Leviathan"), desc: "スキル発動後、5秒間攻撃速度が40%増加する。（魔力+30、攻撃速度+10%、体力+150）" },
   { id: "TFT18_Item_FloraFatalisEmblem", name: "フローラ・ファターリスの紋章", icon: getItemIcon("TFT18_Item_FloraFatalisEmblem"), desc: "フローラ・ファターリス特性を獲得する。" },
   { id: "TFT18_Item_FaeEmblem", name: "フェイの紋章", icon: getItemIcon("TFT18_Item_FaeEmblem"), desc: "フェイ特性を獲得する。" },
   { id: "DA_18_EmblemFae", name: "フェイの紋章", icon: getItemIcon("DA_18_EmblemFae"), desc: "フェイ特性を獲得する。" },
@@ -1009,6 +1013,15 @@ STANDARD_SET_ITEMS.forEach(i => {
   itemMap.set(i.id.toLowerCase(), i);
   itemByNameMap.set(i.name.toLowerCase(), i);
 });
+
+// Register aliases for Nashor's Tooth
+const nashorItem = itemMap.get("tft_item_leviathan");
+if (nashorItem) {
+  itemMap.set("tft_item_nashorstooth", nashorItem);
+  itemMap.set("nashorstooth", nashorItem);
+  itemMap.set("nashor's tooth", nashorItem);
+  itemByNameMap.set("ナッシャートゥース", nashorItem);
+}
 
 // Load items from set18Data if present
 ((set18Data as any).items || []).forEach((i: any) => {

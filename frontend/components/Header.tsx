@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
@@ -114,6 +114,7 @@ export default function Header() {
                       </Link>
                     );
                   })}
+
                 </div>
               </div>
             )}
@@ -141,6 +142,7 @@ export default function Header() {
             </div>
           </Link>
 
+          {/* Right: Actions */}
           {/* Right: Layout spacer (keeps logo centered) */}
           <div className="w-12 sm:w-16" />
 

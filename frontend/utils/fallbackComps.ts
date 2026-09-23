@@ -1,4 +1,4 @@
-﻿import { CompStat } from './compTypes';
+import { CompStat } from './compTypes';
 
 export const FALLBACK_COMPS: CompStat[] = [
     {
@@ -1849,9 +1849,9 @@ export const FALLBACK_COMPS: CompStat[] = [
         "overview":  "",
         "play_conditions":  "",
         "progression_guide":  "",
-        "dedicated_augment":  "酒食傾物",
+        "dedicated_augment":  "捕食植物",
         "recommended_augments":  [
-                                     "酒食傾物"
+                                     "捕食植物"
                                  ],
         "level_boards":  {
 

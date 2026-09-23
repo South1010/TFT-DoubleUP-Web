@@ -151,11 +151,11 @@ class CDragonMaster:
                         aid = f"TFT18_Augment_{aname}"
                         tier_str = str(a.get("tier", "Gold")).lower()
                         if "silver" in tier_str:
-                            fallback_icon = "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_silver.png"
+                            fallback_icon = "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t1.png"
                         elif "prismatic" in tier_str:
-                            fallback_icon = "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_prismatic.png"
+                            fallback_icon = "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t3.png"
                         else:
-                            fallback_icon = "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/tft_augment_generic_gold.png"
+                            fallback_icon = "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png"
 
                         icon_url = master_augment_icons.get(aname.lower(), fallback_icon)
                         self.augments[aid] = {
@@ -181,6 +181,8 @@ class CDragonMaster:
                     "TFT_Item_StrikerFlail": "tft_item_powergauntlet.png",
                     "TFT_Item_PowerGauntlet": "tft_item_powergauntlet.png",
                     "TFT_Item_Evenshroud": "tft_item_spectralgauntlet.png",
+                    "TFT_Item_Leviathan": "tft_item_leviathan.png",
+                    "TFT_Item_NashorsTooth": "tft_item_leviathan.png",
                     "TFT18_Item_FloraFatalisEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_florafatalis.png",
                     "TFT18_Item_FaeEmblem": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png",
                     "DA_18_EmblemFae": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png"
@@ -222,6 +224,7 @@ class CDragonMaster:
                     ("TFT_Item_StrikerFlail", "ストライカーフレイル", "攻撃速度+15%、クリティカル率+20%。通常攻撃またはスキル発動で追加物理ダメージを与える。"),
                     ("TFT_Item_Deathblade", "デスブレード", "物理攻撃力+55%、5%の追加ダメージを与える。"),
                     ("TFT_Item_Evenshroud", "イーブンシュラウド", "体力+150、魔法防御+20。周囲2マスの敵の物理防御を30%低下させる。"),
+                    ("TFT_Item_Leviathan", "ナッシャー トゥース", "スキル発動後、5秒間攻撃速度が40%増加する。（魔力+30、攻撃速度+10%、体力+150）"),
                     ("TFT18_Item_FloraFatalisEmblem", "フローラ・ファターリスの紋章", "フローラ・ファターリス特性を獲得する。"),
                     ("TFT18_Item_FaeEmblem", "フェイの紋章", "フェイ特性を獲得する。"),
                     ("DA_18_EmblemFae", "フェイの紋章", "フェイ特性を獲得する。")

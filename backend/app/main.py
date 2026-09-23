@@ -125,6 +125,7 @@ def on_startup():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE aggregated_comps SET is_custom = 1 WHERE is_custom IS NULL OR is_custom = 0")
+    cursor.execute("UPDATE aggregated_comps SET dedicated_augment = '捕食植物', recommended_augments_json = '[\"捕食植物\"]' WHERE dedicated_augment = '酒食傾物'")
     load_custom_comps_from_seed(cursor)
     _sync_all_bidirectional_partners(cursor)
     _normalize_display_orders(cursor)
@@ -908,9 +909,8 @@ def get_sample_matches(queue_id: int = 1160):
                         "display_name": dname,
                         "traits_summary": detail_info.get("traits_summary", ""),
                         "units_detail": detail_info.get("units_detail", []),
-                            "icon": cdragon.champions.get(cid, {}).get("icon", ""),
-                            "cost": cost
-                        }
+                        "icon": cdragon.champions.get(cid, {}).get("icon", ""),
+                        "cost": cost
                     })
 
             sample_matches.append({

@@ -1059,11 +1059,24 @@ export default function AdminPage() {
           handleSelectComp(savedKey, freshComps);
         }
       } else {
-        const err = await res.json();
-        setMessage({ text: err.detail || '保存に失敗しました', isError: true });
+        let errorDetail = `保存に失敗しました (HTTP ${res.status})`;
+        try {
+          const err = await res.json();
+          if (typeof err.detail === 'string') {
+            errorDetail = err.detail;
+          } else if (Array.isArray(err.detail)) {
+            errorDetail = err.detail.map((d: any) => `${d.loc?.join('.') || 'param'}: ${d.msg}`).join(', ');
+          } else if (err.error) {
+            errorDetail = err.error;
+          }
+        } catch {
+          errorDetail = `サーバーエラーが発生しました (HTTP ${res.status}: ${res.statusText || 'エラー'})`;
+        }
+        setMessage({ text: errorDetail, isError: true });
       }
-    } catch (e) {
-      setMessage({ text: 'サーバー通信エラーが発生しました', isError: true });
+    } catch (e: any) {
+      console.error('Save comp network error:', e);
+      setMessage({ text: `サーバー通信エラーが発生しました (${e?.message || 'バックエンドに接続できません'})`, isError: true });
     } finally {
       setSaving(false);
     }
@@ -1083,10 +1096,18 @@ export default function AdminPage() {
         await fetchMasterData();
         handleSelectComp('NEW');
       } else {
-        setMessage({ text: '削除に失敗しました', isError: true });
+        let errDetail = '構成の削除に失敗しました';
+        try {
+          const err = await res.json();
+          if (typeof err.detail === 'string') errDetail = err.detail;
+        } catch {
+          errDetail = `エラー (HTTP ${res.status})`;
+        }
+        setMessage({ text: errDetail, isError: true });
       }
-    } catch (e) {
-      setMessage({ text: '通信エラーが発生しました', isError: true });
+    } catch (e: any) {
+      console.error('Delete comp network error:', e);
+      setMessage({ text: `サーバー通信エラーが発生しました (${e?.message || 'バックエンドに接続できません'})`, isError: true });
     }
   };
 
@@ -2628,7 +2649,12 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-3 gap-1.5 max-h-[160px] overflow-y-auto p-1 bg-sky-50/50 rounded-xl border border-sky-200">
                 {items
-                  .filter(i => !itemSearchQuery || (i.name || '').toLowerCase().includes(itemSearchQuery.toLowerCase()))
+                  .filter(i => {
+                    if (!itemSearchQuery.trim()) return true;
+                    const q = itemSearchQuery.toLowerCase().replace(/\s+/g, '');
+                    const name = (i.name || '').toLowerCase().replace(/\s+/g, '');
+                    return name.includes(q);
+                  })
                   .map((i) => {
                     const count = selectedItemsForCell.filter(id => id === i.id).length;
                     const isMax = selectedItemsForCell.length >= 3;

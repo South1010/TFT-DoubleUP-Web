@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { CompStat, getTierStyle } from '../utils/compTypes';
-import { getChampion, getChampionName, getChampionIcon, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
+import { getChampion, getChampionName, getChampionIcon, getItemIcon, getItemName, getAugmentTierStyle, getAugmentIcon } from '../utils/setMaster';
 import { Search, Sparkles, User, SlidersHorizontal, Filter, RotateCcw, Award, CheckCircle, X, ChevronDown } from 'lucide-react';
 
 interface BubbleCompSelectorProps {
@@ -194,7 +194,8 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
     const augMap = new Map<string, AugOption>();
     comps.forEach((c) => {
       if (c.dedicated_augment && c.dedicated_augment.trim()) {
-        const augName = c.dedicated_augment.trim();
+        let augName = c.dedicated_augment.trim();
+        if (augName === '酒食傾物') augName = '捕食植物';
         if (!augMap.has(augName)) {
           const style = getAugmentTierStyle(augName);
           const icon = getAugmentIcon(augName, style.tier);
@@ -239,10 +240,11 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
             );
           });
 
-        // Dedicated augment filter
+        // Dedicated augment filter (Normalized)
+        const compAug = comp.dedicated_augment === '酒食傾物' ? '捕食植物' : comp.dedicated_augment;
         const matchesDedicatedAugment =
           selectedDedicatedAugment === 'ALL' ||
-          (comp.dedicated_augment && comp.dedicated_augment.includes(selectedDedicatedAugment));
+          (compAug && compAug.includes(selectedDedicatedAugment));
 
         // Keyword query
         const q = searchQuery.toLowerCase().trim();
@@ -250,7 +252,7 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
           q === '' ||
           comp.display_name?.toLowerCase().includes(q) ||
           comp.main_carry?.name?.toLowerCase().includes(q) ||
-          (comp.dedicated_augment && comp.dedicated_augment.toLowerCase().includes(q)) ||
+          (compAug && compAug.toLowerCase().includes(q)) ||
           (comp.traits_summary && comp.traits_summary.toLowerCase().includes(q)) ||
           (comp.units_detail || []).some((u: any) => {
             const uName = typeof u === 'string' ? u : u.name || u.id;
@@ -367,6 +369,64 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
     const name = getChampionName(rawName);
     const icon = mainCarry.icon || master.icon || getChampionIcon(mainCarry.id || name);
     return { name, icon };
+  };
+
+  const resolveCarryItems = (comp: CompStat): { id: string; name: string; icon: string }[] => {
+    // 1. Check best_items
+    if (comp.best_items && Array.isArray(comp.best_items) && comp.best_items.length > 0) {
+      const items = comp.best_items
+        .map((item: any) => {
+          if (!item) return null;
+          if (typeof item === 'string') {
+            return {
+              id: item,
+              name: getItemName(item),
+              icon: getItemIcon(item)
+            };
+          }
+          const id = item.id || item.name || '';
+          const name = item.name || getItemName(id);
+          const icon = item.icon || getItemIcon(id || name);
+          return { id, name, icon };
+        })
+        .filter((i): i is { id: string; name: string; icon: string } => i !== null && Boolean(i.icon || i.name));
+
+      if (items.length > 0) return items.slice(0, 3);
+    }
+
+    // 2. Fallback: Find main carry in units_detail
+    const carryId = (comp.main_carry?.id || '').toLowerCase();
+    const carryName = (comp.main_carry?.name || '').toLowerCase();
+    const carryUnit = (comp.units_detail || []).find((u) => {
+      const uid = (u.id || '').toLowerCase();
+      const uname = (u.name || '').toLowerCase();
+      return (
+        (carryId && (uid === carryId || uid.includes(carryId))) ||
+        (carryName && (uname === carryName || uname.includes(carryName)))
+      );
+    });
+
+    if (carryUnit && Array.isArray(carryUnit.items) && carryUnit.items.length > 0) {
+      return carryUnit.items
+        .map((item: any) => {
+          if (!item) return null;
+          if (typeof item === 'string') {
+            return {
+              id: item,
+              name: getItemName(item),
+              icon: getItemIcon(item)
+            };
+          }
+          const id = item.id || item.name || '';
+          const name = item.name || getItemName(id);
+          const icon = item.icon || getItemIcon(id || name);
+          return { id, name, icon };
+        })
+        .filter((i): i is { id: string; name: string; icon: string } => i !== null && Boolean(i.icon || i.name))
+        .slice(0, 3);
+    }
+
+    return [];
   };
 
   if (loading) {
@@ -785,8 +845,10 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
                 <div className="flex flex-wrap gap-4 md:gap-6 justify-start items-center py-2 px-1">
                   {band.items.map((comp, idx) => {
                     const { name: carryName, icon: carryIcon } = resolveCarryInfo(comp.main_carry);
+                    const carryItems = resolveCarryItems(comp);
                     const isSelected = selectedCompKey === comp.comp_key;
                     const isPopping = poppingCompKey === comp.comp_key;
+                    const dedicatedAug = comp.dedicated_augment === '酒食傾物' ? '捕食植物' : comp.dedicated_augment;
 
                     return (
                       <div
@@ -803,7 +865,7 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
                       >
                         {/* Bubble Outer Circle */}
                         <div
-                          className={`w-36 h-36 md:w-40 md:h-40 rounded-full ${getBubbleThemeClass(
+                          className={`w-44 h-44 md:w-48 md:h-48 rounded-full ${getBubbleThemeClass(
                             comp.tier
                           )} transition-all duration-300 flex flex-col items-center justify-center p-3 relative text-center backdrop-blur-md ${
                             isSelected
@@ -822,49 +884,80 @@ export default function BubbleCompSelector({ comps = [], onSelectComp, selectedC
                           )}
 
                           {/* Dedicated Augment Icon Badge (Top Right) */}
-                          {comp.dedicated_augment && (
+                          {dedicatedAug && (
                             <div
-                              title={`専用オーグメント: ${comp.dedicated_augment}`}
-                              className="absolute top-1 right-1 p-1 bg-slate-900/95 text-amber-300 rounded-full border border-amber-400/80 shadow-md z-20 flex items-center justify-center"
+                              title={`専用オーグメント: ${dedicatedAug}`}
+                              className="absolute top-1.5 right-1.5 p-1.5 bg-slate-900/95 text-amber-300 rounded-full border border-amber-400/80 shadow-md z-20 flex items-center justify-center"
                             >
                               <img
-                                src={getAugmentIcon(comp.dedicated_augment, getAugmentTierStyle(comp.dedicated_augment).tier)}
-                                alt={comp.dedicated_augment}
-                                className="w-4 h-4 rounded object-contain bg-slate-950 p-0.5 shrink-0"
+                                src={getAugmentIcon(dedicatedAug, getAugmentTierStyle(dedicatedAug).tier)}
+                                alt={dedicatedAug}
+                                className="w-4.5 h-4.5 md:w-5 md:h-5 rounded object-contain bg-slate-950 p-0.5 shrink-0"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
                               />
                             </div>
                           )}
 
                           {/* Tier Badge */}
-                          <span className={`absolute top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-xs border ${getTierStyle(comp.tier).badgeSolid}`}>
+                          <span className={`absolute top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[11px] md:text-xs font-black shadow-xs border ${getTierStyle(comp.tier).badgeSolid}`}>
                             {comp.tier} Tier
                           </span>
 
-                          {/* Carry Champion Icon */}
-                          <div className="relative mt-3 mb-1">
-                            <img
-                              src={carryIcon}
-                              alt={carryName}
-                              className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-white/90 object-cover shadow-md group-hover:scale-110 transition-transform duration-300"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                              }}
-                            />
+                          {/* Carry Champion Icon & Equipped Items */}
+                          <div className="relative mt-3.5 mb-1 flex flex-col items-center">
+                            <div className="relative">
+                              <img
+                                src={carryIcon}
+                                alt={carryName}
+                                className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-white/95 object-cover shadow-md group-hover:scale-105 transition-transform duration-300"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            </div>
+
+                            {/* Carry Equipped Items */}
+                            {carryItems.length > 0 && (
+                              <div className="flex items-center justify-center gap-1 -mt-3.5 z-10">
+                                {carryItems.map((item, iIdx) => (
+                                  <div
+                                    key={`${item.id || item.name}-${iIdx}`}
+                                    title={item.name}
+                                    className="w-5 h-5 md:w-6 md:h-6 rounded-md bg-slate-950/90 border border-amber-300/80 p-[1.5px] shadow-sm shrink-0 overflow-hidden"
+                                  >
+                                    {item.icon ? (
+                                      <img
+                                        src={item.icon}
+                                        alt={item.name}
+                                        className="w-full h-full object-cover rounded-xs"
+                                        onError={(e) => {
+                                          (e.target as HTMLElement).style.display = 'none';
+                                        }}
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-slate-800 rounded-xs" />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           {/* Comp Display Name & Dedicated Augment Label */}
-                          <div className="w-full px-1 flex flex-col items-center">
-                            <div className="font-black text-[11px] md:text-xs text-slate-950 truncate w-full drop-shadow-xs leading-tight">
+                          <div className="w-full px-2 flex flex-col items-center mt-1">
+                            <div className="font-black text-xs md:text-[13px] text-slate-950 truncate w-full drop-shadow-xs leading-tight tracking-tight">
                               {comp.display_name}
                             </div>
                             
-                            {comp.dedicated_augment ? (
-                              <div className="mt-0.5 inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-slate-900/90 text-amber-300 text-[9px] font-black border border-amber-400/60 shadow-2xs max-w-full truncate">
-                                <Award className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                                <span className="truncate">{comp.dedicated_augment}</span>
+                            {dedicatedAug ? (
+                              <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900/90 text-amber-300 text-[9.5px] md:text-[10.5px] font-black border border-amber-400/60 shadow-2xs max-w-full truncate">
+                                <Award className="w-3 h-3 text-amber-400 shrink-0" />
+                                <span className="truncate">{dedicatedAug}</span>
                               </div>
                             ) : (
-                              <span className="text-[9px] md:text-[10px] text-slate-800 font-extrabold block truncate opacity-90">
+                              <span className="mt-0.5 text-[10px] md:text-[11px] text-slate-800 font-extrabold block truncate opacity-90">
                                 {carryName}
                               </span>
                             )}
