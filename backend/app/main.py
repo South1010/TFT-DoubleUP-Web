@@ -943,6 +943,8 @@ class ArticlePayload(BaseModel):
     summary: str = ""
     content: str = ""
     board_data: Optional[Dict[str, Any]] = None
+    boards: Optional[Dict[str, Any]] = None
+    images: Optional[Dict[str, str]] = None
     is_published: int = 1
 
 
@@ -956,6 +958,8 @@ def ensure_articles_table(cursor):
         summary TEXT DEFAULT '',
         content TEXT DEFAULT '',
         board_data_json TEXT DEFAULT '{}',
+        boards_json TEXT DEFAULT '{}',
+        images_json TEXT DEFAULT '{}',
         created_at INTEGER DEFAULT 0,
         updated_at INTEGER DEFAULT 0,
         is_published INTEGER DEFAULT 1
@@ -967,6 +971,8 @@ def ensure_articles_table(cursor):
         ("summary", "TEXT DEFAULT ''"),
         ("content", "TEXT DEFAULT ''"),
         ("board_data_json", "TEXT DEFAULT '{}'"),
+        ("boards_json", "TEXT DEFAULT '{}'"),
+        ("images_json", "TEXT DEFAULT '{}'"),
         ("created_at", "INTEGER DEFAULT 0"),
         ("updated_at", "INTEGER DEFAULT 0"),
         ("is_published", "INTEGER DEFAULT 1")
@@ -982,57 +988,23 @@ def get_articles(category: Optional[str] = None):
     conn = get_connection()
     cursor = conn.cursor()
     ensure_articles_table(cursor)
-    conn.commit()
+
+    # Clean up initial test sample articles if they exist in the DB
+    try:
+        cursor.execute("DELETE FROM articles WHERE title IN (?, ?)", (
+            "TFT Set 18 ダブルアップ最新環境 ティアリスト＆連携戦術徹底解説",
+            "今セット遊んでみた！おすすめネタ＆ロマン★3構成レポート"
+        ))
+        conn.commit()
+    except Exception:
+        pass
 
     if category and category != 'ALL':
-        cursor.execute("SELECT * FROM articles WHERE category = ? AND is_published = 1 ORDER BY created_at DESC", (category,))
+        cursor.execute("SELECT * FROM articles WHERE category = ? ORDER BY created_at DESC", (category,))
     else:
-        cursor.execute("SELECT * FROM articles WHERE is_published = 1 ORDER BY created_at DESC")
+        cursor.execute("SELECT * FROM articles ORDER BY created_at DESC")
     
     rows = cursor.fetchall()
-    
-    # Seed default sample articles if database table is completely empty
-    if not rows and not category:
-        sample_articles = [
-            (
-                "TFT Set 18 ダブルアップ最新環境 ティアリスト＆連携戦術徹底解説",
-                "構成ガイド",
-                "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
-                "Set 18のダブルアップモードで高勝率を誇るおすすめ構成と、ペアで勝利するためのルーン送信戦術・アーモリー選択のコツをまとめて解説！",
-                "## Set 18 ダブルアップ環境の基本戦術\n\nダブルアップモードでは、個人の盤面強度だけでなく**「助太刀戦術」**と**「送別のルーン」**の活用が勝敗を大きく分けます。\n\n### 1. 前衛タンク＆後衛超火力の役割分担\n片方のプレイヤーがハイパーキャリー（スナイパー、ソーサラー）を育成し、もう片方のパートナーが超頑丈なタンク（ブラッドソーン、ブルーザー等）を構築すると、早期撃破による助太刀がスムーズに行えます。\n\n### 2. 構成盤面のチェック\n[board]\n\n### 3. ルーン送信のタイミング\n- **小級ルーン**: 2ステージ序盤に1〜3コストの★2を即時完成させるために送信。\n- **大級ルーン**: 4〜5コストの主要キャリーまたは★3完成のラストピースとして送信。\n\n動画や上記に掲載した盤面配置を参考に、ペアでコミュニケーションを取りながらプレイしてみましょう！\n\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                json.dumps({
-                    "display_name": "4 アダプター 4 ソーサラー",
-                    "main_carry": {"id": "TFT18_Ahri", "name": "アーリ", "cost": 4, "icon": ""},
-                    "units": [
-                        {"id": "TFT18_Ahri", "name": "アーリ", "cost": 4, "star": 2, "row": 3, "col": 3, "items": [{"id": "TFT_Item_BlueBuff", "name": "ブルーバフ", "icon": ""}, {"id": "TFT_Item_JeweledGauntlet", "name": "ジュエルガントレット", "icon": ""}]},
-                        {"id": "TFT18_Neeko", "name": "ニーコ", "cost": 3, "star": 2, "row": 0, "col": 3, "items": [{"id": "TFT_Item_WarmogsArmor", "name": "ワーモグアーマー", "icon": ""}]}
-                    ]
-                }),
-                int(time.time() * 1000) - 86400000,
-                int(time.time() * 1000) - 86400000,
-                1
-            ),
-            (
-                "今セット遊んでみた！おすすめネタ＆ロマン★3構成レポート",
-                "プレイ日記",
-                "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
-                "今セットで実際にプレイして面白かった5コスト★3狙いの立ち回りや、ダブルアップならではの爆発力あるペアコンボのプレイレポートです。",
-                "## 5コスト★3をダブルアップで狙うロマン戦術\n\nダブルアップでは大級ルーンの存在により、ソロランクよりも遙かに5コスト★3が完成しやすくなっています！\n\n### 意識すべきポイント\n- 8レベルで利子を維持しながら9レベルへラッシュ。\n- パートナー側は自分のショップに出た対象の5コストチャンピオンを購入してベンチにキープ。\n- ルーンが貯まり次第送信して合体！\n\n非常に爽快感がある構成なのでぜひフレンドと試してみてください。",
-                "{}",
-                int(time.time() * 1000) - 172800000,
-                int(time.time() * 1000) - 172800000,
-                1
-            )
-        ]
-        for a in sample_articles:
-            cursor.execute('''
-            INSERT INTO articles (title, category, cover_image, summary, content, board_data_json, created_at, updated_at, is_published)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', a)
-        conn.commit()
-        cursor.execute("SELECT * FROM articles WHERE is_published = 1 ORDER BY created_at DESC")
-        rows = cursor.fetchall()
-
     conn.close()
 
     result = []
@@ -1040,6 +1012,24 @@ def get_articles(category: Optional[str] = None):
         b_json = {}
         try:
             b_json = json.loads(r["board_data_json"]) if r["board_data_json"] else {}
+        except Exception:
+            pass
+
+        boards_json = {}
+        try:
+            if "boards_json" in r.keys() and r["boards_json"]:
+                boards_json = json.loads(r["boards_json"])
+        except Exception:
+            pass
+
+        # Fallback to boards={'1': b_json} if legacy article
+        if not boards_json and b_json and b_json.get("units"):
+            boards_json = {"1": b_json}
+
+        img_json = {}
+        try:
+            if "images_json" in r.keys() and r["images_json"]:
+                img_json = json.loads(r["images_json"])
         except Exception:
             pass
 
@@ -1051,6 +1041,8 @@ def get_articles(category: Optional[str] = None):
             "summary": r["summary"],
             "content": r["content"],
             "board_data": b_json,
+            "boards": boards_json,
+            "images": img_json,
             "created_at": r["created_at"],
             "updated_at": r["updated_at"],
             "is_published": r["is_published"]
@@ -1076,6 +1068,24 @@ def get_article_detail(article_id: int):
     except Exception:
         pass
 
+    boards_json = {}
+    try:
+        if "boards_json" in r.keys() and r["boards_json"]:
+            boards_json = json.loads(r["boards_json"])
+    except Exception:
+        pass
+
+    # Fallback to boards={'1': b_json} if legacy article
+    if not boards_json and b_json and b_json.get("units"):
+        boards_json = {"1": b_json}
+
+    img_json = {}
+    try:
+        if "images_json" in r.keys() and r["images_json"]:
+            img_json = json.loads(r["images_json"])
+    except Exception:
+        pass
+
     return {
         "id": r["id"],
         "title": r["title"],
@@ -1084,6 +1094,8 @@ def get_article_detail(article_id: int):
         "summary": r["summary"],
         "content": r["content"],
         "board_data": b_json,
+        "boards": boards_json,
+        "images": img_json,
         "created_at": r["created_at"],
         "updated_at": r["updated_at"],
         "is_published": r["is_published"]
@@ -1094,14 +1106,16 @@ def get_article_detail(article_id: int):
 def create_article(payload: ArticlePayload):
     now_ms = int(time.time() * 1000)
     b_json_str = json.dumps(payload.board_data or {})
+    boards_json_str = json.dumps(payload.boards or ({"1": payload.board_data} if payload.board_data else {}))
+    img_json_str = json.dumps(payload.images or {})
 
     conn = get_connection()
     cursor = conn.cursor()
     ensure_articles_table(cursor)
     try:
         cursor.execute('''
-        INSERT INTO articles (title, category, cover_image, summary, content, board_data_json, created_at, updated_at, is_published)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO articles (title, category, cover_image, summary, content, board_data_json, boards_json, images_json, created_at, updated_at, is_published)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             payload.title,
             payload.category or "構成ガイド",
@@ -1109,6 +1123,8 @@ def create_article(payload: ArticlePayload):
             payload.summary or "",
             payload.content or "",
             b_json_str,
+            boards_json_str,
+            img_json_str,
             now_ms,
             now_ms,
             payload.is_published
@@ -1126,6 +1142,8 @@ def create_article(payload: ArticlePayload):
 def update_article(article_id: int, payload: ArticlePayload):
     now_ms = int(time.time() * 1000)
     b_json_str = json.dumps(payload.board_data or {})
+    boards_json_str = json.dumps(payload.boards or ({"1": payload.board_data} if payload.board_data else {}))
+    img_json_str = json.dumps(payload.images or {})
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -1138,7 +1156,7 @@ def update_article(article_id: int, payload: ArticlePayload):
 
         cursor.execute('''
         UPDATE articles
-        SET title = ?, category = ?, cover_image = ?, summary = ?, content = ?, board_data_json = ?, updated_at = ?, is_published = ?
+        SET title = ?, category = ?, cover_image = ?, summary = ?, content = ?, board_data_json = ?, boards_json = ?, images_json = ?, updated_at = ?, is_published = ?
         WHERE id = ?
         ''', (
             payload.title,
@@ -1147,6 +1165,8 @@ def update_article(article_id: int, payload: ArticlePayload):
             payload.summary,
             payload.content,
             b_json_str,
+            boards_json_str,
+            img_json_str,
             now_ms,
             payload.is_published,
             article_id

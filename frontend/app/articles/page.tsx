@@ -35,10 +35,30 @@ export default function ArticlesPage() {
       }
     } catch (e) {}
 
+    let deletedIds: number[] = [];
+    try {
+      const delSaved = typeof window !== 'undefined' ? localStorage.getItem('tft_deleted_articles') : null;
+      if (delSaved) {
+        deletedIds = JSON.parse(delSaved);
+      }
+    } catch (e) {}
+
+    const isTestArticle = (a: Article) =>
+      a.title === 'TFT Set 18 ダブルアップ最新環境 ティアリスト＆連携戦術徹底解説' ||
+      a.title === '今セット遊んでみた！おすすめネタ＆ロマン★3構成レポート';
+
     const mergedMap = new Map<number, Article>();
     const baseList = (remoteArticles && remoteArticles.length > 0) ? remoteArticles : FALLBACK_ARTICLES;
-    baseList.forEach(a => mergedMap.set(a.id, a));
-    localArticles.forEach(a => mergedMap.set(a.id, a));
+    baseList.forEach(a => {
+      if (!deletedIds.includes(a.id) && !isTestArticle(a)) {
+        mergedMap.set(a.id, a);
+      }
+    });
+    localArticles.forEach(a => {
+      if (!deletedIds.includes(a.id) && !isTestArticle(a)) {
+        mergedMap.set(a.id, a);
+      }
+    });
 
     const resultList = Array.from(mergedMap.values()).sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
     setArticles(resultList);
@@ -228,19 +248,23 @@ export default function ArticlesPage() {
         ) : (
           <div className="py-16 text-center glass-panel rounded-2xl border border-sky-200 bg-white">
             <BookOpen className="w-10 h-10 text-slate-400 mx-auto mb-3 opacity-60" />
-            <h3 className="text-base font-bold text-slate-800">一致する記事が見つかりませんでした</h3>
+            <h3 className="text-base font-bold text-slate-800">
+              {articles.length === 0 ? '現在公開されている記事はありません' : '一致する記事が見つかりませんでした'}
+            </h3>
             <p className="text-xs text-slate-500 mt-1 mb-4">
-              検索キーワードまたはカテゴリ条件を変更してお試しください。
+              {articles.length === 0 ? '今後のアップデートで随時追加されます。' : '検索キーワードまたはカテゴリ条件を変更してお試しください。'}
             </p>
-            <button
-              onClick={() => {
-                setSelectedCategory('ALL');
-                setSearchQuery('');
-              }}
-              className="px-4 py-2 bg-sky-500 text-white rounded-xl text-xs font-bold shadow-md hover:bg-sky-600 transition"
-            >
-              条件をリセット
-            </button>
+            {articles.length > 0 && (
+              <button
+                onClick={() => {
+                  setSelectedCategory('ALL');
+                  setSearchQuery('');
+                }}
+                className="px-4 py-2 bg-sky-500 text-white rounded-xl text-xs font-bold shadow-md hover:bg-sky-600 transition"
+              >
+                条件をリセット
+              </button>
+            )}
           </div>
         )}
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star, BookOpen, FileText, Image as ImageIcon, Video, Eye, EyeOff, Upload } from 'lucide-react';
+import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star, BookOpen, FileText, Image as ImageIcon, Video, Eye, EyeOff, Upload, User } from 'lucide-react';
 import Link from 'next/link';
 import { CompStat, UnitDetail, Item, getTierStyle } from '@/utils/compTypes';
 import { Article } from '@/utils/articleTypes';
@@ -10,6 +10,8 @@ import { FALLBACK_COMPS } from '@/utils/fallbackComps';
 import { calculateAllTeamTraits } from '@/utils/traitHelpers';
 import { getAllChampions, getAllItems, getAllAugments, getAugment, getChampion, getChampionIcon, getChampionName, getItemIcon, getItemName, getAugmentTierStyle, CHAMP_COST_MAP } from '@/utils/setMaster';
 import ItemIcon from '@/components/ItemIcon';
+import TftHexBoard from '@/components/TftHexBoard';
+import ArticleRichContent from '@/components/ArticleRichContent';
 
 interface ChampionMaster {
   id: string;
@@ -127,6 +129,40 @@ const renderStars = (starCount: number, cost: number) => {
   );
 };
 
+const ArticleContentPreview = ({
+  content,
+  images,
+  boardUnits,
+  boardDisplayName,
+  boards
+}: {
+  content: string;
+  images: { [key: string]: string };
+  boardUnits?: UnitDetail[];
+  boardDisplayName?: string;
+  boards?: { [key: string]: ArticleBoardData };
+}) => {
+  if (!content && (!boardUnits || boardUnits.length === 0) && (!boards || Object.keys(boards).length === 0)) {
+    return (
+      <div className="py-16 text-center text-slate-400 text-xs font-bold">
+        本文がまだ入力されていません。「本文を編集」タブで文章や画像を入力してください。
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-xs">
+      <ArticleRichContent
+        content={content}
+        images={images}
+        boardUnits={boardUnits}
+        boardDisplayName={boardDisplayName}
+        boards={boards}
+      />
+    </div>
+  );
+};
+
 export default function AdminPage() {
   const [passcode, setPasscode] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -181,16 +217,103 @@ export default function AdminPage() {
   const [artSummary, setArtSummary] = useState('');
   const [artContent, setArtContent] = useState('');
   const [artAttachBoard, setArtAttachBoard] = useState(false);
+  const [artBoards, setArtBoards] = useState<{ [key: string]: ArticleBoardData }>({
+    '1': { id: '1', display_name: '構成盤面 1', units: [] }
+  });
+  const [activeBoardKey, setActiveBoardKey] = useState<string>('1');
   const [artBoardDisplayName, setArtBoardDisplayName] = useState('');
   const [artMainCarryId, setArtMainCarryId] = useState('');
   const [artBoardUnits, setArtBoardUnits] = useState<UnitDetail[]>([]);
   const [artIsPublished, setArtIsPublished] = useState(1);
+  const [artImages, setArtImages] = useState<{ [key: string]: string }>({});
+  const [artEditorTab, setArtEditorTab] = useState<'EDIT' | 'PREVIEW'>('EDIT');
+
+  // Switch active board tab
+  const handleSwitchActiveBoard = (key: string, currentBoards = artBoards) => {
+    setActiveBoardKey(key);
+    const b = currentBoards[key] || { id: key, display_name: `構成盤面 ${key}`, units: [] };
+    setArtBoardUnits(b.units || []);
+    setArtBoardDisplayName(b.display_name || '');
+    setArtMainCarryId(b.main_carry?.id || '');
+  };
+
+  // Add new board
+  const handleAddNewBoard = () => {
+    const existingNumKeys = Object.keys(artBoards).map(Number).filter(n => !isNaN(n));
+    const nextKeyNum = existingNumKeys.length > 0 ? Math.max(...existingNumKeys) + 1 : Object.keys(artBoards).length + 1;
+    const newKey = String(nextKeyNum);
+    const newBoard: ArticleBoardData = {
+      id: newKey,
+      display_name: `構成盤面 ${newKey}`,
+      units: []
+    };
+    setArtBoards(prev => ({
+      ...prev,
+      [newKey]: newBoard
+    }));
+    setActiveBoardKey(newKey);
+    setArtBoardUnits([]);
+    setArtBoardDisplayName(`構成盤面 ${newKey}`);
+    setArtMainCarryId('');
+    setArtAttachBoard(true);
+    setMessage({ text: `✨ 新しい構成盤面 [board: ${newKey}] を作成しました！` });
+  };
+
+  // Delete board
+  const handleDeleteBoard = (keyToDelete: string) => {
+    const keys = Object.keys(artBoards);
+    if (keys.length <= 1) {
+      alert('最低1つの盤面が必要です。削除できません。');
+      return;
+    }
+    if (!window.confirm(`[board: ${keyToDelete}] を削除しますか？\n（本文中にタグがある場合は本文からも削除されます）`)) {
+      return;
+    }
+    const updatedBoards = { ...artBoards };
+    delete updatedBoards[keyToDelete];
+    setArtBoards(updatedBoards);
+
+    const remainingKeys = keys.filter(k => k !== keyToDelete);
+    const nextKey = remainingKeys[0] || '1';
+    handleSwitchActiveBoard(nextKey, updatedBoards);
+
+    setArtContent(prev => prev.replaceAll(`[board: ${keyToDelete}]`, '').replaceAll(`[盤面: ${keyToDelete}]`, ''));
+    setMessage({ text: `[board: ${keyToDelete}] を削除しました。` });
+  };
 
   // File upload refs & drag drop state
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const contentFileInputRef = useRef<HTMLInputElement>(null);
+  const artContentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [isDraggingCover, setIsDraggingCover] = useState(false);
   const [isDraggingContent, setIsDraggingContent] = useState(false);
+
+  // Champion & Item Pickers for Article Content
+  const [champPickerOpen, setChampPickerOpen] = useState(false);
+  const [champPickerSearch, setChampPickerSearch] = useState('');
+  const [champPickerCost, setChampPickerCost] = useState<number | 'ALL'>('ALL');
+  const [itemPickerOpen, setItemPickerOpen] = useState(false);
+  const [itemPickerSearch, setItemPickerSearch] = useState('');
+
+  // Insert short tag at current cursor position in content textarea
+  const handleInsertTagAtCursor = (tag: string) => {
+    const textarea = artContentTextareaRef.current;
+    if (!textarea) {
+      setArtContent(prev => prev + tag);
+      return;
+    }
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end);
+    setArtContent(before + tag + after);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + tag.length, start + tag.length);
+    }, 0);
+  };
 
   // Client-side canvas image resizer & compressor (Max width 900px, quality 0.70)
   const compressImage = (file: File, maxWidth = 900, quality = 0.70): Promise<string> => {
@@ -234,6 +357,7 @@ export default function AdminPage() {
   // Image Cropper State & Handlers
   const [cropperOpen, setCropperOpen] = useState(false);
   const [cropperTarget, setCropperTarget] = useState<'COVER' | 'CONTENT'>('COVER');
+  const [editingImageKey, setEditingImageKey] = useState<string | null>(null);
   const [cropperImageSrc, setCropperImageSrc] = useState<string | null>(null);
   const [cropperAspect, setCropperAspect] = useState<string>('16:9'); // '16:9' | '4:3' | '1:1' | 'FREE'
   const [zoom, setZoom] = useState<number>(1.0);
@@ -242,7 +366,7 @@ export default function AdminPage() {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const handleOpenCropperForFile = (file: File, target: 'COVER' | 'CONTENT') => {
+  const handleOpenCropperForFile = (file: File, target: 'COVER' | 'CONTENT', existingKey: string | null = null) => {
     if (!file.type.startsWith('image/')) {
       setMessage({ text: '画像ファイルを選択してください', isError: true });
       return;
@@ -253,6 +377,7 @@ export default function AdminPage() {
       const src = e.target?.result as string;
       setCropperImageSrc(src);
       setCropperTarget(target);
+      setEditingImageKey(existingKey);
       setCropperAspect(target === 'COVER' ? '16:9' : 'FREE');
       setZoom(1.0);
       setPan({ x: 0, y: 0 });
@@ -261,14 +386,56 @@ export default function AdminPage() {
     };
   };
 
-  const handleOpenCropperForSrc = (src: string, target: 'COVER' | 'CONTENT') => {
+  const handleOpenCropperForSrc = (src: string, target: 'COVER' | 'CONTENT', existingKey: string | null = null) => {
     setCropperImageSrc(src);
     setCropperTarget(target);
+    setEditingImageKey(existingKey);
     setCropperAspect(target === 'COVER' ? '16:9' : 'FREE');
     setZoom(1.0);
     setPan({ x: 0, y: 0 });
     setRotation(0);
     setCropperOpen(true);
+  };
+
+  // Convert inline Base64 images to short tags [画像: 1]
+  const handleConvertInlineBase64ToShortTags = () => {
+    let curImages: { [key: string]: string } = { ...artImages };
+    let content = artContent;
+    const base64Regex = /!\[(.*?)\]\((data:image\/[^\x29]+)\)/g;
+    let match;
+    let counter = 1;
+    const replacements: { oldStr: string; newTag: string }[] = [];
+
+    while ((match = base64Regex.exec(content)) !== null) {
+      while (curImages[String(counter)]) counter++;
+      const key = String(counter);
+      curImages[key] = match[2];
+      replacements.push({ oldStr: match[0], newTag: `[画像: ${key}]` });
+      counter++;
+    }
+
+    if (replacements.length === 0) {
+      // Also check standalone data:image/ lines
+      const standaloneRegex = /(data:image\/[a-zA-Z0-9+/=;,-]+)/g;
+      while ((match = standaloneRegex.exec(content)) !== null) {
+        while (curImages[String(counter)]) counter++;
+        const key = String(counter);
+        curImages[key] = match[1];
+        replacements.push({ oldStr: match[0], newTag: `[画像: ${key}]` });
+        counter++;
+      }
+    }
+
+    if (replacements.length > 0) {
+      for (const r of replacements) {
+        content = content.replace(r.oldStr, r.newTag);
+      }
+      setArtImages(curImages);
+      setArtContent(content);
+      setMessage({ text: `🪄 ${replacements.length}個の膨大な画像コードを短いタグ [画像: 番号] に変換・整理しました！` });
+    } else {
+      setMessage({ text: '変換対象の長い画像コードは見つかりませんでした。' });
+    }
   };
 
   const handleApplyCrop = () => {
@@ -314,10 +481,25 @@ export default function AdminPage() {
         setArtCoverImage(croppedDataUrl);
         setMessage({ text: '✂️ アイキャッチ画像を拡大・縮小・切り取りして挿入しました！' });
       } else {
-        setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + `\n![画像](${croppedDataUrl})\n\n`);
-        setMessage({ text: '✂️ 本文に拡大・縮小・切り取りした画像を挿入しました！' });
+        if (editingImageKey) {
+          // 既存キーの画像差し替え
+          setArtImages(prev => ({ ...prev, [editingImageKey]: croppedDataUrl }));
+          setMessage({ text: `✂️ [画像: ${editingImageKey}] を更新しました！` });
+        } else {
+          // 新規キーの発行
+          let nextNum = 1;
+          const currentKeys = Object.keys(artImages);
+          while (currentKeys.includes(String(nextNum))) {
+            nextNum++;
+          }
+          const nextKey = String(nextNum);
+          setArtImages(prev => ({ ...prev, [nextKey]: croppedDataUrl }));
+          setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + `\n[画像: ${nextKey}]\n\n`);
+          setMessage({ text: `✂️ 本文に短いタグ [画像: ${nextKey}] を挿入しました！下の画像一覧やプレビューで確認できます。` });
+        }
       }
 
+      setEditingImageKey(null);
       setCropperOpen(false);
     };
   };
@@ -526,6 +708,7 @@ export default function AdminPage() {
   // Fetch Articles with LocalStorage Merge
   const fetchArticles = async () => {
     let remoteArticles: Article[] = [];
+    let backendSuccess = false;
     try {
       const res = await fetch(`/api/articles?_t=${Date.now()}`, {
         cache: 'no-store',
@@ -533,6 +716,7 @@ export default function AdminPage() {
       });
       if (res.ok) {
         remoteArticles = await res.json();
+        backendSuccess = true;
       }
     } catch (e) {
       console.error('Failed to fetch articles from backend:', e);
@@ -546,10 +730,30 @@ export default function AdminPage() {
       }
     } catch (e) {}
 
+    let deletedIds: number[] = [];
+    try {
+      const delSaved = typeof window !== 'undefined' ? localStorage.getItem('tft_deleted_articles') : null;
+      if (delSaved) {
+        deletedIds = JSON.parse(delSaved);
+      }
+    } catch (e) {}
+
+    const isTestArticle = (a: Article) =>
+      a.title === 'TFT Set 18 ダブルアップ最新環境 ティアリスト＆連携戦術徹底解説' ||
+      a.title === '今セット遊んでみた！おすすめネタ＆ロマン★3構成レポート';
+
     const mergedMap = new Map<number, Article>();
-    const baseList = (remoteArticles && remoteArticles.length > 0) ? remoteArticles : FALLBACK_ARTICLES;
-    baseList.forEach(a => mergedMap.set(a.id, a));
-    localArticles.forEach(a => mergedMap.set(a.id, a));
+    const baseList = backendSuccess ? remoteArticles : (remoteArticles.length > 0 ? remoteArticles : FALLBACK_ARTICLES);
+    baseList.forEach(a => {
+      if (!deletedIds.includes(a.id) && !isTestArticle(a)) {
+        mergedMap.set(a.id, a);
+      }
+    });
+    localArticles.forEach(a => {
+      if (!deletedIds.includes(a.id) && !isTestArticle(a)) {
+        mergedMap.set(a.id, a);
+      }
+    });
 
     const resultList = Array.from(mergedMap.values()).sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
     setArticlesList(resultList);
@@ -559,16 +763,23 @@ export default function AdminPage() {
   const handleSelectArticle = (artId: number | 'NEW', list = articlesList) => {
     setSelectedArticleId(artId);
     setMessage(null);
+    setArtEditorTab('EDIT');
     if (artId === 'NEW') {
       setArtTitle('');
       setArtCategory('構成ガイド');
       setArtCoverImage('');
       setArtSummary('');
       setArtContent('');
+      const defaultBoards: { [key: string]: ArticleBoardData } = {
+        '1': { id: '1', display_name: '構成盤面 1', units: [] }
+      };
+      setArtBoards(defaultBoards);
+      setActiveBoardKey('1');
       setArtAttachBoard(false);
       setArtBoardDisplayName('');
       setArtMainCarryId('');
       setArtBoardUnits([]);
+      setArtImages({});
       setArtIsPublished(1);
     } else {
       const target = list.find(a => a.id === artId);
@@ -577,13 +788,52 @@ export default function AdminPage() {
         setArtCategory(target.category || '構成ガイド');
         setArtCoverImage(target.cover_image || '');
         setArtSummary(target.summary || '');
-        setArtContent(target.content || '');
-        const b = target.board_data || {};
-        const hasUnits = (b.units && b.units.length > 0) || Boolean(b.display_name);
-        setArtAttachBoard(hasUnits);
-        setArtBoardDisplayName(b.display_name || '');
-        setArtMainCarryId(b.main_carry?.id || '');
-        setArtBoardUnits(b.units || []);
+        
+        let curImages: { [key: string]: string } = { ...(target.images || target.board_data?.images || {}) };
+        let content = target.content || '';
+
+        // 本文内に含まれる膨大な Base64 画像 (![alt](data:image/...)) を自動的に [画像: N] に変換して整理
+        const base64Regex = /!\[(.*?)\]\((data:image\/[^\x29]+)\)/g;
+        let match;
+        let counter = 1;
+        const replacements: { oldStr: string; newTag: string }[] = [];
+        while ((match = base64Regex.exec(content)) !== null) {
+          while (curImages[String(counter)]) counter++;
+          const key = String(counter);
+          curImages[key] = match[2];
+          replacements.push({ oldStr: match[0], newTag: `[画像: ${key}]` });
+          counter++;
+        }
+        for (const r of replacements) {
+          content = content.replace(r.oldStr, r.newTag);
+        }
+
+        setArtImages(curImages);
+        setArtContent(content);
+
+        // Multi-boards loading
+        let loadedBoards: { [key: string]: ArticleBoardData } = {};
+        if (target.boards && Object.keys(target.boards).length > 0) {
+          loadedBoards = { ...target.boards };
+        } else if (target.board_data && ((target.board_data.units && target.board_data.units.length > 0) || target.board_data.display_name)) {
+          loadedBoards = {
+            '1': { ...target.board_data, id: '1', display_name: target.board_data.display_name || '構成盤面 1' }
+          };
+        } else {
+          loadedBoards = {
+            '1': { id: '1', display_name: '構成盤面 1', units: [] }
+          };
+        }
+        setArtBoards(loadedBoards);
+        const firstKey = Object.keys(loadedBoards)[0] || '1';
+        setActiveBoardKey(firstKey);
+
+        const firstBoard = loadedBoards[firstKey] || { id: firstKey, display_name: '構成盤面 1', units: [] };
+        const hasAnyUnits = Object.values(loadedBoards).some(b => (b.units && b.units.length > 0) || Boolean(b.display_name));
+        setArtAttachBoard(hasAnyUnits);
+        setArtBoardDisplayName(firstBoard.display_name || '');
+        setArtMainCarryId(firstBoard.main_carry?.id || '');
+        setArtBoardUnits(firstBoard.units || []);
         setArtIsPublished(target.is_published ?? 1);
       }
     }
@@ -598,11 +848,28 @@ export default function AdminPage() {
     setSaving(true);
     setMessage(null);
 
+    // Sync current active board edits into artBoards map
+    const syncedBoards: { [key: string]: ArticleBoardData } = {
+      ...artBoards,
+      [activeBoardKey]: {
+        ...(artBoards[activeBoardKey] || {}),
+        id: activeBoardKey,
+        display_name: artBoardDisplayName || `構成盤面 ${activeBoardKey}`,
+        main_carry: artMainCarryId ? { id: artMainCarryId, name: artMainCarryId, cost: 4 } : undefined,
+        units: artBoardUnits
+      }
+    };
+    setArtBoards(syncedBoards);
+
+    const activeBoardData = syncedBoards[activeBoardKey] || Object.values(syncedBoards)[0];
     const boardPayload = artAttachBoard ? {
-      display_name: artBoardDisplayName || artTitle,
-      main_carry: artMainCarryId ? { id: artMainCarryId, name: artMainCarryId, cost: 4 } : undefined,
-      units: artBoardUnits
-    } : {};
+      display_name: activeBoardData?.display_name || artTitle,
+      main_carry: activeBoardData?.main_carry,
+      units: activeBoardData?.units || [],
+      images: artImages
+    } : {
+      images: artImages
+    };
 
     const isNew = selectedArticleId === 'NEW';
     const targetId = isNew ? Date.now() : (selectedArticleId as number);
@@ -616,6 +883,8 @@ export default function AdminPage() {
       summary: artSummary,
       content: artContent,
       board_data: boardPayload,
+      boards: artAttachBoard ? syncedBoards : {},
+      images: artImages,
       is_published: artIsPublished,
       created_at: nowMs,
       updated_at: nowMs
@@ -684,6 +953,18 @@ export default function AdminPage() {
         customList = customList.filter(a => a.id !== artId);
         localStorage.setItem('tft_custom_articles', JSON.stringify(customList));
       }
+
+      const delSaved = localStorage.getItem('tft_deleted_articles');
+      const delList: number[] = delSaved ? JSON.parse(delSaved) : [];
+      if (!delList.includes(artId)) {
+        delList.push(artId);
+      }
+      // もし初期テスト記事のいずれかを削除した場合、両方のID(1, 2)も削除対象に含める
+      if (artId === 1 || artId === 2) {
+        if (!delList.includes(1)) delList.push(1);
+        if (!delList.includes(2)) delList.push(2);
+      }
+      localStorage.setItem('tft_deleted_articles', JSON.stringify(delList));
     } catch (e) {}
 
     setMessage({ text: '記事を削除しました。' });
@@ -744,6 +1025,16 @@ export default function AdminPage() {
       const filtered = artBoardUnits.filter(u => !(u.row === row && u.col === col));
       filtered.push(newUnit);
       setArtBoardUnits(filtered);
+      setArtBoards(prev => {
+        const curBoard = prev[activeBoardKey] || { id: activeBoardKey, display_name: `構成盤面 ${activeBoardKey}`, units: [] };
+        return {
+          ...prev,
+          [activeBoardKey]: {
+            ...curBoard,
+            units: filtered
+          }
+        };
+      });
     } else {
       const currentBoard = [...(boardUnitsMap[currentLvlTab] || [])];
       const filteredBoard = currentBoard.filter(u => !(u.row === row && u.col === col));
@@ -772,6 +1063,16 @@ export default function AdminPage() {
     if (editingCellTarget === 'ARTICLE') {
       const filtered = artBoardUnits.filter(u => !(u.row === row && u.col === col));
       setArtBoardUnits(filtered);
+      setArtBoards(prev => {
+        const curBoard = prev[activeBoardKey] || { id: activeBoardKey, display_name: `構成盤面 ${activeBoardKey}`, units: [] };
+        return {
+          ...prev,
+          [activeBoardKey]: {
+            ...curBoard,
+            units: filtered
+          }
+        };
+      });
     } else {
       const currentBoard = [...(boardUnitsMap[currentLvlTab] || [])];
       const filteredBoard = currentBoard.filter(u => !(u.row === row && u.col === col));
@@ -2061,6 +2362,12 @@ export default function AdminPage() {
                   </div>
                 );
               })}
+
+              {articlesList.length === 0 && (
+                <div className="text-center py-6 px-3 bg-sky-50/50 rounded-xl border border-dashed border-sky-200 text-slate-400 text-xs">
+                  投稿された記事はありません
+                </div>
+              )}
             </div>
           </div>
 
@@ -2229,32 +2536,75 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Article Body Content Textarea with Toolbar & Drag&Drop Dropzone */}
-              <div className="space-y-2">
+              {/* Article Body Content Textarea with Toolbar, Tabs & Live Preview */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <label className="block text-xs font-bold text-slate-700">記事本文 (文章・画像・YouTube動画・構成盤面)</label>
+                  <div className="flex items-center gap-2">
+                    <label className="block text-xs font-bold text-slate-700">記事本文</label>
+                    {/* Mode Tabs */}
+                    <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => setArtEditorTab('EDIT')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          artEditorTab === 'EDIT'
+                            ? 'bg-white text-sky-700 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <FileText className="w-3.5 h-3.5" /> 📝 本文を編集
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setArtEditorTab('PREVIEW')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          artEditorTab === 'PREVIEW'
+                            ? 'bg-white text-sky-700 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Eye className="w-3.5 h-3.5" /> 👁️ 実際の見た目プレビュー
+                      </button>
+                    </div>
+                  </div>
                   
                   <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Auto-shorten inline Base64 images if present */}
+                    {artContent.includes('data:image/') && (
+                      <button
+                        type="button"
+                        onClick={handleConvertInlineBase64ToShortTags}
+                        className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 text-[11px] font-black hover:bg-amber-400 transition shadow-xs flex items-center gap-1 animate-pulse"
+                        title="本文中の長いBase64画像コードを短い [画像: 1] に自動変換します"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" /> 🪄 長い画像コードを一括短縮！
+                      </button>
+                    )}
+
                     {/* Inline Board Shortcode Tag Button */}
                     <button
                       type="button"
                       onClick={() => {
-                        setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + '\n[board]\n\n');
+                        const tag = `\n[board: ${activeBoardKey}]\n\n`;
+                        handleInsertTagAtCursor(tag);
                         setArtAttachBoard(true);
-                        setMessage({ text: '♟️ 文章の中に構成盤面タグ [board] を挿入しました！' });
+                        setMessage({ text: `♟️ 文章の中に構成盤面タグ [board: ${activeBoardKey}] を挿入しました！` });
                       }}
                       className="px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-[11px] font-black hover:bg-emerald-600 transition shadow-xs flex items-center gap-1"
                     >
-                      <Grid className="w-3.5 h-3.5" /> ♟️ 構成盤面 [board] 挿入
+                      <Grid className="w-3.5 h-3.5" /> ♟️ 盤面 [board: {activeBoardKey}]
                     </button>
 
                     {/* Image File Selector Button */}
                     <button
                       type="button"
-                      onClick={() => contentFileInputRef.current?.click()}
+                      onClick={() => {
+                        setEditingImageKey(null);
+                        contentFileInputRef.current?.click();
+                      }}
                       className="px-2.5 py-1 rounded-lg bg-sky-500 text-white text-[11px] font-black hover:bg-sky-600 transition shadow-xs flex items-center gap-1"
                     >
-                      <Upload className="w-3.5 h-3.5" /> 🖼️ 画像追加 (拡大・縮小・切り取り)
+                      <Upload className="w-3.5 h-3.5" /> 🖼️ 画像追加
                     </button>
                     <input
                       type="file"
@@ -2268,6 +2618,24 @@ export default function AdminPage() {
                         }
                       }}
                     />
+
+                    {/* Champion Badge Button */}
+                    <button
+                      type="button"
+                      onClick={() => setChampPickerOpen(true)}
+                      className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-[11px] font-black hover:bg-indigo-700 transition shadow-xs flex items-center gap-1"
+                    >
+                      <User className="w-3.5 h-3.5" /> 👤 チャンピオン挿入
+                    </button>
+
+                    {/* Item Badge Button */}
+                    <button
+                      type="button"
+                      onClick={() => setItemPickerOpen(true)}
+                      className="px-2.5 py-1 rounded-lg bg-amber-600 text-white text-[11px] font-black hover:bg-amber-700 transition shadow-xs flex items-center gap-1"
+                    >
+                      <Shield className="w-3.5 h-3.5" /> 🗡️ アイテム挿入
+                    </button>
 
                     {/* YouTube Embed Button */}
                     <button
@@ -2292,34 +2660,236 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div
-                  onDragOver={(e) => { e.preventDefault(); setIsDraggingContent(true); }}
-                  onDragLeave={(e) => { e.preventDefault(); setIsDraggingContent(false); }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setIsDraggingContent(false);
-                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                      handleOpenCropperForFile(e.dataTransfer.files[0], 'CONTENT');
-                    }
-                  }}
-                  className={`relative rounded-xl transition ${isDraggingContent ? 'ring-2 ring-sky-500 bg-sky-50' : ''}`}
-                >
-                  <textarea
-                    rows={14}
-                    value={artContent}
-                    onChange={(e) => setArtContent(e.target.value)}
-                    placeholder="本文を入力... (画像ファイルをここに直接ドラッグ＆ドロップで挿入可能！ [board] と記述するとそこにTFT構成盤面が挿入されます)"
-                    className="w-full px-4 py-3 rounded-xl border border-sky-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30 leading-relaxed font-mono"
-                  />
-                  {isDraggingContent && (
-                    <div className="absolute inset-0 bg-sky-500/15 backdrop-blur-xs rounded-xl border-2 border-dashed border-sky-500 flex items-center justify-center text-sky-800 font-extrabold text-sm pointer-events-none">
-                      ここに画像ファイルをドロップして挿入 📥
+                {artEditorTab === 'EDIT' ? (
+                  <div className="space-y-3">
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); setIsDraggingContent(true); }}
+                      onDragLeave={(e) => { e.preventDefault(); setIsDraggingContent(false); }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingContent(false);
+                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                          handleOpenCropperForFile(e.dataTransfer.files[0], 'CONTENT');
+                        }
+                      }}
+                      className={`relative rounded-xl transition ${isDraggingContent ? 'ring-2 ring-sky-500 bg-sky-50' : ''}`}
+                    >
+                      <textarea
+                        ref={artContentTextareaRef}
+                        rows={14}
+                        value={artContent}
+                        onChange={(e) => setArtContent(e.target.value)}
+                        placeholder="本文を入力... (「👤 チャンピオン挿入」「🗡️ アイテム挿入」で [c:名前] などのリッチバッジを簡単配置できます。実際の見栄えは右上の「👁️ プレビュー」で確認可能)"
+                        className="w-full px-4 py-3 rounded-xl border border-sky-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/30 leading-relaxed font-mono"
+                      />
+                      {isDraggingContent && (
+                        <div className="absolute inset-0 bg-sky-500/15 backdrop-blur-xs rounded-xl border-2 border-dashed border-sky-500 flex items-center justify-center text-sky-800 font-extrabold text-sm pointer-events-none">
+                          ここに画像ファイルをドロップして挿入 📥
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  💡 <strong>ヒント:</strong> 画像ファイルは入力エリアに直接ドラッグ＆ドロップして配置できます。文章の間に <code className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">[board]</code> と記述すると、文章のその場所にTFT構成盤面が埋め込まれます。
-                </p>
+
+                    {/* Image Palette Cards (Thumbnails & Tags) */}
+                    {Object.keys(artImages).length > 0 && (
+                      <div className="p-3 bg-slate-50/90 border border-sky-100 rounded-2xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                            <ImageIcon className="w-3.5 h-3.5 text-sky-600" />
+                            <span>本文内の画像一覧 ({Object.keys(artImages).length}枚)</span>
+                          </span>
+                          <span className="text-[11px] text-slate-500 font-medium">
+                            本文中の <code className="text-sky-700 bg-sky-100 px-1 py-0.5 rounded font-mono font-bold">[画像: 番号]</code> の位置に画像が表示されます
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-1">
+                          {Object.entries(artImages).map(([key, src]) => {
+                            const isUsed = artContent.includes(`[画像: ${key}]`) || artContent.includes(`[image: ${key}]`) || artContent.includes(`[img: ${key}]`);
+                            return (
+                              <div key={key} className="bg-white rounded-xl border border-sky-200 p-2 space-y-1.5 shadow-xs relative group">
+                                <div className="relative h-24 rounded-lg overflow-hidden bg-slate-100">
+                                  <img src={src} alt={`画像 ${key}`} className="w-full h-full object-cover" />
+                                  <span className="absolute top-1 left-1 bg-slate-900/85 text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-xs">
+                                    [画像: {key}]
+                                  </span>
+                                  {!isUsed && (
+                                    <span className="absolute bottom-1 left-1 bg-amber-500 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded shadow-xs">
+                                      本文未配置
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-1 pt-1 border-t border-slate-100">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (!isUsed) {
+                                        setArtContent(prev => prev + (prev.endsWith('\n') ? '' : '\n') + `\n[画像: ${key}]\n\n`);
+                                        setMessage({ text: `本文に [画像: ${key}] を挿入しました！` });
+                                      } else {
+                                        setMessage({ text: `[画像: ${key}] はすでに本文内に記述されています` });
+                                      }
+                                    }}
+                                    className={`text-[10px] px-1.5 py-0.5 rounded font-bold transition ${
+                                      isUsed
+                                        ? 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                        : 'bg-sky-50 text-sky-700 hover:bg-sky-100'
+                                    }`}
+                                  >
+                                    {isUsed ? '配置済み' : '+ 本文に挿入'}
+                                  </button>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenCropperForSrc(src, 'CONTENT', key)}
+                                      className="p-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
+                                      title="切り取り・トリミングを再調整"
+                                    >
+                                      <Sparkles className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if (window.confirm(`[画像: ${key}] を削除しますか？`)) {
+                                          setArtImages(prev => {
+                                            const copy = { ...prev };
+                                            delete copy[key];
+                                            return copy;
+                                          });
+                                          setArtContent(prev => prev.replaceAll(`[画像: ${key}]`, '').replaceAll(`[image: ${key}]`, '').replaceAll(`[img: ${key}]`, ''));
+                                        }
+                                      }}
+                                      className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
+                                      title="画像を削除"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Boards Palette Cards (Thumbnails & Tags) */}
+                    {artAttachBoard && Object.keys(artBoards).length > 0 && (
+                      <div className="p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-extrabold text-emerald-900 flex items-center gap-1.5">
+                            <Grid className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>本文内の構成盤面一覧 ({Object.keys(artBoards).length}個)</span>
+                          </span>
+                          <span className="text-[11px] text-slate-500 font-medium">
+                            本文中の <code className="text-emerald-800 bg-emerald-100 px-1 py-0.5 rounded font-mono font-bold">[board: 番号]</code> の位置に盤面が表示されます
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                          {Object.entries(artBoards).map(([bKey, bData]) => {
+                            const isUsed = artContent.includes(`[board: ${bKey}]`) || artContent.includes(`[盤面: ${bKey}]`) || (bKey === '1' && (artContent.includes('[board]') || artContent.includes('[tft-board]')));
+                            const isActive = activeBoardKey === bKey;
+                            const unitCount = (bData.units || []).length;
+                            return (
+                              <div
+                                key={bKey}
+                                className={`rounded-xl border p-2.5 space-y-1.5 transition ${
+                                  isActive
+                                    ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
+                                    : 'bg-white border-emerald-200 hover:border-emerald-300'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-1">
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    <span className="bg-slate-900 text-emerald-300 text-[10px] font-black px-1.5 py-0.5 rounded font-mono">
+                                      [board: {bKey}]
+                                    </span>
+                                    <span className="text-xs font-bold text-slate-900 truncate">
+                                      {bData.display_name || `構成盤面 ${bKey}`}
+                                    </span>
+                                  </div>
+                                  <span className="text-[10px] font-extrabold text-slate-600 shrink-0 bg-slate-100 px-1.5 py-0.5 rounded">
+                                    {unitCount}体
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-1 pt-1 border-t border-slate-100">
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if (!isUsed) {
+                                          handleInsertTagAtCursor(`\n[board: ${bKey}]\n\n`);
+                                          setMessage({ text: `本文に [board: ${bKey}] を挿入しました！` });
+                                        } else {
+                                          setMessage({ text: `[board: ${bKey}] はすでに本文内に記述されています` });
+                                        }
+                                      }}
+                                      className={`text-[10px] px-2 py-0.5 rounded font-bold transition ${
+                                        isUsed
+                                          ? 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                          : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 font-black'
+                                      }`}
+                                    >
+                                      {isUsed ? '配置済み' : '+ 本文に挿入'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSwitchActiveBoard(bKey)}
+                                      className={`text-[10px] px-2 py-0.5 rounded font-bold transition ${
+                                        isActive ? 'bg-sky-500 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                      }`}
+                                    >
+                                      {isActive ? '編集中' : '編集する'}
+                                    </button>
+                                  </div>
+
+                                  {Object.keys(artBoards).length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteBoard(bKey)}
+                                      className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
+                                      title="この盤面を削除"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      💡 <strong>ヒント:</strong> 構成盤面は <code className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">[board: 1]</code> や <code className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">[board: 2]</code> のように本文中の好きな位置に何個でも配置できます（上部「♟️ 盤面」ボタンからも挿入可能）。画像は <code className="bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded font-mono font-bold">[画像: 1]</code> で管理されます。右上の<strong>「👁️ プレビュー」</strong>で実際の見た目を確認できます。
+                    </p>
+                  </div>
+                ) : (
+                  /* Live Article Preview */
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold text-sky-900 bg-sky-50 px-3 py-2 rounded-xl border border-sky-200">
+                      <span>👁️ 記事プレビュー (ユーザーに表示される実際のデザイン)</span>
+                      <button
+                        type="button"
+                        onClick={() => setArtEditorTab('EDIT')}
+                        className="text-[11px] font-bold text-sky-700 hover:underline"
+                      >
+                        ← 編集に戻る
+                      </button>
+                    </div>
+
+                    <ArticleContentPreview
+                      content={artContent}
+                      images={artImages}
+                      boardUnits={artAttachBoard ? artBoardUnits : []}
+                      boardDisplayName={artBoardDisplayName || artTitle}
+                      boards={artAttachBoard ? artBoards : {}}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* TFT Board Attachment Section */}
@@ -2346,14 +2916,72 @@ export default function AdminPage() {
                 {artAttachBoard && (
                   <div className="space-y-4 pt-2 border-t border-sky-200/80">
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Multi-board switcher tabs */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap border-b border-sky-200 pb-2.5">
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 flex-1">
+                        {Object.entries(artBoards).map(([bKey, bData]) => {
+                          const isActive = activeBoardKey === bKey;
+                          return (
+                            <button
+                              key={bKey}
+                              type="button"
+                              onClick={() => handleSwitchActiveBoard(bKey)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shrink-0 ${
+                                isActive
+                                  ? 'bg-sky-600 text-white shadow-md'
+                                  : 'bg-white border border-sky-200 text-slate-700 hover:bg-sky-50'
+                              }`}
+                            >
+                              <span>♟️ {bData.display_name || `盤面 ${bKey}`}</span>
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-sky-800 text-sky-200' : 'bg-sky-100 text-sky-700'}`}>
+                                {(bData.units || []).length}体
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={handleAddNewBoard}
+                          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-black hover:opacity-90 transition shadow-xs flex items-center gap-1 shrink-0"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> ＋ 盤面を追加
+                        </button>
+                        {Object.keys(artBoards).length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBoard(activeBoardKey)}
+                            className="px-2.5 py-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition flex items-center gap-1 border border-red-200"
+                            title="選択中の盤面を削除"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> 削除
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-[11px] font-bold text-slate-700 mb-1">盤面の構成表示名</label>
                         <input
                           type="text"
                           value={artBoardDisplayName}
-                          onChange={(e) => setArtBoardDisplayName(e.target.value)}
-                          placeholder="例: 4 アダプター 4 ソーサラー"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setArtBoardDisplayName(val);
+                            setArtBoards(prev => ({
+                              ...prev,
+                              [activeBoardKey]: {
+                                ...(prev[activeBoardKey] || {}),
+                                id: activeBoardKey,
+                                display_name: val,
+                                units: artBoardUnits
+                              }
+                            }));
+                          }}
+                          placeholder="例: 序盤進行 (Lv5), 最終形 (Lv8)"
                           className="w-full px-3 py-1.5 rounded-lg border border-sky-200 bg-white text-xs font-bold text-slate-900"
                         />
                       </div>
@@ -2361,7 +2989,19 @@ export default function AdminPage() {
                         <label className="block text-[11px] font-bold text-slate-700 mb-1">メインキャリー</label>
                         <select
                           value={artMainCarryId}
-                          onChange={(e) => setArtMainCarryId(e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setArtMainCarryId(val);
+                            setArtBoards(prev => ({
+                              ...prev,
+                              [activeBoardKey]: {
+                                ...(prev[activeBoardKey] || {}),
+                                id: activeBoardKey,
+                                main_carry: val ? { id: val, name: val, cost: 4 } : undefined,
+                                units: artBoardUnits
+                              }
+                            }));
+                          }}
                           className="w-full px-3 py-1.5 rounded-lg border border-sky-200 bg-white text-xs font-bold text-slate-900"
                         >
                           <option value="">キャリーを選択</option>
@@ -2369,6 +3009,19 @@ export default function AdminPage() {
                             <option key={c.id} value={c.id}>★{c.cost} {c.name}</option>
                           ))}
                         </select>
+                      </div>
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleInsertTagAtCursor(`\n[board: ${activeBoardKey}]\n\n`);
+                            setMessage({ text: `本文に [board: ${activeBoardKey}] を挿入しました！` });
+                          }}
+                          className="w-full py-1.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          <Grid className="w-3.5 h-3.5" />
+                          <span>本文に [board: {activeBoardKey}] を挿入</span>
+                        </button>
                       </div>
                     </div>
 
@@ -2910,6 +3563,167 @@ export default function AdminPage() {
                 <Sparkles className="w-4 h-4 text-amber-300" />
                 <span>✂️ 切り取りを適用して挿入</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Champion Picker Modal for Article Content */}
+      {champPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-2xl bg-white border border-indigo-200 rounded-2xl p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
+              <div>
+                <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                  <User className="w-4 h-4 text-indigo-600" />
+                  <span>本文に挿入するチャンピオンを選択</span>
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  選択したチャンピオンが <code className="bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded font-mono font-bold">[c:名前]</code> タグとしてカーソル位置に挿入されます
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChampPickerOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter & Search */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                {(['ALL', 1, 2, 3, 4, 5, 6] as const).map((costVal) => (
+                  <button
+                    key={costVal}
+                    type="button"
+                    onClick={() => setChampPickerCost(costVal)}
+                    className={`px-3 py-1 rounded-lg text-xs font-black transition ${
+                      champPickerCost === costVal
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {costVal === 'ALL' ? '全員' : `${costVal}コスト`}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={champPickerSearch}
+                  onChange={(e) => setChampPickerSearch(e.target.value)}
+                  placeholder="チャンピオン名で検索 (例: アーリ, コグマウ)..."
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Champions Grid */}
+            <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pr-1">
+              {champions
+                .filter((c) => (champPickerCost === 'ALL' || c.cost === champPickerCost) && (!champPickerSearch || c.name.toLowerCase().includes(champPickerSearch.toLowerCase())))
+                .map((c) => {
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        handleInsertTagAtCursor(`[c:${c.name}]`);
+                        setChampPickerOpen(false);
+                        setMessage({ text: `👤 チャンピオン「${c.name}」を本文に挿入しました！` });
+                      }}
+                      className="p-2 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-left transition flex items-center gap-2 group"
+                    >
+                      {c.icon ? (
+                        <img src={c.icon} alt={c.name} className="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200 group-hover:scale-105 transition-transform" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-slate-200 shrink-0 flex items-center justify-center text-xs">👤</div>
+                      )}
+                      <div className="truncate">
+                        <div className="text-xs font-black text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{c.name}</div>
+                        <span className="text-[10px] font-bold text-slate-500">{c.cost}コスト</span>
+                      </div>
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Item Picker Modal for Article Content */}
+      {itemPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-2xl bg-white border border-amber-200 rounded-2xl p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-amber-100 pb-3">
+              <div>
+                <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-amber-600" />
+                  <span>本文に挿入するアイテムを選択</span>
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  選択したアイテムが <code className="bg-amber-50 text-amber-700 px-1 py-0.5 rounded font-mono font-bold">[i:名前]</code> タグとしてカーソル位置に挿入されます
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setItemPickerOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                value={itemPickerSearch}
+                onChange={(e) => setItemPickerSearch(e.target.value)}
+                placeholder="アイテム名で検索 (例: インフィニティ, レイジブレード)..."
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
+                autoFocus
+              />
+            </div>
+
+            {/* Items Grid */}
+            <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pr-1">
+              {items
+                .map((i) => {
+                  const resolvedName = getItemName(i.name || i.id) || i.name || i.id;
+                  const resolvedIcon = getItemIcon(i.id || i.name) || i.icon;
+                  return { ...i, displayName: resolvedName, displayIcon: resolvedIcon };
+                })
+                .filter((i) => !itemPickerSearch || i.displayName.toLowerCase().includes(itemPickerSearch.toLowerCase()))
+                .map((i) => {
+                  return (
+                    <button
+                      key={i.id}
+                      type="button"
+                      onClick={() => {
+                        handleInsertTagAtCursor(`[i:${i.displayName}]`);
+                        setItemPickerOpen(false);
+                        setMessage({ text: `🗡️ アイテム「${i.displayName}」を本文に挿入しました！` });
+                      }}
+                      className="p-2 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 text-left transition flex items-center gap-2 group"
+                    >
+                      {i.displayIcon ? (
+                        <img src={i.displayIcon} alt={i.displayName} className="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200 group-hover:scale-105 transition-transform" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-slate-200 shrink-0 flex items-center justify-center text-xs">🗡️</div>
+                      )}
+                      <div className="truncate">
+                        <div className="text-xs font-black text-slate-900 truncate group-hover:text-amber-600 transition-colors">{i.displayName}</div>
+                      </div>
+                    </button>
+                  );
+                })}
             </div>
           </div>
         </div>

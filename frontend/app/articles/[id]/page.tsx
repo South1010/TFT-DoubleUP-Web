@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, Tag, BookOpen, Grid, Sparkles, RefreshCw, Share2 } from 'lucide-react';
 import TftHexBoard from '@/components/TftHexBoard';
 import ItemIcon from '@/components/ItemIcon';
-import { Article } from '@/utils/articleTypes';
+import { Article, ArticleBoardData } from '@/utils/articleTypes';
 import { FALLBACK_ARTICLES } from '@/utils/fallbackArticles';
+import ArticleRichContent from '@/components/ArticleRichContent';
 import { calculateAllTeamTraits } from '@/utils/traitHelpers';
 import { getChampion, getChampionIcon } from '@/utils/setMaster';
 
@@ -35,6 +36,22 @@ export default function ArticleDetailPage() {
       console.error('Failed to fetch article from backend:', e);
     }
 
+    // Check if explicitly deleted
+    if (typeof window !== 'undefined') {
+      try {
+        const delSaved = localStorage.getItem('tft_deleted_articles');
+        if (delSaved) {
+          const delList: number[] = JSON.parse(delSaved);
+          if (articleId && delList.includes(articleId)) {
+            targetArticle = null;
+            setArticle(null);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+
     if (!targetArticle && typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem('tft_custom_articles');
@@ -47,7 +64,7 @@ export default function ArticleDetailPage() {
     }
 
     if (!targetArticle) {
-      targetArticle = FALLBACK_ARTICLES.find(a => a.id === articleId) || FALLBACK_ARTICLES[0];
+      targetArticle = FALLBACK_ARTICLES.find(a => a.id === articleId) || null;
     }
 
     setArticle(targetArticle);
@@ -64,29 +81,29 @@ export default function ArticleDetailPage() {
     return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
   };
 
-  // Board Data calculation
-  const boardUnits = article?.board_data?.units || [];
-  const { activeTraits } = calculateAllTeamTraits(boardUnits);
-
-  const renderBoardComponent = () => {
-    if (boardUnits.length === 0) {
+  const renderBoardComponent = (boardData?: ArticleBoardData, boardKey?: string) => {
+    const units = boardData?.units || article?.board_data?.units || [];
+    if (units.length === 0) {
       return null;
     }
+    const displayName = boardData?.display_name || article?.board_data?.display_name || (boardKey ? `構成盤面 ${boardKey}` : 'おすすめ構成盤面');
+    const { activeTraits } = calculateAllTeamTraits(units);
+
     return (
       <section className="my-8 p-6 bg-gradient-to-b from-sky-100/90 via-sky-50/50 to-white rounded-3xl border border-sky-200 shadow-sm space-y-5">
         <div className="flex items-center justify-between border-b border-sky-200 pb-3">
           <div className="flex items-center gap-2 text-sm font-black text-sky-900">
             <Grid className="w-5 h-5 text-sky-600" />
-            <span>解説TFTチーム構成盤面 ({article?.board_data?.display_name || 'おすすめ配置'})</span>
+            <span>解説TFTチーム構成盤面 ({displayName})</span>
           </div>
           <span className="text-xs font-extrabold text-sky-700 bg-sky-100 px-2.5 py-1 rounded-full">
-            配置ユニット: {boardUnits.length}体
+            配置ユニット: {units.length}体
           </span>
         </div>
 
         {/* Hex Board Component */}
         <div className="overflow-x-auto py-2">
-          <TftHexBoard units={boardUnits} isInteractive={false} />
+          <TftHexBoard units={units} isInteractive={false} />
         </div>
 
         {/* Active Synergies Summary */}
@@ -112,88 +129,7 @@ export default function ArticleDetailPage() {
     );
   };
 
-  // Helper to parse YouTube URLs, inline images, markdown, and inline board shortcodes
-  const renderFormattedContent = (content: string) => {
-    if (!content) return null;
 
-    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/g;
-
-    const lines = content.split('\n');
-    return (
-      <div className="space-y-4 text-slate-800 leading-relaxed font-medium">
-        {lines.map((line, idx) => {
-          const trimmed = line.trim();
-
-          // Inline TFT Hex Board shortcode: [board] or [tft-board]
-          if (trimmed === '[board]' || trimmed === '[tft-board]' || trimmed === '[board_data]') {
-            return <div key={idx}>{renderBoardComponent()}</div>;
-          }
-
-          // YouTube Embed
-          const ytMatch = [...trimmed.matchAll(youtubeRegex)];
-          if (ytMatch.length > 0) {
-            const videoId = ytMatch[0][1];
-            return (
-              <div key={idx} className="my-6 rounded-2xl overflow-hidden border border-sky-200 shadow-md aspect-video bg-black">
-                <iframe
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${videoId}`}
-                  title="YouTube video player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            );
-          }
-
-          // Markdown Image ![alt](url)
-          const mdImgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
-          if (mdImgMatch) {
-            const altText = mdImgMatch[1] || '記事画像';
-            const imgUrl = mdImgMatch[2];
-            return (
-              <div key={idx} className="my-6 rounded-2xl overflow-hidden border border-sky-200 shadow-md">
-                <img src={imgUrl} alt={altText} className="w-full object-cover max-h-[550px]" />
-              </div>
-            );
-          }
-
-          // Standalone Image URL or Data URL line
-          if (trimmed.startsWith('data:image/') || trimmed.match(/^https?:\/\/.*\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
-            return (
-              <div key={idx} className="my-6 rounded-2xl overflow-hidden border border-sky-200 shadow-md">
-                <img src={trimmed} alt="Article Image" className="w-full object-cover max-h-[550px]" />
-              </div>
-            );
-          }
-
-          // Headings
-          if (trimmed.startsWith('### ')) {
-            return <h3 key={idx} className="text-lg font-black text-slate-900 mt-6 mb-2">{trimmed.replace('### ', '')}</h3>;
-          }
-          if (trimmed.startsWith('## ')) {
-            return <h2 key={idx} className="text-xl md:text-2xl font-black text-slate-900 mt-8 mb-3 pb-2 border-b border-sky-200">{trimmed.replace('## ', '')}</h2>;
-          }
-          if (trimmed.startsWith('# ')) {
-            return <h1 key={idx} className="text-2xl md:text-3xl font-black text-slate-900 mt-10 mb-4">{trimmed.replace('# ', '')}</h1>;
-          }
-
-          // Bullet point lists
-          if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-            return (
-              <li key={idx} className="ml-4 list-disc text-sm text-slate-700">
-                {trimmed.replace(/^[-*]\s+/, '')}
-              </li>
-            );
-          }
-
-          if (!trimmed) return <br key={idx} />;
-
-          return <p key={idx} className="text-sm md:text-base text-slate-700 leading-relaxed">{trimmed}</p>;
-        })}
-      </div>
-    );
-  };
 
   const hasInlineBoardTag = article?.content?.includes('[board]') || article?.content?.includes('[tft-board]');
 
@@ -271,12 +207,16 @@ export default function ArticleDetailPage() {
             </div>
           )}
 
-          {/* Fallback TFT Hex Board Section (only if not embedded inline with [board] tag) */}
-          {!hasInlineBoardTag && boardUnits.length > 0 && renderBoardComponent()}
-
-          {/* Article Main Body Content */}
+          {/* Article Main Body Content (Boards are embedded inline where [board] tags are written) */}
           <section className="bg-white glass-panel p-6 md:p-10 rounded-3xl border border-sky-200/80 shadow-sm">
-            {renderFormattedContent(article.content)}
+            <ArticleRichContent
+              content={article.content}
+              images={article.images || article.board_data?.images || {}}
+              boards={article.boards || (article.board_data ? { "1": article.board_data } : {})}
+              boardUnits={article.board_data?.units || []}
+              boardDisplayName={article.board_data?.display_name || article.title}
+              renderCustomBoard={renderBoardComponent}
+            />
           </section>
 
           {/* Footer Navigation */}
