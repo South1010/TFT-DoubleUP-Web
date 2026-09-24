@@ -228,11 +228,9 @@ export default function ArticleRichContent({
                 </div>
                 <div className="overflow-x-auto pb-2 flex justify-center">
                   <TftHexBoard
-                    key={`board-embed-${idx}-${targetKey}`}
                     units={effectiveUnits}
-                    readOnly={true}
-                    showItemIcons={true}
-                    boardName={effectiveTitle}
+                    theme="dark"
+                    isInteractive={false}
                   />
                 </div>
               </div>
