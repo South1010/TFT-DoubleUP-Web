@@ -11,11 +11,30 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
   openGraph: {
     title: 'DoubleUp.GG ⚔️ TFT ダブルアップ特化 統計 & メタ分析',
     description: 'TFTダブルアップモード専用のTierリスト・チームシナジー・統計解析データサイト',
     url: 'https://doubleup-gg.com',
     siteName: 'DoubleUp.GG',
+    images: [
+      {
+        url: '/icon.png',
+        width: 512,
+        height: 512,
+        alt: 'DoubleUp.GG Logo Icon',
+      },
+    ],
     locale: 'ja_JP',
     type: 'website',
   },
@@ -23,6 +42,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'DoubleUp.GG ⚔️ TFT ダブルアップ特化 統計 & メタ分析',
     description: 'TFTダブルアップモード専用のTierリスト・チームシナジー・統計解析データサイト',
+    images: ['/icon.png'],
   },
 };
 

@@ -122,10 +122,12 @@ export default function Header() {
 
           {/* Center: Logo */}
           <Link href="/" onClick={handleLogoClick} className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-cyan-500 to-blue-600 p-[2px] shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                <HeartHandshake className="w-5 h-5 text-sky-600 group-hover:rotate-12 transition-transform" />
-              </div>
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden p-[2px] bg-gradient-to-br from-sky-400 via-cyan-500 to-blue-600 shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform shrink-0">
+              <img
+                src="/icon.png"
+                alt="DoubleUp.GG Logo"
+                className="w-full h-full object-cover rounded-[10px]"
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
