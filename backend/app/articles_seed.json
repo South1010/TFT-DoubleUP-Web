@@ -1,6 +1,4 @@
-import { Article } from './articleTypes';
-
-export const FALLBACK_ARTICLES: Article[] = [
+[
   {
     "id": 1790224759352,
     "title": "おためし～",
@@ -148,4 +146,4 @@ export const FALLBACK_ARTICLES: Article[] = [
     "created_at": 1790226362529,
     "updated_at": 1790226362529
   }
-];
+]
