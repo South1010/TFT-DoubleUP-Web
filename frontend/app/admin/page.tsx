@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star, BookOpen, FileText, Image as ImageIcon, Video, Eye, EyeOff, Upload, User } from 'lucide-react';
 import Link from 'next/link';
 import { CompStat, UnitDetail, Item, getTierStyle } from '@/utils/compTypes';
-import { Article } from '@/utils/articleTypes';
+import { Article, ArticleBoardData } from '@/utils/articleTypes';
 import { FALLBACK_ARTICLES } from '@/utils/fallbackArticles';
 import { FALLBACK_COMPS } from '@/utils/fallbackComps';
 import { calculateAllTeamTraits } from '@/utils/traitHelpers';
