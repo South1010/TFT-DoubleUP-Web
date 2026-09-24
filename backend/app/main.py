@@ -129,6 +129,8 @@ def on_startup():
     load_custom_comps_from_seed(cursor)
     _sync_all_bidirectional_partners(cursor)
     _normalize_display_orders(cursor)
+    ensure_articles_table(cursor)
+    load_articles_from_seed(cursor)
     conn.commit()
     conn.close()
 
@@ -983,6 +985,72 @@ def ensure_articles_table(cursor):
             pass
 
 
+def load_articles_from_seed(cursor):
+    seed_path = os.path.join(os.path.dirname(__file__), "articles_seed.json")
+    if os.path.exists(seed_path):
+        try:
+            with open(seed_path, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            for a in articles:
+                b_json = a.get("board_data_json") if isinstance(a.get("board_data_json"), str) else json.dumps(a.get("board_data") or {}, ensure_ascii=False)
+                boards_json = a.get("boards_json") if isinstance(a.get("boards_json"), str) else json.dumps(a.get("boards") or {}, ensure_ascii=False)
+                img_json = a.get("images_json") if isinstance(a.get("images_json"), str) else json.dumps(a.get("images") or {}, ensure_ascii=False)
+                art_id = a.get("id")
+                if art_id:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO articles
+                        (id, title, category, cover_image, summary, content, board_data_json, boards_json, images_json, created_at, updated_at, is_published)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        art_id,
+                        a.get("title", ""),
+                        a.get("category", "構成ガイド"),
+                        a.get("cover_image", ""),
+                        a.get("summary", ""),
+                        a.get("content", ""),
+                        b_json,
+                        boards_json,
+                        img_json,
+                        a.get("created_at", int(time.time() * 1000)),
+                        a.get("updated_at", int(time.time() * 1000)),
+                        a.get("is_published", 1)
+                    ))
+                else:
+                    cursor.execute("""
+                        INSERT INTO articles
+                        (title, category, cover_image, summary, content, board_data_json, boards_json, images_json, created_at, updated_at, is_published)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        a.get("title", ""),
+                        a.get("category", "構成ガイド"),
+                        a.get("cover_image", ""),
+                        a.get("summary", ""),
+                        a.get("content", ""),
+                        b_json,
+                        boards_json,
+                        img_json,
+                        a.get("created_at", int(time.time() * 1000)),
+                        a.get("updated_at", int(time.time() * 1000)),
+                        a.get("is_published", 1)
+                    ))
+            print(f"Loaded {len(articles)} articles from articles_seed.json successfully.")
+        except Exception as e:
+            print(f"Error loading articles_seed.json: {e}")
+
+
+def dump_articles_to_seed(cursor):
+    seed_path = os.path.join(os.path.dirname(__file__), "articles_seed.json")
+    try:
+        cursor.execute("SELECT * FROM articles ORDER BY created_at DESC")
+        rows = cursor.fetchall()
+        articles_data = [dict(r) for r in rows]
+        with open(seed_path, "w", encoding="utf-8") as f:
+            json.dump(articles_data, f, ensure_ascii=False, indent=2)
+        print(f"Dumped {len(articles_data)} articles to articles_seed.json successfully.")
+    except Exception as e:
+        print(f"Error dumping articles_seed.json: {e}")
+
+
 @app.get("/api/articles")
 def get_articles(category: Optional[str] = None):
     conn = get_connection()
@@ -1131,6 +1199,7 @@ def create_article(payload: ArticlePayload):
         ))
         new_id = cursor.lastrowid
         conn.commit()
+        dump_articles_to_seed(cursor)
         conn.close()
         return {"status": "success", "id": new_id, "message": "Article created successfully"}
     except Exception as e:
@@ -1172,6 +1241,7 @@ def update_article(article_id: int, payload: ArticlePayload):
             article_id
         ))
         conn.commit()
+        dump_articles_to_seed(cursor)
         conn.close()
         return {"status": "success", "id": article_id, "message": "Article updated successfully"}
     except HTTPException:
@@ -1188,5 +1258,63 @@ def delete_article(article_id: int):
     ensure_articles_table(cursor)
     cursor.execute("DELETE FROM articles WHERE id = ?", (article_id,))
     conn.commit()
+    dump_articles_to_seed(cursor)
     conn.close()
     return {"status": "success", "message": f"Article {article_id} deleted successfully"}
+
+
+class BatchSyncArticlesPayload(BaseModel):
+    articles: List[Dict[str, Any]]
+
+
+@app.post("/api/articles/batch_sync")
+def batch_sync_articles(payload: BatchSyncArticlesPayload):
+    conn = get_connection()
+    cursor = conn.cursor()
+    ensure_articles_table(cursor)
+    synced_count = 0
+    now_ms = int(time.time() * 1000)
+
+    try:
+        for a in payload.articles:
+            art_id = a.get("id")
+            title = a.get("title", "")
+            if not title:
+                continue
+            category = a.get("category", "構成ガイド")
+            cover_image = a.get("cover_image", "")
+            summary = a.get("summary", "")
+            content = a.get("content", "")
+            b_data = a.get("board_data") or {}
+            b_dict = a.get("boards") or {}
+            img_dict = a.get("images") or {}
+            created_at = a.get("created_at") or now_ms
+            updated_at = a.get("updated_at") or now_ms
+            is_published = a.get("is_published", 1)
+
+            b_json = json.dumps(b_data, ensure_ascii=False)
+            boards_json = json.dumps(b_dict, ensure_ascii=False)
+            images_json = json.dumps(img_dict, ensure_ascii=False)
+
+            if art_id:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO articles
+                    (id, title, category, cover_image, summary, content, board_data_json, boards_json, images_json, created_at, updated_at, is_published)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (art_id, title, category, cover_image, summary, content, b_json, boards_json, images_json, created_at, updated_at, is_published))
+            else:
+                cursor.execute("""
+                    INSERT INTO articles
+                    (title, category, cover_image, summary, content, board_data_json, boards_json, images_json, created_at, updated_at, is_published)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (title, category, cover_image, summary, content, b_json, boards_json, images_json, created_at, updated_at, is_published))
+            synced_count += 1
+
+        conn.commit()
+        dump_articles_to_seed(cursor)
+        conn.close()
+        return {"status": "success", "synced_count": synced_count, "message": f"Successfully synced {synced_count} articles to database and seed file."}
+    except Exception as e:
+        conn.close()
+        raise HTTPException(status_code=500, detail=f"Database error during batch sync: {str(e)}")
+

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star, BookOpen, FileText, Image as ImageIcon, Video, Eye, EyeOff, Upload, User } from 'lucide-react';
+import { Lock, Plus, Save, Trash2, Grid, Check, Sparkles, AlertCircle, HeartHandshake, Shield, Award, ArrowLeft, X, Search, Zap, Star, BookOpen, FileText, Image as ImageIcon, Video, Eye, EyeOff, Upload, User, Cloud } from 'lucide-react';
 import Link from 'next/link';
 import { CompStat, UnitDetail, Item, getTierStyle } from '@/utils/compTypes';
 import { Article, ArticleBoardData } from '@/utils/articleTypes';
@@ -757,7 +757,56 @@ export default function AdminPage() {
 
     const resultList = Array.from(mergedMap.values()).sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
     setArticlesList(resultList);
+
+    if (backendSuccess && localArticles.length > 0) {
+      // Auto-sync local articles to backend DB & articles_seed.json
+      fetch('/api/articles/batch_sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articles: localArticles })
+      }).catch(() => null);
+    }
+
     return resultList;
+  };
+
+  const handleSyncArticlesToBackend = async () => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('tft_custom_articles') : null;
+      let localArticles: Article[] = saved ? JSON.parse(saved) : [];
+      let deletedIds: number[] = [];
+      const delSaved = typeof window !== 'undefined' ? localStorage.getItem('tft_deleted_articles') : null;
+      if (delSaved) deletedIds = JSON.parse(delSaved);
+
+      localArticles = localArticles.filter(a => !deletedIds.includes(a.id));
+
+      if (localArticles.length === 0) {
+        setMessage({ text: '同期対象のローカル記事はありません（サーバーと同期済み）' });
+        return;
+      }
+
+      const res = await fetch('/api/articles/batch_sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articles: localArticles })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMessage({
+          text: `☁️ ${data.synced_count || localArticles.length}件の記事をサーバーと本番用シード（articles_seed.json）へ同期しました！update_vps.bat で本番へ即座に反映可能です。`
+        });
+        await fetchArticles();
+      } else {
+        setMessage({
+          text: '⚠️ サーバーへの同期に失敗しました。start_app.bat でバックエンドが起動しているかご確認ください。'
+        });
+      }
+    } catch (e) {
+      setMessage({
+        text: '⚠️ バックエンドサーバーに接続できませんでした。start_app.bat でバックエンド（ポート8000）が起動しているかご確認ください。'
+      });
+    }
   };
 
   const handleSelectArticle = (artId: number | 'NEW', list = articlesList) => {
@@ -930,8 +979,8 @@ export default function AdminPage() {
 
     setMessage({
       text: savedToBackend
-        ? (isNew ? '✨ 記事を新規公開・登録しました！' : '💾 記事を更新・保存しました！')
-        : '✨ 記事を正常に保存・公開しました！（ローカルに保存済み）'
+        ? (isNew ? '✨ 記事を新規公開・登録しました！（本番用シード自動同期済み）' : '💾 記事を更新・保存しました！（本番用シード自動同期済み）')
+        : '⚠️ バックエンド未接続のためブラウザにのみ保存されました。start_app.batでバックエンドを起動して再度保存または「本番同期」を押してください。'
     });
 
     const freshArticles = await fetchArticles();
@@ -2304,12 +2353,23 @@ export default function AdminPage() {
                 <span>公開記事一覧</span>
                 <span className="text-[10px] text-slate-400">({articlesList.length}件)</span>
               </h2>
-              <button
-                onClick={() => handleSelectArticle('NEW')}
-                className="px-3 py-1.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-300 text-xs font-bold flex items-center gap-1 hover:bg-sky-100 transition"
-              >
-                <Plus className="w-3.5 h-3.5" /> 新規記事
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleSyncArticlesToBackend}
+                  title="ローカル記事をサーバーDBと本番用シード（articles_seed.json）に一括同期します"
+                  className="px-2 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-300 text-xs font-bold flex items-center gap-1 hover:bg-emerald-100 transition shadow-xs"
+                >
+                  <Cloud className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>本番同期</span>
+                </button>
+                <button
+                  onClick={() => handleSelectArticle('NEW')}
+                  className="px-2.5 py-1.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-300 text-xs font-bold flex items-center gap-1 hover:bg-sky-100 transition shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" /> 新規記事
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2 max-h-[650px] overflow-y-auto pr-1">
